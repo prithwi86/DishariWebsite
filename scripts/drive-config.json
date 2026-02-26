@@ -1,0 +1,39 @@
+{
+  "carousel": {
+    "folderId": "1dcXSMMWbvlFgVmMAYw2xgj6NMsdGrt6O",
+    "output": "public/data/carousel-images.json",
+    "description": "Home page carousel images"
+  },
+  "upcoming": {
+    "folderId": "1FGE7oeIqJZrEQZLOM39VQkYOvjYq7HoP",
+    "output": "public/data/upcoming-event.json",
+    "description": "Upcoming event banner images"
+  },
+  "testimonials": {
+    "folderId": "17Q0oycfkCQXWrZvpDEQFUU7rF-iEl6ds",
+    "output": "public/data/testimonials.json",
+    "description": "Testimonials from Google Docs"
+  },
+  "events": {
+    "parentFolderId": null,
+    "output": "public/data/past-events.json",
+    "description": "Past events – each subfolder becomes an event",
+    "eventFolders": [
+      {
+        "id": "event_1",
+        "title": "Event 1",
+        "folderId": "1CaocYN_vG67QwBvkEaKmfG1miARek8vk"
+      },
+      {
+        "id": "event_2",
+        "title": "Event 2",
+        "folderId": "1uOzeRLuENGAolBpeKc0GVEcXMrEXLGUi"
+      },
+      {
+        "id": "event_3",
+        "title": "Event 3",
+        "folderId": "1svSU77SBDmxWw3lbAMBo62kAgjVRZJgR"
+      }
+    ]
+  }
+}
