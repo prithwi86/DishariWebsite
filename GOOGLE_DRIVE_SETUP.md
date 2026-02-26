@@ -54,6 +54,25 @@ Once set up, you'll be able to:
 
 > **Important**: The `credentials.json` file contains a private key. Never commit it to git (it's already in `.gitignore`).
 
+### ⚠️ Google Workspace: Organization Policy Constraints
+
+If your Google Workspace org restricts service account key creation, you may see an error when trying to create a key. An administrator with the **Organization Policy Administrator** (`roles/orgpolicy.policyAdmin`) role needs to disable these constraints:
+
+| Constraint                                          | What it blocks                        |
+| --------------------------------------------------- | ------------------------------------- |
+| `iam.disableServiceAccountKeyCreation`               | Creating new SA keys                  |
+| `iam.disableServiceAccountKeyUpload`                 | Uploading external SA keys            |
+
+**To disable (temporarily or permanently):**
+
+1. Go to [Google Cloud Console → IAM & Admin → Organization Policies](https://console.cloud.google.com/iam-admin/orgpolicies)
+2. Search for the constraint name (e.g., `iam.disableServiceAccountKeyCreation`)
+3. Click the constraint → **"Manage Policy"**
+4. Set to **"Not enforced"** (or add an exception for your project)
+5. Save, then retry key creation
+
+> **Tip**: If your org admin prefers not to allow SA keys at all, you can use **Workload Identity Federation** instead — see the [Alternatives to SA Keys](#alternatives-to-service-account-keys) section below.
+
 ## Step 4: Share Drive Folders with the Service Account
 
 The service account needs **Viewer** access to each Google Drive folder it will sync from.
@@ -200,6 +219,38 @@ When you run `npm run sync`, the script:
 - The service account key grants **read-only** access to Google Drive (scoped to `drive.readonly`)
 - The key does not expire, but can be revoked from Google Cloud Console at any time
 - If the key is compromised, delete it in Cloud Console → Service Accounts → Keys, and create a new one
+
+### Best practices for service account keys
+
+- **Rotate keys periodically** — delete old keys and create new ones in Cloud Console
+- **Limit key distribution** — only share with team members who need to run the sync script
+- **Monitor usage** — check Cloud Console → IAM & Admin → Audit Logs for unexpected activity
+- **Use short-lived credentials when possible** — see alternatives below
+
+### Alternatives to Service Account Keys
+
+Google recommends avoiding long-lived SA keys when possible. Depending on your setup:
+
+| Alternative                         | Best for                                          | Requires SA key? |
+| ----------------------------------- | ------------------------------------------------- | ----------------- |
+| **Service Account Key** (current)   | Local dev machines, simple setups                  | Yes               |
+| **Workload Identity Federation**    | CI/CD (GitHub Actions, etc.)                       | No                |
+| **Domain-Wide Delegation**          | Workspace admins impersonating users               | Yes (one-time)    |
+| **gcloud impersonation**            | Devs with `gcloud` CLI who can impersonate the SA  | No                |
+
+**Using `gcloud` impersonation** (no key file needed):
+
+If the Workspace admin prefers not to create downloadable keys, developers with the **Service Account Token Creator** role can impersonate the SA without a key:
+
+```bash
+# One-time: authenticate with your own account
+gcloud auth application-default login --impersonate-service-account=dishari-drive-sync@PROJECT.iam.gserviceaccount.com
+
+# Then run the sync script as usual — it picks up ADC automatically
+npm run sync
+```
+
+This requires the `gcloud` CLI and the user must have `roles/iam.serviceAccountTokenCreator` on the service account.
 
 ---
 

@@ -39,33 +39,39 @@ function loadConfig() {
 
 /**
  * Authenticate using a Google Cloud Service Account.
- * Expects credentials.json to be a service account key file.
- * The service account email must have Viewer access on the shared Drive folders.
+ *
+ * Supports two modes:
+ *   1. credentials.json in project root (service account key file)
+ *   2. Application Default Credentials (ADC) — e.g. via `gcloud auth application-default login`
+ *      or `gcloud auth application-default login --impersonate-service-account=...`
+ *
+ * If credentials.json exists, it takes priority. Otherwise falls back to ADC.
  */
 function authorize() {
-  if (!existsSync(CREDS_PATH)) {
-    console.error(
-      '\n❌  credentials.json not found in the project root.\n' +
-      '   See GOOGLE_DRIVE_SETUP.md for instructions.\n'
-    );
-    process.exit(1);
+  if (existsSync(CREDS_PATH)) {
+    const creds = JSON.parse(readFileSync(CREDS_PATH, 'utf-8'));
+
+    if (creds.type !== 'service_account') {
+      console.error(
+        '❌  credentials.json is not a service account key.\n' +
+        '   Expected "type": "service_account". See GOOGLE_DRIVE_SETUP.md.\n'
+      );
+      process.exit(1);
+    }
+
+    console.log('🔑 Using service account key from credentials.json');
+    const auth = new google.auth.GoogleAuth({
+      credentials: creds,
+      scopes: ['https://www.googleapis.com/auth/drive.readonly'],
+    });
+    return google.drive({ version: 'v3', auth });
   }
 
-  const creds = JSON.parse(readFileSync(CREDS_PATH, 'utf-8'));
-
-  if (creds.type !== 'service_account') {
-    console.error(
-      '❌  credentials.json is not a service account key.\n' +
-      '   Expected "type": "service_account". See GOOGLE_DRIVE_SETUP.md.\n'
-    );
-    process.exit(1);
-  }
-
+  // Fall back to Application Default Credentials (gcloud impersonation, etc.)
+  console.log('🔑 No credentials.json found — using Application Default Credentials (ADC)');
   const auth = new google.auth.GoogleAuth({
-    credentials: creds,
     scopes: ['https://www.googleapis.com/auth/drive.readonly'],
   });
-
   return google.drive({ version: 'v3', auth });
 }
 
