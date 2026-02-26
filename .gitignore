@@ -21,5 +21,6 @@ dist-ssr/
 *.sln
 *.sw?
 
-# Google Drive service account key (never commit)
+# Google Drive OAuth credentials & token (never commit)
 credentials.json
+token.json

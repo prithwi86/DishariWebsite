@@ -115,30 +115,14 @@ Deploy the React app under a path like `yourdomain.com/newsite/`.
 
 The website's content (carousel images, event galleries, testimonials, upcoming event banners) is managed via shared Google Drive folders. A sync script pulls the latest file list from Drive and updates the JSON data files in `public/data/`.
 
-### Sync Setup
+For complete setup instructions, see **[GOOGLE_DRIVE_SETUP.md](GOOGLE_DRIVE_SETUP.md)**.
 
-1. **Create a Google Cloud project** (if you don't have one):
-   - Go to [Google Cloud Console](https://console.cloud.google.com/)
-   - Create a new project
-   - Enable the **Google Drive API**
-
-2. **Create a Service Account:**
-   - Go to **APIs & Services → Credentials**
-   - Click **Create Credentials → Service Account**
-   - Download the JSON key file
-   - Save it as `credentials.json` in the project root (it's gitignored)
-
-3. **Share Drive folders** with the service account email (found in `credentials.json` → `client_email`). Give it **Viewer** access.
-
-4. **Install sync dependencies:**
-
-   ```bash
-   npm run sync:install
-   ```
-
-### Sync Usage
+### Quick Reference
 
 ```bash
+# One-time: install sync dependencies
+npm run sync:install
+
 # Sync all data from Google Drive
 npm run sync
 
@@ -149,21 +133,7 @@ npm run sync -- --only testimonials
 npm run sync -- --only upcoming
 ```
 
-### Sync Configuration
-
-Edit `scripts/drive-config.json` to update folder IDs or add new Drive sources:
-
-```json
-{
-  "carousel": {
-    "folderId": "YOUR_FOLDER_ID",
-    "output": "public/data/carousel-images.json"
-  }
-}
-```
-
-The folder IDs can be found in the Google Drive URL when viewing a folder:
-`https://drive.google.com/drive/folders/{FOLDER_ID}`
+Folder IDs are configured in `scripts/drive-config.json`.
 
 ---
 

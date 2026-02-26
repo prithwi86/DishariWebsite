@@ -8,7 +8,7 @@
     "build": "vite build",
     "preview": "vite preview",
     "sync": "node scripts/sync-drive.js",
-    "sync:install": "npm install googleapis"
+    "sync:install": "npm install googleapis open"
   },
   "dependencies": {
     "react": "^18.3.1",
