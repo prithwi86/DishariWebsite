@@ -1,6 +1,6 @@
 # Google Drive Sync Guide
 
-This is the complete guide for syncing website content (images, videos, testimonials) from Google Drive.
+This is the complete guide for syncing website content (images, videos, testimonials) from Google Drive using a **Service Account**.
 
 ## Overview
 
@@ -9,6 +9,7 @@ Once set up, you'll be able to:
 - Run a single command to sync all content to your website
 - Add/remove images from Drive, then re-sync with one command
 - Keep sections hidden automatically when folders are empty
+- Authentication is **not tied to any individual user** — the service account is a shared machine identity
 
 ---
 
@@ -17,7 +18,7 @@ Once set up, you'll be able to:
 1. Go to [Google Cloud Console](https://console.cloud.google.com/)
 2. Click the project dropdown at the top
 3. Click **"New Project"**
-4. Enter project name: `Dishari Carousel` (or any name)
+4. Enter project name: `Dishari Website` (or any name)
 5. Click **"Create"**
 6. Wait for the project to be created, then select it
 
@@ -28,33 +29,49 @@ Once set up, you'll be able to:
 3. Click the **"Enable"** button
 4. Wait for it to finish enabling
 
-## Step 3: Create OAuth 2.0 Credentials
+## Step 3: Create a Service Account
 
 1. Go to **APIs & Services → Credentials**
    - Click the menu icon (☰) → API & Services → Credentials
 
-2. Click **"+ Create Credentials"** → **"OAuth client ID"**
+2. Click **"+ Create Credentials"** → **"Service account"**
 
-3. If prompted, configure the **OAuth Consent Screen** first:
-   - Select **"External"** (or "Internal" for Google Workspace accounts)
+3. Fill in the details:
+   - **Service account name**: `dishari-drive-sync` (or any name)
+   - **Service account ID**: auto-generated (e.g., `dishari-drive-sync@project.iam.gserviceaccount.com`)
+   - Click **"Create and Continue"**
+
+4. Skip the optional "Grant this service account access" and "Grant users access" steps
+   - Click **"Done"**
+
+5. **Download the key file:**
+   - In the Service Accounts list, click the account you just created
+   - Go to the **"Keys"** tab
+   - Click **"Add Key"** → **"Create new key"**
+   - Select **JSON** format
    - Click **"Create"**
-   - Fill in:
-     - **App name**: `Dishari Carousel`
-     - **User support email**: Your email address
-     - **Developer contact**: Your email address
-   - Click **"Save and Continue"** through Scopes and Test Users
-   - Click **"Back to Dashboard"**
+   - Save the downloaded file as **`credentials.json`** in the project root
 
-4. Go back to **Credentials** → **"+ Create Credentials"** → **"OAuth client ID"**
-   - Application type: **"Desktop application"**
-   - Name: `Dishari Carousel Desktop`
-   - Click **"Create"**
+> **Important**: The `credentials.json` file contains a private key. Never commit it to git (it's already in `.gitignore`).
 
-5. Click **"Download JSON"** and save the file as **`credentials.json`** in the project root
+## Step 4: Share Drive Folders with the Service Account
 
-> **Already have credentials from the old WordPress project?** Copy the existing `credentials.json` directly — it works with this project too.
+The service account needs **Viewer** access to each Google Drive folder it will sync from.
 
-## Step 4: Install Dependencies
+1. Find the service account email in `credentials.json` — look for the `client_email` field
+   (e.g., `dishari-drive-sync@project.iam.gserviceaccount.com`)
+
+2. For **each** Drive folder listed below:
+   - Open the folder in Google Drive
+   - Click **"Share"**
+   - Paste the service account email
+   - Set permission to **"Viewer"**
+   - Uncheck "Notify people" (service accounts can't receive email)
+   - Click **"Share"**
+
+**Tip (Google Workspace):** If you're on Google Workspace, you can add the service account email to a **Google Group**, then share the Drive folders with that group. This way you only manage access in one place.
+
+## Step 5: Install Dependencies
 
 ```powershell
 cd C:\Users\pghos6\Downloads\DishariWebsite
@@ -63,7 +80,7 @@ npm run sync:install
 
 This installs the `googleapis` npm package needed by the sync script.
 
-## Step 5: Find Your Google Drive Folder IDs
+## Step 6: Verify Folder IDs
 
 The folder ID is in the URL when you open a folder in Google Drive:
 
@@ -84,20 +101,20 @@ The current folder IDs are pre-configured in `scripts/drive-config.json`:
 
 To update folder IDs, edit `scripts/drive-config.json`.
 
-## Step 6: Upload Images to Google Drive
+## Step 7: Upload Images to Google Drive
 
 1. Open the appropriate Google Drive folder
 2. Upload your images (JPG, PNG, GIF, WebP)
 3. **Important**: The script only syncs files in the main folder, not subfolders
 
-## Step 7: Run the Sync Script
+## Step 8: Run the Sync Script
 
 ```powershell
 cd C:\Users\pghos6\Downloads\DishariWebsite
 npm run sync
 ```
 
-**First time only:** A browser window will open asking for Google account permission. Click **"Allow"** to grant read-only access to your Drive files. A `token.json` file is created so you won't need to authenticate again.
+No browser prompt or login required — the service account authenticates silently using the private key in `credentials.json`.
 
 ### Sync specific sections
 
@@ -116,7 +133,7 @@ Every time you add or remove content from your Google Drive folders:
 npm run sync
 ```
 
-You won't need to authenticate again (the token is saved). Just run the command and refresh your website.
+No re-authentication needed — the service account key doesn't expire.
 
 ---
 
@@ -124,7 +141,7 @@ You won't need to authenticate again (the token is saved). Just run the command 
 
 When you run `npm run sync`, the script:
 
-1. Connects to Google Drive using your OAuth credentials
+1. Authenticates with Google Drive using the service account key
 2. For each configured folder:
    - Lists all image/video files
    - Generates direct-view URLs
@@ -148,9 +165,12 @@ When you run `npm run sync`, the script:
 ## Troubleshooting
 
 ### "credentials.json not found"
-- Download the credentials file from Google Cloud Console (Step 3)
-- Or copy it from the old WordPress project
+- Download the service account key from Google Cloud Console (Step 3)
 - Save it as exactly `credentials.json` (lowercase) in the project root
+
+### "credentials.json is not a service account key"
+- The script expects a JSON file with `"type": "service_account"`
+- If you have an old OAuth `credentials.json` (with `"installed"` key), replace it with a service account key
 
 ### "No images found in folder"
 - Make sure images are in the root of the folder (not in subfolders)
@@ -158,18 +178,12 @@ When you run `npm run sync`, the script:
 - Verify the folder ID is correct in `scripts/drive-config.json`
 
 ### "Access denied" or "Permission error"
-- Delete `token.json` from the project root
-- Run `npm run sync` again — you'll be prompted to re-authenticate
-- Make sure you're signed into the correct Google account
+- Make sure the Drive folder is **shared** with the service account email (`client_email` in `credentials.json`)
+- The service account needs at least **Viewer** permission
+- If using a Google Group, verify the service account is a member of the group
 
-### "Token expired" or authentication errors
-- Delete `token.json`
-- Run `npm run sync` again
-
-### "Invalid Google account"
-- Delete both `token.json` and `credentials.json`
-- Download new credentials from Google Cloud Console
-- Try again
+### "API not enabled"
+- Go to Google Cloud Console → APIs & Services → Enable the **Google Drive API**
 
 ### Images don't appear on website
 - Check browser console (F12) for errors
@@ -181,28 +195,36 @@ When you run `npm run sync`, the script:
 
 ## Security Notes
 
-- `credentials.json` and `token.json` are **local-only** and listed in `.gitignore`
-- They are **never** committed to the repository or uploaded to the website
-- The OAuth token only grants **read-only** access to Google Drive
-- If sharing your code, these files are already excluded via `.gitignore`
+- `credentials.json` is **local-only** and listed in `.gitignore`
+- It is **never** committed to the repository or uploaded to the website
+- The service account key grants **read-only** access to Google Drive (scoped to `drive.readonly`)
+- The key does not expire, but can be revoked from Google Cloud Console at any time
+- If the key is compromised, delete it in Cloud Console → Service Accounts → Keys, and create a new one
 
 ---
 
 ## Migrating from the Old WordPress Project
 
-If you were using the Python `sync_google_drive.py` script from the old project:
+The old project used a Python script (`sync_google_drive.py`) with **OAuth 2.0** credentials tied to a personal Google account.
 
-1. **Credentials**: Copy your existing `credentials.json` to this project root — it works as-is
-2. **Token**: The old `token.pickle` is not compatible. Delete it; the new script will create `token.json` on first run
-3. **Folder IDs**: Already pre-configured in `scripts/drive-config.json` (extracted from the existing JSON data files)
-4. **Python is no longer required**: The sync script is now written in Node.js and uses npm
+This project uses a **Service Account** instead — the auth is not tied to any individual.
 
-### Old vs New commands
+| Aspect                | Old (Python + OAuth)                  | New (Node.js + Service Account)       |
+| --------------------- | ------------------------------------- | ------------------------------------- |
+| Command               | `python sync_google_drive.py`         | `npm run sync`                        |
+| Auth type             | OAuth 2.0 (personal account)          | Service Account (machine identity)    |
+| Browser prompt        | Yes (first run)                       | Never                                 |
+| Credentials file      | OAuth client secret                   | Service account key                   |
+| Folder access         | Automatic (your account)              | Must share folders with SA email      |
+| Token file            | `token.pickle`                        | Not needed                            |
+| Config                | Interactive folder ID prompts         | Pre-configured in `drive-config.json` |
+| Dependencies          | `pip install google-*`                | `npm run sync:install`                |
+| Output                | `wwwroot/*.json`                      | `public/data/*.json`                  |
 
-| Old (Python)                     | New (Node.js)                       |
-| -------------------------------- | ----------------------------------- |
-| `python sync_google_drive.py`    | `npm run sync`                      |
-| Interactive folder ID prompts    | Pre-configured in drive-config.json |
-| `pip install google-*`           | `npm run sync:install`              |
-| `token.pickle`                   | `token.json`                        |
-| Output: `wwwroot/*.json`         | Output: `public/data/*.json`        |
+### Migration steps
+
+1. **Create a new service account** key (Step 3 above) — the old OAuth `credentials.json` will **not** work
+2. **Share all Drive folders** with the service account email (Step 4)
+3. **Delete** the old `credentials.json`, `token.pickle`, and `token.json` if present
+4. **Place** the new service account `credentials.json` in the project root
+5. Run `npm run sync` — no Python required

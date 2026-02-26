@@ -7,10 +7,6 @@
 - [Hosting Options on Hostinger](#hosting-options-on-hostinger)
   - [Option 1: Subdomain (Recommended)](#option-1-subdomain-recommended)
   - [Option 2: Subdirectory](#option-2-subdirectory)
-- [Google Drive Sync](#google-drive-sync)
-  - [Setup](#sync-setup)
-  - [Usage](#sync-usage)
-  - [Configuration](#sync-configuration)
 - [Updating Content](#updating-content)
 
 ---
@@ -19,7 +15,7 @@
 
 - **Node.js** v18+ and **npm** installed
 - Access to **Hostinger hPanel**
-- (For Drive sync) A **Google Cloud** project with Drive API enabled and a service account key
+- (For Drive sync) See [GOOGLE_DRIVE_SETUP.md](GOOGLE_DRIVE_SETUP.md)
 
 ## Building the Project
 
@@ -108,32 +104,6 @@ Deploy the React app under a path like `yourdomain.com/newsite/`.
 **Cons:**
 - Shares the domain with WordPress — slightly more complex routing
 - Must remember to set `base` in Vite config
-
----
-
-## Google Drive Sync
-
-The website's content (carousel images, event galleries, testimonials, upcoming event banners) is managed via shared Google Drive folders. A sync script pulls the latest file list from Drive and updates the JSON data files in `public/data/`.
-
-For complete setup instructions, see **[GOOGLE_DRIVE_SETUP.md](GOOGLE_DRIVE_SETUP.md)**.
-
-### Quick Reference
-
-```bash
-# One-time: install sync dependencies
-npm run sync:install
-
-# Sync all data from Google Drive
-npm run sync
-
-# Sync only a specific dataset
-npm run sync -- --only carousel
-npm run sync -- --only events
-npm run sync -- --only testimonials
-npm run sync -- --only upcoming
-```
-
-Folder IDs are configured in `scripts/drive-config.json`.
 
 ---
 

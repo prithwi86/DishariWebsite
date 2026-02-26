@@ -4,12 +4,11 @@
  * Reads image/video/doc references from shared Google Drive folders
  * and writes the JSON data files used by the website.
  *
- * Uses OAuth 2.0 (Desktop app) credentials — same as the old Python script.
- * The first run opens a browser for authentication; subsequent runs reuse
- * the saved token.json.
+ * Uses a Google Cloud Service Account for authentication.
+ * Not tied to any individual user account.
  *
  * Requirements:
- *   npm install googleapis open   (run via `npm run sync:install`)
+ *   npm install googleapis   (run via `npm run sync:install`)
  *
  * Usage:
  *   node scripts/sync-drive.js                    # sync everything
@@ -23,8 +22,6 @@ import { google } from 'googleapis';
 import { readFileSync, writeFileSync, existsSync } from 'fs';
 import { resolve, dirname } from 'path';
 import { fileURLToPath } from 'url';
-import http from 'http';
-import { URL } from 'url';
 
 // ---------- paths ----------------------------------------------------------
 const __filename = fileURLToPath(import.meta.url);
@@ -33,9 +30,6 @@ const ROOT = resolve(__dirname, '..');
 
 const CONFIG_PATH = resolve(__dirname, 'drive-config.json');
 const CREDS_PATH = resolve(ROOT, 'credentials.json');
-const TOKEN_PATH = resolve(ROOT, 'token.json');
-
-const SCOPES = ['https://www.googleapis.com/auth/drive.readonly'];
 
 // ---------- helpers --------------------------------------------------------
 
@@ -44,11 +38,11 @@ function loadConfig() {
 }
 
 /**
- * Authenticate using OAuth 2.0 (Desktop app flow).
- * Compatible with the credentials.json from the old WordPress/Python project.
- * Saves and reuses token.json so the browser prompt only happens once.
+ * Authenticate using a Google Cloud Service Account.
+ * Expects credentials.json to be a service account key file.
+ * The service account email must have Viewer access on the shared Drive folders.
  */
-async function authorize() {
+function authorize() {
   if (!existsSync(CREDS_PATH)) {
     console.error(
       '\n❌  credentials.json not found in the project root.\n' +
@@ -58,94 +52,21 @@ async function authorize() {
   }
 
   const creds = JSON.parse(readFileSync(CREDS_PATH, 'utf-8'));
-  const { client_id, client_secret, redirect_uris } = creds.installed || creds.web || {};
 
-  if (!client_id || !client_secret) {
-    console.error('❌  Invalid credentials.json — expected OAuth 2.0 Desktop credentials.');
+  if (creds.type !== 'service_account') {
+    console.error(
+      '❌  credentials.json is not a service account key.\n' +
+      '   Expected "type": "service_account". See GOOGLE_DRIVE_SETUP.md.\n'
+    );
     process.exit(1);
   }
 
-  const oAuth2Client = new google.auth.OAuth2(client_id, client_secret, 'http://localhost:3000');
-
-  // Try to load a previously saved token
-  if (existsSync(TOKEN_PATH)) {
-    const token = JSON.parse(readFileSync(TOKEN_PATH, 'utf-8'));
-    oAuth2Client.setCredentials(token);
-
-    // Check if token needs refresh
-    if (token.expiry_date && token.expiry_date < Date.now()) {
-      console.log('🔄 Refreshing expired token…');
-      try {
-        const { credentials } = await oAuth2Client.refreshAccessToken();
-        oAuth2Client.setCredentials(credentials);
-        writeFileSync(TOKEN_PATH, JSON.stringify(credentials, null, 2));
-      } catch {
-        console.log('⚠️  Token refresh failed — re-authenticating…');
-        await getNewToken(oAuth2Client);
-      }
-    }
-  } else {
-    await getNewToken(oAuth2Client);
-  }
-
-  return google.drive({ version: 'v3', auth: oAuth2Client });
-}
-
-/**
- * Open a browser for the user to grant permission, then capture the auth code
- * via a temporary local HTTP server (like the old Python script's run_local_server).
- */
-function getNewToken(oAuth2Client) {
-  return new Promise((resolvePromise, reject) => {
-    const authUrl = oAuth2Client.generateAuthUrl({
-      access_type: 'offline',
-      scope: SCOPES,
-      prompt: 'consent',
-    });
-
-    // Start a tiny HTTP server to capture the redirect
-    const server = http.createServer(async (req, res) => {
-      try {
-        const url = new URL(req.url, 'http://localhost:3000');
-        const code = url.searchParams.get('code');
-        if (!code) {
-          res.writeHead(400, { 'Content-Type': 'text/html' });
-          res.end('<h2>Missing authorization code.</h2>');
-          return;
-        }
-
-        const { tokens } = await oAuth2Client.getToken(code);
-        oAuth2Client.setCredentials(tokens);
-        writeFileSync(TOKEN_PATH, JSON.stringify(tokens, null, 2));
-
-        res.writeHead(200, { 'Content-Type': 'text/html' });
-        res.end('<h2>✅ Authentication successful! You can close this tab.</h2>');
-        server.close();
-        console.log('✔ Authentication successful — token saved to token.json');
-        resolvePromise();
-      } catch (err) {
-        res.writeHead(500, { 'Content-Type': 'text/html' });
-        res.end(`<h2>❌ Authentication failed: ${err.message}</h2>`);
-        server.close();
-        reject(err);
-      }
-    });
-
-    server.listen(3000, async () => {
-      console.log('\n🔐 Opening browser for Google authentication…');
-      console.log('   If the browser does not open, visit this URL:\n');
-      console.log(`   ${authUrl}\n`);
-
-      // Open the URL in the default browser
-      try {
-        const open = (await import('open')).default;
-        await open(authUrl);
-      } catch {
-        // 'open' package not installed — user must open manually
-        console.log('   (Install the "open" npm package for auto-browser-open)');
-      }
-    });
+  const auth = new google.auth.GoogleAuth({
+    credentials: creds,
+    scopes: ['https://www.googleapis.com/auth/drive.readonly'],
   });
+
+  return google.drive({ version: 'v3', auth });
 }
 
 /** Build a direct-view URL from a Drive file ID. */
@@ -305,7 +226,7 @@ async function main() {
   const only = onlyIdx !== -1 ? args[onlyIdx + 1] : null;
 
   const config = loadConfig();
-  const drive = await authorize();
+  const drive = authorize();
 
   console.log('\n🔄  Syncing data from Google Drive …\n');
 
