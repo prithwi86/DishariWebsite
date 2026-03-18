@@ -1,10 +1,13 @@
 import { useState, useEffect } from 'react'
+import { cloudinaryRawUrl } from '../utils/cloudinary'
+
+const TESTIMONIALS_URL = cloudinaryRawUrl('dishari/testimonials/testimonials.json')
 
 function Testimonials() {
   const [testimonials, setTestimonials] = useState([])
 
   useEffect(() => {
-    fetch('/data/testimonials.json')
+    fetch(TESTIMONIALS_URL)
       .then((res) => res.json())
       .then((data) => setTestimonials(data.testimonials || []))
       .catch((err) => console.error('Error loading testimonials:', err))

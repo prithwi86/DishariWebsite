@@ -1,16 +1,21 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
-import { proxyImageUrl } from '../utils/proxyImage'
+import { fetchImagesByTag, cloudinaryUrl } from '../utils/cloudinary'
+
+const CAROUSEL_TAG = 'carousel'
 
 function Carousel() {
-  const [images, setImages] = useState([])
+  const [images, setImages] = useState([])   // array of { public_id, format }
   const [currentIndex, setCurrentIndex] = useState(0)
   const timerRef = useRef(null)
 
   useEffect(() => {
-    fetch('/data/carousel-images.json')
-      .then((res) => res.json())
-      .then((data) => {
-        setImages(data.images || [])
+    fetchImagesByTag(CAROUSEL_TAG)
+      .then((resources) => {
+        if (resources.length > 0) {
+          setImages(resources)
+        } else {
+          console.warn('No images found with tag:', CAROUSEL_TAG)
+        }
       })
       .catch((err) => console.error('Error loading carousel images:', err))
   }, [])
@@ -95,21 +100,18 @@ function Carousel() {
         <div className="carousel-container">
           <div className="carousel-wrapper">
             <div className="carousel">
-              {images.map((imgUrl, index) => (
+              {images.map((resource, index) => (
                 <div
-                  key={index}
+                  key={resource.public_id}
                   className={`carousel-item fade${index === currentIndex ? ' active' : ''}`}
                 >
                   <img
-                    src={proxyImageUrl(imgUrl)}
+                    src={cloudinaryUrl(resource.public_id, { width: 1200 })}
                     alt={`Event image ${index + 1}`}
                     style={{
                       width: '100%',
                       height: '100%',
                       objectFit: 'cover',
-                    }}
-                    onError={(e) => {
-                      e.target.src = imgUrl
                     }}
                   />
                 </div>
