@@ -1,23 +1,47 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
-import { fetchImagesByTag, cloudinaryUrl } from '../utils/cloudinary'
 
-const CAROUSEL_TAG = 'carousel'
+const CAROUSEL_DATA_URL = '/data/carousel-images.json'
 
 function Carousel() {
-  const [images, setImages] = useState([])   // array of { public_id, format }
+  const [images, setImages] = useState([])
   const [currentIndex, setCurrentIndex] = useState(0)
+  const [status, setStatus] = useState('loading')
   const timerRef = useRef(null)
 
   useEffect(() => {
-    fetchImagesByTag(CAROUSEL_TAG)
-      .then((resources) => {
-        if (resources.length > 0) {
-          setImages(resources)
-        } else {
-          console.warn('No images found with tag:', CAROUSEL_TAG)
+    let cancelled = false
+
+    async function loadImages() {
+      try {
+        const res = await fetch(CAROUSEL_DATA_URL, { cache: 'no-store' })
+        if (!res.ok) {
+          throw new Error(`Carousel data fetch failed (${res.status})`)
         }
-      })
-      .catch((err) => console.error('Error loading carousel images:', err))
+
+        const data = await res.json()
+        const cloudinaryImages = (Array.isArray(data?.images) ? data.images : [])
+          .filter((url) => typeof url === 'string' && url.trim().length > 0)
+          .map((url, index) => ({
+            id: `carousel-${index}`,
+            src: url,
+          }))
+
+        if (!cancelled) {
+          setImages(cloudinaryImages)
+          setStatus(cloudinaryImages.length > 0 ? 'ready' : 'empty')
+        }
+      } catch (err) {
+        console.error('Error loading carousel images:', err)
+        if (!cancelled) {
+          setStatus('error')
+        }
+      }
+    }
+
+    loadImages()
+    return () => {
+      cancelled = true
+    }
   }, [])
 
   const startAutoplay = useCallback(() => {
@@ -51,6 +75,13 @@ function Carousel() {
   }
 
   if (images.length === 0) {
+    const message =
+      status === 'error'
+        ? 'Unable to load carousel images.'
+        : status === 'empty'
+          ? 'No carousel images available yet.'
+          : 'Loading images...'
+
     return (
       <section className="carousel-section">
         <div className="container">
@@ -81,7 +112,7 @@ function Carousel() {
                           display: 'block',
                         }}
                       ></i>
-                      <p style={{ fontSize: '1.2rem' }}>Loading images...</p>
+                      <p style={{ fontSize: '1.2rem' }}>{message}</p>
                     </div>
                   </div>
                 </div>
@@ -100,13 +131,13 @@ function Carousel() {
         <div className="carousel-container">
           <div className="carousel-wrapper">
             <div className="carousel">
-              {images.map((resource, index) => (
+              {images.map((image, index) => (
                 <div
-                  key={resource.public_id}
+                  key={image.id}
                   className={`carousel-item fade${index === currentIndex ? ' active' : ''}`}
                 >
                   <img
-                    src={cloudinaryUrl(resource.public_id, { width: 1200 })}
+                    src={image.src}
                     alt={`Event image ${index + 1}`}
                     style={{
                       width: '100%',

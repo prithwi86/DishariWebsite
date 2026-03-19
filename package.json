@@ -6,11 +6,15 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "build:sync": "npm run sync:carousel && npm run build",
     "preview": "vite preview",
     "sync": "node scripts/sync-drive.js",
-    "sync:install": "npm install googleapis"
+    "sync:install": "npm install googleapis",
+    "sync:carousel": "node scripts/sync-carousel-cloudinary.js"
   },
   "dependencies": {
+    "cloudinary": "^2.9.0",
+    "dotenv": "^17.3.1",
     "googleapis": "^171.4.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",

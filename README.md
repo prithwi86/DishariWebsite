@@ -10,13 +10,14 @@ The official website for **Dishari Boston Inc.**, a nonprofit organization dedic
 
 - **React 18** with React Router
 - **Vite** — fast dev server and build tool
-- **Google Drive** — image/content management via shared folders
+- **Cloudinary** — carousel image source (build-time sync)
+- **Google Drive** — upcoming events, past events, and testimonials
 - **weserv.nl** — image proxy for Google Drive URLs (CORS bypass)
 
 ## Features
 
 - Responsive multi-page layout (Home, About, Events, Contact)
-- Image carousel synced from Google Drive
+- Image carousel synced from Cloudinary (tag-based)
 - Upcoming event banner
 - Past event galleries with photos & videos
 - Testimonials pulled from Google Docs
@@ -60,15 +61,46 @@ npm run build
 
 Output goes to the `dist/` folder.
 
+## Carousel Sync (Cloudinary)
+
+Carousel images are generated at build time from Cloudinary and written to `public/data/carousel-images.json`.
+
+1. Create `.env.local` in the project root with:
+
+```bash
+CLOUDINARY_CLOUD_NAME=...
+CLOUDINARY_API_KEY=...
+CLOUDINARY_API_SECRET=...
+CLOUDINARY_CAROUSEL_TAG=carousel
+```
+
+2. Run sync + build:
+
+```bash
+npm run build:sync
+```
+
+This runs:
+1. `npm run sync:carousel`
+2. `npm run build`
+
+If your local network uses SSL inspection and you hit certificate issues, you can temporarily add:
+
+```bash
+CLOUDINARY_ALLOW_SELF_SIGNED_CERTS=true
+```
+
+Use that only for local development environments.
+
 ## Google Drive Sync
 
-Images and content are stored in shared Google Drive folders. A sync script pulls the latest data into JSON files used by the website.
+Non-carousel content is stored in shared Google Drive folders. A sync script pulls the latest data into JSON files used by the website.
 
 ```bash
 # One-time: install sync dependencies
 npm run sync:install
 
-# Sync all content from Google Drive
+# Sync Drive-backed content (upcoming, past events, testimonials)
 npm run sync
 ```
 
@@ -81,14 +113,15 @@ See [DEPLOYMENT.md](DEPLOYMENT.md) for hosting instructions on Hostinger (subdom
 ## Project Structure
 
 ```
-├── public/data/          # JSON data files (synced from Google Drive)
-│   ├── carousel-images.json
+├── public/data/          # JSON data files used by the website
+│   ├── carousel-images.json  # Generated from Cloudinary tag
 │   ├── past-events.json
 │   ├── testimonials.json
 │   └── upcoming-event.json
 ├── scripts/
-│   ├── drive-config.json # Google Drive folder IDs
-│   └── sync-drive.js     # Drive sync script
+│   ├── drive-config.json           # Google Drive folder IDs
+│   ├── sync-carousel-cloudinary.js # Cloudinary carousel sync script
+│   └── sync-drive.js               # Drive sync script (non-carousel)
 ├── src/
 │   ├── assets/           # Logo images
 │   ├── components/       # Reusable UI components

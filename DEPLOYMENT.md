@@ -15,7 +15,8 @@
 
 - **Node.js** v18+ and **npm** installed
 - Access to **Hostinger hPanel**
-- (For Drive sync) See [GOOGLE_DRIVE_SETUP.md](GOOGLE_DRIVE_SETUP.md)
+- **Cloudinary API credentials** in `.env.local` for carousel sync
+- (For non-carousel Drive sync) See [GOOGLE_DRIVE_SETUP.md](GOOGLE_DRIVE_SETUP.md)
 
 ## Building the Project
 
@@ -23,8 +24,8 @@
 # Install dependencies
 npm install
 
-# Build for production
-npm run build
+# Sync carousel from Cloudinary and build for production
+npm run build:sync
 ```
 
 This generates a `dist/` folder with all static files ready for deployment.
@@ -46,7 +47,7 @@ Deploy the React app on a subdomain like `new.yourdomain.com`.
 3. Create a subdomain (e.g., `new`, `app`, or `beta`) — this creates a folder like:
    - `public_html/new/` or
    - `domains/new.yourdomain.com/public_html/`
-4. Run `npm run build` locally
+4. Run `npm run build:sync` locally
 5. Upload the **contents** of the `dist/` folder to the subdomain's root directory using:
    - **Hostinger File Manager** (hPanel → Files → File Manager), or
    - **FTP** (use credentials from hPanel → Files → FTP Accounts)
@@ -80,7 +81,7 @@ Deploy the React app under a path like `yourdomain.com/newsite/`.
    })
    ```
 
-2. Run `npm run build`
+2. Run `npm run build:sync`
 3. Upload the **contents** of the `dist/` folder to `public_html/newsite/` on Hostinger
 4. Add this `.htaccess` file inside `public_html/newsite/` to support client-side routing:
 
@@ -111,9 +112,9 @@ Deploy the React app under a path like `yourdomain.com/newsite/`.
 
 ### Workflow
 
-1. Add/remove images in the shared Google Drive folders
-2. Run `npm run sync` to update the JSON data files
-3. Run `npm run build` to rebuild the site
+1. Update carousel images/tags in Cloudinary (tag: `carousel` by default)
+2. For upcoming, past events, and testimonials, update Google Drive folders and run `npm run sync`
+3. Run `npm run build:sync` to regenerate carousel JSON and rebuild the site
 4. Upload the new `dist/` folder to Hostinger
 
 ### Automated (Optional)
@@ -126,12 +127,12 @@ You can set up a **GitHub Action** to auto-build on push. See `.github/workflows
 
 ```
 public/data/
-  carousel-images.json   ← Home page carousel images
+  carousel-images.json   ← Home page carousel images (generated from Cloudinary)
   past-events.json       ← Event gallery images & videos
   testimonials.json      ← Testimonial quotes
   upcoming-event.json    ← Upcoming event banner
 ```
 
 Each JSON file contains:
-- Direct Google Drive URLs for images/videos
-- Metadata with the source `folder_id` for re-syncing
+- `carousel-images.json`: Cloudinary delivery URLs + sync metadata
+- Other JSON files: Google Drive URLs/data and metadata for re-syncing
