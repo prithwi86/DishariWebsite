@@ -6,11 +6,11 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "build:sync": "npm run sync:carousel && npm run build",
+    "build:sync": "npm run sync && npm run build",
     "preview": "vite preview",
-    "sync": "node scripts/sync-drive.js",
-    "sync:install": "npm install googleapis",
-    "sync:carousel": "node scripts/sync-carousel-cloudinary.js"
+    "sync": "node scripts/sync-cloudinary.js",
+    "sync:drive": "node scripts/sync-drive.js",
+    "sync:install": "npm install googleapis"
   },
   "dependencies": {
     "cloudinary": "^2.9.0",

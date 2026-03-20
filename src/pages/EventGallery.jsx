@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import { proxyImageUrl } from '../utils/proxyImage'
+import Lightbox from '../components/Lightbox'
 
 function EventGallery() {
   const [searchParams] = useSearchParams()
@@ -9,6 +9,8 @@ function EventGallery() {
   const [event, setEvent] = useState(null)
   const [items, setItems] = useState([])
   const [renderedCount, setRenderedCount] = useState(0)
+  const [lightboxOpen, setLightboxOpen] = useState(false)
+  const [lightboxIndex, setLightboxIndex] = useState(0)
 
   useEffect(() => {
     if (!eventId) return
@@ -23,13 +25,10 @@ function EventGallery() {
 
         const allItems = []
         const images = Array.isArray(found.images) ? found.images : []
-        const videos = Array.isArray(found.videos) ? found.videos : []
 
         images
           .filter((url) => url && url !== found.banner)
           .forEach((url) => allItems.push({ type: 'image', url }))
-
-        videos.forEach((url) => allItems.push({ type: 'video', url }))
 
         setItems(allItems)
         // Show initial batch
@@ -56,37 +55,42 @@ function EventGallery() {
 
   const visibleItems = items.slice(0, renderedCount)
 
+  const openLightbox = (index) => {
+    setLightboxIndex(index)
+    setLightboxOpen(true)
+  }
+
+  const closeLightbox = () => setLightboxOpen(false)
+
+  const goNext = () => setLightboxIndex((prev) => (prev + 1) % items.length)
+  const goPrev = () => setLightboxIndex((prev) => (prev - 1 + items.length) % items.length)
+
   return (
     <section className="event-gallery-section">
       <div className="container">
         {event.banner && (
           <div className="event-gallery-banner">
             <img
-              src={proxyImageUrl(event.banner)}
+              src={event.banner}
               alt={event.title || 'Event banner'}
-              onError={(e) => {
-                e.target.src = event.banner
-              }}
             />
           </div>
         )}
 
         <div className="event-gallery-grid">
-          {visibleItems.map((item, index) =>
-            item.type === 'image' ? (
+          {visibleItems.map((item, index) => (
+            <div
+              key={index}
+              className="event-gallery-item"
+              onClick={() => openLightbox(index)}
+            >
               <img
-                key={index}
-                src={proxyImageUrl(item.url)}
+                src={item.url}
                 alt={event.title || 'Event image'}
                 loading="lazy"
-                onError={(e) => {
-                  e.target.src = item.url
-                }}
               />
-            ) : (
-              <video key={index} src={item.url} controls preload="none" />
-            )
-          )}
+            </div>
+          ))}
         </div>
 
         {renderedCount < items.length && (
@@ -101,6 +105,15 @@ function EventGallery() {
           </div>
         )}
       </div>
+
+      <Lightbox
+        items={items}
+        currentIndex={lightboxIndex}
+        isOpen={lightboxOpen}
+        onClose={closeLightbox}
+        onNext={goNext}
+        onPrev={goPrev}
+      />
     </section>
   )
 }

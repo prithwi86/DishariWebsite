@@ -410,6 +410,128 @@ h3 {
     display: block;
 }
 
+.past-event-title {
+    font-weight: 700;
+    font-size: 1.1rem;
+    text-align: center;
+}
+
+/* ===========================
+   HEXAGON GALLERY
+   =========================== */
+.hex-gallery-section {
+    padding: 4rem 0;
+}
+
+.hex-gallery-section h2 {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+/* Banner image at top of each event */
+.hex-event-banner {
+    max-width: 800px;
+    margin: 0 auto 2rem;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.hex-event-banner img {
+    width: 100%;
+    height: auto;
+    max-height: 400px;
+    object-fit: cover;
+    display: block;
+}
+
+/* Flowing honeycomb grid */
+.hex-grid {
+    --s: 140px;
+    --m: 4px;
+    --f: calc(var(--s) / 2 + var(--m));
+    display: flex;
+    flex-wrap: wrap;
+    width: calc(5 * (var(--s) + 2 * var(--m)));
+    margin: 0 auto;
+    padding: calc(var(--s) * 0.125) 0 calc(var(--s) * 0.25);
+}
+
+.hex-cell {
+    flex: 0 0 var(--s);
+    width: var(--s);
+    height: var(--s);
+    clip-path: polygon(50% 0%, 95% 25%, 95% 75%, 50% 100%, 5% 75%, 5% 25%);
+    background: linear-gradient(135deg, var(--primary), var(--primary-light, #7c3aed));
+    padding: 3px;
+    margin: calc(var(--s) * -0.125) var(--m);
+    transition: transform 0.3s ease;
+    cursor: pointer;
+    text-decoration: none;
+    display: block;
+    position: relative;
+}
+
+/* 5-col honeycomb: cycle=9 (5+4), offset first item of even rows */
+.hex-cell:nth-child(9n+6) {
+    margin-left: var(--f);
+}
+
+.hex-cell:hover {
+    transform: scale(1.15);
+    z-index: 10;
+}
+
+.hex-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    clip-path: polygon(50% 0%, 95% 25%, 95% 75%, 50% 100%, 5% 75%, 5% 25%);
+}
+
+.hex-view-all {
+    display: block;
+    text-align: center;
+    margin-top: 1.5rem;
+    font-weight: 600;
+    color: var(--primary);
+    text-decoration: none;
+    font-size: 1.05rem;
+}
+
+.hex-view-all:hover {
+    text-decoration: underline;
+}
+
+@media screen and (max-width: 900px) {
+    .hex-grid {
+        --s: 110px;
+        width: calc(4 * (var(--s) + 2 * var(--m)));
+    }
+
+    /* Reset 5-col offset, apply 4-col: cycle=7 (4+3) */
+    .hex-cell:nth-child(9n+6) { margin-left: var(--m); }
+    .hex-cell:nth-child(7n+5) { margin-left: var(--f); }
+
+    .hex-event-banner img {
+        max-height: 300px;
+    }
+}
+
+@media screen and (max-width: 600px) {
+    .hex-grid {
+        --s: 90px;
+        width: calc(3 * (var(--s) + 2 * var(--m)));
+    }
+
+    /* Reset 4-col offset, apply 3-col: cycle=5 (3+2) */
+    .hex-cell:nth-child(7n+5) { margin-left: var(--m); }
+    .hex-cell:nth-child(5n+4) { margin-left: var(--f); }
+
+    .hex-event-banner img {
+        max-height: 220px;
+    }
+}
+
 /* ===========================
    EVENT GALLERY PAGE
    =========================== */
@@ -433,23 +555,137 @@ h3 {
 }
 
 .event-gallery-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-    gap: 1.5rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
 }
 
-.event-gallery-grid img,
-.event-gallery-grid video {
+.event-gallery-item {
+    flex: 1 1 auto;
+    height: 220px;
+    cursor: pointer;
+    overflow: hidden;
+    border-radius: 8px;
+    transition: opacity 0.2s ease;
+}
+
+.event-gallery-item:hover {
+    opacity: 0.85;
+}
+
+.event-gallery-item img {
     width: 100%;
-    border-radius: 12px;
-    box-shadow: var(--shadow);
-    background-color: #000;
+    height: 100%;
+    object-fit: cover;
+    display: block;
 }
 
 .event-gallery-actions {
     display: flex;
     justify-content: center;
     margin-top: 2rem;
+}
+
+/* ===========================
+   LIGHTBOX
+   =========================== */
+.lightbox-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    background: rgba(0, 0, 0, 0.92);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.lightbox-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.lightbox-content {
+    max-width: 90vw;
+    max-height: 85vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.lightbox-image {
+    max-width: 90vw;
+    max-height: 85vh;
+    object-fit: contain;
+    border-radius: 4px;
+    user-select: none;
+}
+
+.lightbox-close {
+    position: absolute;
+    top: 1rem;
+    right: 1.5rem;
+    background: none;
+    border: none;
+    color: white;
+    font-size: 2rem;
+    cursor: pointer;
+    z-index: 10;
+    opacity: 0.8;
+    transition: opacity 0.2s;
+}
+
+.lightbox-close:hover {
+    opacity: 1;
+}
+
+.lightbox-counter {
+    position: absolute;
+    top: 1.2rem;
+    left: 1.5rem;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.9rem;
+    z-index: 10;
+}
+
+.lightbox-nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: white;
+    font-size: 2.5rem;
+    cursor: pointer;
+    padding: 1rem;
+    opacity: 0.7;
+    transition: opacity 0.2s;
+    z-index: 10;
+}
+
+.lightbox-nav:hover {
+    opacity: 1;
+}
+
+.lightbox-prev {
+    left: 0.5rem;
+}
+
+.lightbox-next {
+    right: 0.5rem;
+}
+
+.lightbox-hints {
+    position: absolute;
+    bottom: 1rem;
+    left: 0;
+    right: 0;
+    text-align: center;
+    color: rgba(255, 255, 255, 0.4);
+    font-size: 0.8rem;
 }
 
 /* ===========================

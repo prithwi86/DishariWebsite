@@ -1,6 +1,8 @@
+import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import AnimateOnScroll from '../components/AnimateOnScroll'
 
+/*
 const featuredEvents = [
   {
     icon: 'fas fa-lightbulb',
@@ -51,6 +53,7 @@ const featuredEvents = [
     when: 'Regular Basis',
   },
 ]
+*/
 
 const eventFeatures = [
   {
@@ -76,6 +79,15 @@ const eventFeatures = [
 ]
 
 function Events() {
+  const [events, setEvents] = useState([])
+
+  useEffect(() => {
+    fetch('/data/past-events.json')
+      .then((res) => res.json())
+      .then((data) => setEvents(data.events || []))
+      .catch((err) => console.error('Error loading events:', err))
+  }, [])
+
   return (
     <>
       {/* Page Header */}
@@ -100,7 +112,58 @@ function Events() {
         </div>
       </section>
 
-      {/* Featured Events */}
+      {/* Per-event sections: banner + honeycomb gallery */}
+      {events.map((ev) => {
+        const MAX_HEX = 20
+        const allImages = ev.images || []
+        const displayImages = allImages.slice(0, MAX_HEX)
+        const hasMore = allImages.length > MAX_HEX
+
+        return (
+          <section key={ev.id} className="hex-gallery-section">
+            <div className="container">
+              <h2>{ev.title}</h2>
+
+              {ev.banner && (
+                <div className="hex-event-banner">
+                  <img src={ev.banner} alt={ev.title} />
+                </div>
+              )}
+
+              {displayImages.length > 0 && (
+                <div className="hex-grid">
+                  {displayImages.map((url, i) => (
+                    <Link
+                      key={i}
+                      to={`/event-gallery?event=${ev.id}`}
+                      className="hex-cell"
+                    >
+                      <img
+                        src={url}
+                        alt={ev.title}
+                        className="hex-img"
+                        loading="lazy"
+                      />
+                    </Link>
+                  ))}
+                </div>
+              )}
+
+              {hasMore && (
+                <Link
+                  to={`/event-gallery?event=${ev.id}`}
+                  className="hex-view-all"
+                >
+                  View all {allImages.length} photos &rarr;
+                </Link>
+              )}
+            </div>
+          </section>
+        )
+      })}
+
+      {/* Featured Events - commented out in favour of hex gallery */}
+      {/*
       <section className="events-section">
         <div className="container">
           <h2>Featured Events</h2>
@@ -123,6 +186,7 @@ function Events() {
           </div>
         </div>
       </section>
+      */}
 
       {/* Event Features */}
       <section className="event-features">

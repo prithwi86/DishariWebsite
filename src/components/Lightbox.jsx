@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react'
-import { proxyImageUrl } from '../utils/proxyImage'
 
 function Lightbox({ items, currentIndex, isOpen, onClose, onNext, onPrev }) {
   if (!isOpen || !items || items.length === 0 || currentIndex < 0 || currentIndex >= items.length) {
@@ -7,9 +6,7 @@ function Lightbox({ items, currentIndex, isOpen, onClose, onNext, onPrev }) {
   }
 
   const currentItem = items[currentIndex]
-  const imageUrl = currentItem.type === 'image' 
-    ? proxyImageUrl(currentItem.url) 
-    : currentItem.url
+  const imageUrl = currentItem.url
 
   // Handle keyboard navigation
   useEffect(() => {

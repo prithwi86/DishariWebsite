@@ -1,11 +1,8 @@
 import { useState, useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
-import { proxyImageUrl } from '../utils/proxyImage'
 
 function PastEventCard({ event }) {
-  const [currentSrc, setCurrentSrc] = useState(
-    event.banner ? proxyImageUrl(event.banner) : ''
-  )
+  const [currentSrc, setCurrentSrc] = useState(event.banner || '')
   const timerRef = useRef(null)
   const indexRef = useRef(0)
 
@@ -15,7 +12,7 @@ function PastEventCard({ event }) {
     if (images.length === 0 || timerRef.current) return
     timerRef.current = setInterval(() => {
       indexRef.current = (indexRef.current + 1) % images.length
-      setCurrentSrc(proxyImageUrl(images[indexRef.current]))
+      setCurrentSrc(images[indexRef.current])
     }, 1200)
   }
 
@@ -26,7 +23,7 @@ function PastEventCard({ event }) {
     }
     indexRef.current = 0
     if (event.banner) {
-      setCurrentSrc(proxyImageUrl(event.banner))
+      setCurrentSrc(event.banner)
     }
   }
 
@@ -49,11 +46,9 @@ function PastEventCard({ event }) {
         <img
           src={currentSrc}
           alt={event.title || 'Past event'}
-          onError={(e) => {
-            e.target.src = event.banner
-          }}
         />
       </div>
+      <div className="past-event-title">{event.title}</div>
     </Link>
   )
 }
