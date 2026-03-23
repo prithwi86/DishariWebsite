@@ -8,14 +8,11 @@
     "build": "vite build",
     "build:sync": "npm run sync && npm run build",
     "preview": "vite preview",
-    "sync": "node scripts/sync-cloudinary.js",
-    "sync:drive": "node scripts/sync-drive.js",
-    "sync:install": "npm install googleapis"
+    "sync": "node scripts/sync-cloudinary.js"
   },
   "dependencies": {
     "cloudinary": "^2.9.0",
     "dotenv": "^17.3.1",
-    "googleapis": "^171.4.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-router-dom": "^6.28.0"

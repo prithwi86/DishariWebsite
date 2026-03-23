@@ -136,6 +136,11 @@ body {
     transition: 0.3s;
 }
 
+/* Hide mobile drawer on desktop */
+.mobile-drawer {
+    display: none;
+}
+
 /* Nav dropdown */
 .nav-dropdown {
     position: relative;
@@ -1854,55 +1859,129 @@ h3 {
 @media (max-width: 600px) {
     .hamburger {
         display: flex;
+        z-index: 200;
+        position: relative;
     }
 
-    .nav-menu {
-        position: absolute;
-        left: -100%;
-        top: 70px;
-        flex-direction: column;
-        background-color: var(--primary-color);
-        width: 100%;
-        text-align: center;
-        transition: 0.3s;
-        box-shadow: var(--shadow);
-        gap: 0;
+    /* Hide desktop nav on mobile */
+    .nav-desktop {
+        display: none !important;
     }
 
-    .nav-menu.active {
+    /* ── Full-screen mobile drawer ── */
+    .mobile-drawer {
+        display: block;
+        position: fixed;
+        top: 0;
         left: 0;
-    }
-
-    .nav-menu a {
-        padding: 1rem;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-    }
-
-    .nav-dropdown-toggle {
         width: 100%;
-        justify-content: center;
-        padding: 1rem;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        height: 100dvh;
+        background-color: var(--primary-color);
+        z-index: 99;
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+        overflow: hidden;
+        padding-top: 70px; /* clear navbar */
     }
 
-    .nav-dropdown-menu {
-        position: static;
-        box-shadow: none;
-        border-radius: 0;
-        background: rgba(0, 0, 0, 0.15);
-        min-width: unset;
-        animation: none;
+    .mobile-drawer.open {
+        transform: translateX(0);
     }
 
-    .nav-dropdown-menu li a {
+    /* ── Panels (main + sub) ── */
+    .drawer-panel {
+        position: absolute;
+        top: 70px;
+        left: 0;
+        width: 100%;
+        height: calc(100% - 70px);
+        display: flex;
+        flex-direction: column;
+        overflow-y: auto;
+        transition: transform 0.3s ease, opacity 0.3s ease;
+    }
+
+    .drawer-panel.hidden {
+        transform: translateX(-100%);
+        opacity: 0;
+        pointer-events: none;
+    }
+
+    .drawer-sub {
+        transform: translateX(100%);
+        opacity: 0;
+        pointer-events: none;
+    }
+
+    .drawer-sub.visible {
+        transform: translateX(0);
+        opacity: 1;
+        pointer-events: auto;
+    }
+
+    /* ── Row items ── */
+    .drawer-row {
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        width: 100%;
+        padding: 1rem 1.5rem;
         color: white;
-        padding: 0.75rem 1.2rem;
-        font-size: 0.9rem;
+        text-decoration: none;
+        font-size: 1.1rem;
+        font-weight: 500;
+        background: none;
+        border: none;
+        font-family: inherit;
+        cursor: pointer;
+        text-align: left;
+        transition: background 0.2s ease;
     }
 
-    .nav-dropdown-menu li a:hover,
-    .nav-dropdown-menu li a.active {
-        background: rgba(255, 255, 255, 0.15);
+    .drawer-row:hover,
+    .drawer-row:active {
+        background: rgba(255, 255, 255, 0.1);
+    }
+
+    .drawer-row-sub {
+        justify-content: space-between;
+    }
+
+    .drawer-row-sub i {
+        font-size: 0.8rem;
+        opacity: 0.7;
+    }
+
+    /* ── Back button ── */
+    .drawer-back {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 1rem 1.5rem;
+        color: rgba(255, 255, 255, 0.8);
+        background: none;
+        border: none;
+        font-family: inherit;
+        font-size: 0.95rem;
+        cursor: pointer;
+        transition: color 0.2s ease;
+    }
+
+    .drawer-back:hover {
+        color: white;
+    }
+
+    .drawer-back i {
+        font-size: 0.75rem;
+    }
+
+    .drawer-sub-title {
+        padding: 0.5rem 1.5rem 0.75rem;
+        color: white;
+        font-size: 1.2rem;
+        font-weight: 700;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+        margin-bottom: 0.25rem;
     }
 
     .hero-content h1 {
