@@ -98,8 +98,8 @@ function Contact() {
                   <div>
                     <h3>Email</h3>
                     <p>
-                      <a href="mailto:info@disharibostonorg">
-                        info@disharibostonorg
+                      <a href="mailto:support@dishariboston.org">
+                        support@dishariboston.org
                       </a>
                     </p>
                   </div>

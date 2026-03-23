@@ -8,6 +8,7 @@ import About from './pages/About'
 import Events from './pages/Events'
 import Contact from './pages/Contact'
 import EventGallery from './pages/EventGallery'
+import FutureEvent from './pages/FutureEvent'
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
         <Route path="/events" element={<Events />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/event-gallery" element={<EventGallery />} />
+        <Route path="/future-event" element={<FutureEvent />} />
       </Routes>
       <Footer />
       <ScrollToTopButton />

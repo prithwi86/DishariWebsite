@@ -140,6 +140,65 @@ function About() {
         </div>
       </section>
 
+      {/* Leadership Tables */}
+      <section className="leadership-section">
+        <div className="container">
+          {/* Board of Directors */}
+          <h2>Board of Directors</h2>
+          <div className="leadership-table-wrapper">
+            <table className="leadership-table">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td>Sulagna Sanyal</td></tr>
+                <tr><td>Sunanda Ghosh</td></tr>
+                <tr><td>Shreyashi Roy</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          {/* Executive Committee 2026 */}
+          <h2>Executive Committee 2026</h2>
+          <div className="leadership-table-wrapper">
+            <table className="leadership-table">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td>Sanjit Sanyal</td></tr>
+                <tr><td>Prithwiraj Ghosh</td></tr>
+                <tr><td>Souvik Dey</td></tr>
+                <tr><td>Pintu Neogi</td></tr>
+                <tr><td>Abhishek Ghosh</td></tr>
+                <tr><td>Gautam Sharma (Gomzy)</td></tr>
+                <tr><td>Biswajit Banerjee</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          {/* Special Committee 2026 */}
+          <h2>Special Committee 2026</h2>
+          <div className="leadership-table-wrapper">
+            <table className="leadership-table">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td>Sayan Ghanti</td></tr>
+                <tr><td>Arunava Banerjee</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
       {/* Call to Action */}
       <section className="cta">
         <div className="container">
