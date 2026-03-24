@@ -230,6 +230,10 @@ body {
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
 }
 
+#bio_hero {
+    display: none;
+}
+
 .hero-content p {
     font-size: 1.5rem;
     margin-bottom: 2rem;
@@ -795,6 +799,22 @@ h3 {
     padding: 4rem 0;
 }
 
+/* 6-col gallery only on desktop */
+@media screen and (min-width: 901px) {
+    .event-gallery-section .hex-grid {
+        --s: 175px;
+        width: calc(6 * (var(--s) + 2 * var(--m)));
+    }
+
+    /* Reset 5-col offset, apply 6-col: cycle=11 (6+5), offset at 7th */
+    .event-gallery-section .hex-cell:nth-child(9n+6) {
+        margin-left: var(--m);
+    }
+    .event-gallery-section .hex-cell:nth-child(11n+7) {
+        margin-left: var(--f);
+    }
+}
+
 .event-gallery-banner {
     margin-bottom: 2rem;
     border-radius: 16px;
@@ -1190,10 +1210,22 @@ h3 {
 }
 
 .footer-content {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    display: flex;
+    justify-content: space-between;
     gap: 2rem;
     margin-bottom: 2rem;
+}
+
+.footer-quick-links {
+    display: none;
+}
+
+.footer-follow {
+    text-align: right;
+}
+
+.footer-follow .social-links {
+    justify-content: flex-end;
 }
 
 .footer-section h3 {
@@ -1784,120 +1816,52 @@ h3 {
    RESPONSIVE DESIGN
    =========================== */
 @media (max-width: 768px) {
-    .nav-menu {
-        gap: 1rem;
-    }
-
-    .nav-menu a {
-        font-size: 0.9rem;
-    }
-
-    .logo-img {
-        height: 40px;
-        margin-right: 0.6rem;
-    }
-
-    .logo h1 {
-        font-size: 1.4rem;
-    }
-
-    .hero-content h1 {
-        font-size: 2rem;
-    }
-
-    .hero-content p {
-        font-size: 1.1rem;
-    }
-
-    .hero {
-        padding: 4rem 0;
-    }
-
-    h2 {
-        font-size: 1.8rem;
-    }
-
-    .hero-buttons {
-        flex-direction: column;
-        align-items: center;
-    }
-
-    .contact-grid {
-        grid-template-columns: 1fr;
-    }
-
-    .page-header h1 {
-        font-size: 2rem;
-    }
-
-    .statement-content p {
-        text-align: left;
-    }
-
-    .carousel {
-        height: 350px;
-    }
-
-    .carousel-caption {
-        padding: 1.5rem;
-    }
-
-    .carousel-caption h3 {
-        font-size: 1.2rem;
-    }
-
-    .carousel-control {
-        padding: 0.8rem;
-        font-size: 1.2rem;
-    }
-
-    .past-event-media img {
-        height: 180px;
-    }
-}
-
-@media (max-width: 600px) {
     .hamburger {
         display: flex;
         z-index: 200;
         position: relative;
     }
 
-    /* Hide desktop nav on mobile */
+    /* Hide desktop nav on mobile/tablet */
     .nav-desktop {
         display: none !important;
     }
 
-    /* ── Full-screen mobile drawer ── */
-    .mobile-drawer {
-        display: block;
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
+    /* When menu is open: fixed-height flex column, no page scroll */
+    #root.mobile-menu-open {
+        display: flex;
+        flex-direction: column;
         height: 100dvh;
-        background-color: var(--primary-color);
-        z-index: 99;
-        transform: translateX(-100%);
-        transition: transform 0.3s ease;
         overflow: hidden;
-        padding-top: 70px; /* clear navbar */
+    }
+
+    /* Hide page content when mobile menu is open, keep footer */
+    .mobile-drawer.open ~ *:not(.footer) {
+        display: none !important;
+    }
+
+
+    /* ── Mobile drawer – fills space between navbar and footer ── */
+    .mobile-drawer {
+        display: none;
+        background-color: var(--primary-color);
+        overflow-x: hidden;
+        overflow-y: auto;
     }
 
     .mobile-drawer.open {
-        transform: translateX(0);
+        display: grid;
+        flex: 1;
+        min-height: 0;
     }
 
     /* ── Panels (main + sub) ── */
     .drawer-panel {
-        position: absolute;
-        top: 70px;
-        left: 0;
-        width: 100%;
-        height: calc(100% - 70px);
+        grid-row: 1;
+        grid-column: 1;
         display: flex;
         flex-direction: column;
-        overflow-y: auto;
+        overflow-x: hidden;
         transition: transform 0.3s ease, opacity 0.3s ease;
     }
 
@@ -1984,6 +1948,71 @@ h3 {
         margin-bottom: 0.25rem;
     }
 
+    .logo-img {
+        height: 40px;
+        margin-right: 0.6rem;
+    }
+
+    .logo h1 {
+        font-size: 1.4rem;
+    }
+
+    .hero-content h1 {
+        font-size: 2rem;
+    }
+
+    .hero-content p {
+        font-size: 1.1rem;
+    }
+
+    .hero {
+        padding: 4rem 0;
+    }
+
+    h2 {
+        font-size: 1.8rem;
+    }
+
+    .hero-buttons {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .contact-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .page-header h1 {
+        font-size: 2rem;
+    }
+
+    .statement-content p {
+        text-align: left;
+    }
+
+    .carousel {
+        height: 350px;
+    }
+
+    .carousel-caption {
+        padding: 1.5rem;
+    }
+
+    .carousel-caption h3 {
+        font-size: 1.2rem;
+    }
+
+    .carousel-control {
+        padding: 0.8rem;
+        font-size: 1.2rem;
+    }
+
+    .past-event-media img {
+        height: 180px;
+    }
+}
+
+@media (max-width: 600px) {
     .hero-content h1 {
         font-size: 1.5rem;
     }

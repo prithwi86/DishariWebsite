@@ -12,6 +12,7 @@
 
 export const CLOUD_NAME = 'dqcmzcbrp'
 export const PAST_EVENTS_FOLDER = 'Dishari/Past Events'
+export const UPCOMING_FOLDER = 'Dishari/Upcoming'
 
 /**
  * Build a Cloudinary delivery URL for a given public_id.

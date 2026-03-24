@@ -17,11 +17,14 @@ function Navbar() {
     setDropdownOpen(false)
   }, [location])
 
-  // Lock body scroll when drawer is open
+  // Toggle layout class so drawer + footer fill exactly the viewport
   useEffect(() => {
-    document.body.style.overflow = menuOpen ? 'hidden' : ''
-    return () => { document.body.style.overflow = '' }
+    const root = document.getElementById('root')
+    if (root) root.classList.toggle('mobile-menu-open', menuOpen)
+    return () => { if (root) root.classList.remove('mobile-menu-open') }
   }, [menuOpen])
+
+
 
   // Load upcoming events
   useEffect(() => {
@@ -50,6 +53,7 @@ function Navbar() {
   )
 
   return (
+    <>
     <nav className="navbar">
       <div className="nav-container">
         <Link to="/" className="logo">
@@ -102,8 +106,9 @@ function Navbar() {
           <span style={menuOpen ? { transform: 'rotate(45deg) translate(-5px, -6px)' } : {}} />
         </div>
       </div>
+    </nav>
 
-      {/* ─── Mobile fullscreen drawer ─── */}
+      {/* ─── Mobile drawer ─── */}
       <div className={`mobile-drawer${menuOpen ? ' open' : ''}`}>
         {/* Main menu panel */}
         <div className={`drawer-panel${submenuOpen ? ' hidden' : ''}`}>
@@ -153,7 +158,7 @@ function Navbar() {
           })}
         </div>
       </div>
-    </nav>
+    </>
   )
 }
 

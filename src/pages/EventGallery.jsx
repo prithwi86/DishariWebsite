@@ -77,16 +77,18 @@ function EventGallery() {
           </div>
         )}
 
-        <div className="event-gallery-grid">
+        <div className="hex-grid">
           {visibleItems.map((item, index) => (
             <div
               key={index}
-              className="event-gallery-item"
+              className="hex-cell"
               onClick={() => openLightbox(index)}
+              style={{ cursor: 'pointer' }}
             >
               <img
                 src={item.url}
                 alt={event.title || 'Event image'}
+                className="hex-img"
                 loading="lazy"
               />
             </div>

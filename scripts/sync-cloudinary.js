@@ -16,6 +16,7 @@ const apiKey = process.env.CLOUDINARY_API_KEY;
 const apiSecret = process.env.CLOUDINARY_API_SECRET;
 const carouselTag = process.env.CLOUDINARY_CAROUSEL_TAG || 'carousel';
 const pastEventsFolder = process.env.CLOUDINARY_PAST_EVENTS_FOLDER || 'Dishari/Past Events';
+const upcomingFolder = process.env.CLOUDINARY_UPCOMING_FOLDER || 'Dishari/Upcoming';
 const maxPastEvents = 3;
 const allowSelfSigned = process.env.CLOUDINARY_ALLOW_SELF_SIGNED_CERTS === 'true';
 
@@ -217,6 +218,52 @@ async function syncPastEvents() {
 }
 
 // ---------------------------------------------------------------------------
+// Upcoming events sync
+// ---------------------------------------------------------------------------
+
+async function syncUpcoming() {
+  console.log(`\n--- Syncing upcoming banner (folder: ${upcomingFolder}, tag: banner) ---`);
+
+  // Search for image tagged "banner" (case-insensitive) in the Upcoming folder
+  const res = await cloudinary.search
+    .expression(`asset_folder="${upcomingFolder}" AND tags=banner`)
+    .max_results(1)
+    .execute();
+
+  const bannerResource = (res.resources || [])[0] || null;
+  let bannerUrl = '';
+
+  if (bannerResource) {
+    console.log(`  Banner found: "${bannerResource.public_id}"`);
+    bannerUrl = toOptimizedUrl(bannerResource.public_id);
+  } else {
+    console.log('  No image tagged "banner" found in Upcoming folder. Banner will be hidden.');
+  }
+
+  // Read existing upcoming-events.json to preserve the events list
+  const outPath = resolve(ROOT, 'public', 'data', 'upcoming-events.json');
+  let existing = { events: [] };
+  try {
+    const raw = (await import('fs')).readFileSync(outPath, 'utf-8');
+    existing = JSON.parse(raw);
+  } catch { /* file may not exist yet */ }
+
+  const output = {
+    banner: bannerUrl,
+    events: existing.events || [],
+    metadata: {
+      source: 'Cloudinary',
+      folder: upcomingFolder,
+      banner_found: !!bannerResource,
+      generated_at: new Date().toISOString(),
+    },
+  };
+
+  writeFileSync(outPath, `${JSON.stringify(output, null, 2)}\n`, 'utf-8');
+  console.log(`Wrote upcoming-events.json (banner: ${bannerResource ? 'yes' : 'none'}).`);
+}
+
+// ---------------------------------------------------------------------------
 // Main
 // ---------------------------------------------------------------------------
 
@@ -224,6 +271,7 @@ async function main() {
   console.log('Cloudinary sync started');
   await syncCarousel();
   await syncPastEvents();
+  await syncUpcoming();
   console.log('\nAll syncs complete.');
 }
 

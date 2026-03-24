@@ -1,24 +1,20 @@
 import { useState, useEffect } from 'react'
-import { proxyImageUrl } from '../utils/proxyImage'
 
 function UpcomingEventBanner() {
-  const [imageUrl, setImageUrl] = useState(null)
-  const [alt, setAlt] = useState('Upcoming event banner')
+  const [bannerUrl, setBannerUrl] = useState(null)
 
   useEffect(() => {
-    fetch('/data/upcoming-event.json')
+    fetch('/data/upcoming-events.json')
       .then((res) => res.json())
       .then((data) => {
-        const url = (data.images || [])[0]
-        if (url) {
-          setImageUrl(url)
-          if (data.alt) setAlt(data.alt)
+        if (data.banner) {
+          setBannerUrl(data.banner)
         }
       })
-      .catch((err) => console.error('Error loading upcoming event:', err))
+      .catch((err) => console.error('Error loading upcoming events:', err))
   }, [])
 
-  if (!imageUrl) return null
+  if (!bannerUrl) return null
 
   return (
     <section className="upcoming-event-section">
@@ -26,11 +22,8 @@ function UpcomingEventBanner() {
         <h2>Upcoming Event</h2>
         <div className="upcoming-event-banner">
           <img
-            src={proxyImageUrl(imageUrl)}
-            alt={alt}
-            onError={(e) => {
-              e.target.src = imageUrl
-            }}
+            src={bannerUrl}
+            alt="Upcoming event banner"
           />
         </div>
       </div>

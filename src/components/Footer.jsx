@@ -13,7 +13,7 @@ function Footer() {
               area.
             </p>
           </div>
-          <div className="footer-section">
+          <div className="footer-section footer-quick-links">
             <h3>Quick Links</h3>
             <ul>
               <li>
@@ -27,7 +27,7 @@ function Footer() {
               </li>
             </ul>
           </div>
-          <div className="footer-section">
+          <div className="footer-section footer-follow">
             <h3>Follow Us</h3>
             <div className="social-links">
               <a href="#" aria-label="Facebook">

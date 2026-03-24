@@ -1,4 +1,5 @@
 {
+  "banner": "https://res.cloudinary.com/dqcmzcbrp/image/upload/c_limit,f_auto,q_auto,w_1200/Banner_Picnic2026_yurtc4?_a=BAMAOGWQ0",
   "events": [
     {
       "order": 1,
@@ -10,5 +11,11 @@
       "title": "Agomoni 2026",
       "link": "/future-event"
     }
-  ]
+  ],
+  "metadata": {
+    "source": "Cloudinary",
+    "folder": "Dishari/Upcoming",
+    "banner_found": true,
+    "generated_at": "2026-03-24T03:55:52.778Z"
+  }
 }
