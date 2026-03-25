@@ -17,6 +17,7 @@ const apiSecret = process.env.CLOUDINARY_API_SECRET;
 const carouselTag = process.env.CLOUDINARY_CAROUSEL_TAG || 'carousel';
 const pastEventsFolder = process.env.CLOUDINARY_PAST_EVENTS_FOLDER || 'Dishari/Past Events';
 const upcomingFolder = process.env.CLOUDINARY_UPCOMING_FOLDER || 'Dishari/Upcoming';
+const sponsorsFolder = process.env.CLOUDINARY_SPONSORS_FOLDER || 'Dishari/Sponsors';
 const maxPastEvents = 3;
 const allowSelfSigned = process.env.CLOUDINARY_ALLOW_SELF_SIGNED_CERTS === 'true';
 
@@ -264,6 +265,201 @@ async function syncUpcoming() {
 }
 
 // ---------------------------------------------------------------------------
+// Sponsors sync
+// ---------------------------------------------------------------------------
+
+async function syncSponsors() {
+  console.log(`\n--- Syncing sponsors (folder: ${sponsorsFolder}, tag: sponsor) ---`);
+
+  const res = await cloudinary.search
+    .expression(`asset_folder="${sponsorsFolder}" AND tags=sponsor`)
+    .max_results(500)
+    .execute();
+
+  const images = (res.resources || [])
+    .filter((r) => ['jpg', 'jpeg', 'png', 'webp'].includes(r.format))
+    .sort((a, b) => a.public_id.localeCompare(b.public_id))
+    .map((r) => toOptimizedUrl(r.public_id, { width: 250 }));
+
+  const output = {
+    images,
+    metadata: {
+      source: 'Cloudinary',
+      folder: sponsorsFolder,
+      total_images: images.length,
+      generated_at: new Date().toISOString(),
+    },
+  };
+
+  const outPath = resolve(ROOT, 'public', 'data', 'sponsors.json');
+  writeFileSync(outPath, `${JSON.stringify(output, null, 2)}\n`, 'utf-8');
+  console.log(`Wrote ${images.length} sponsor image URLs.`);
+}
+
+// ---------------------------------------------------------------------------
+// Testimonials sync
+// ---------------------------------------------------------------------------
+
+const testimonialsPublicId = process.env.CLOUDINARY_TESTIMONIALS_ID || 'testimonials.json';
+
+async function syncTestimonials() {
+  const rawUrl = `https://res.cloudinary.com/${cloudName}/raw/upload/${testimonialsPublicId}`;
+  console.log(`\n--- Syncing testimonials (${rawUrl}) ---`);
+
+  let data;
+  try {
+    const res = await fetch(rawUrl);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    data = await res.json();
+  } catch (err) {
+    console.warn(`  Could not fetch testimonials: ${err.message}. Writing empty file.`);
+    data = { testimonials: [] };
+  }
+
+  // Validate structure
+  if (!Array.isArray(data.testimonials)) {
+    console.warn('  Invalid format (missing testimonials array). Writing empty file.');
+    data = { testimonials: [] };
+  }
+
+  const output = {
+    testimonials: data.testimonials,
+    metadata: {
+      source: 'Cloudinary',
+      total: data.testimonials.length,
+      generated_at: new Date().toISOString(),
+    },
+  };
+
+  const outPath = resolve(ROOT, 'public', 'data', 'testimonials.json');
+  writeFileSync(outPath, `${JSON.stringify(output, null, 2)}\n`, 'utf-8');
+  console.log(`Wrote ${data.testimonials.length} testimonials.`);
+}
+
+// ---------------------------------------------------------------------------
+// Press Release sync
+// ---------------------------------------------------------------------------
+
+const pressReleaseFolder = 'Dishari/Press_Release';
+
+async function syncPressRelease() {
+  console.log(`\n--- Syncing press releases ---`);
+
+  // Try direct public_id first, then fall back to Cloudinary search
+  const candidateId = process.env.CLOUDINARY_PRESS_RELEASE_ID || 'press_release.json';
+  const directUrl = `https://res.cloudinary.com/${cloudName}/raw/upload/${candidateId}`;
+
+  let data;
+  try {
+    const res = await fetch(directUrl);
+    if (res.ok) {
+      console.log(`  Fetched directly: ${directUrl}`);
+      data = await res.json();
+    } else {
+      console.log(`  Direct fetch failed (${res.status}), searching Cloudinary...`);
+      // Search for any raw resource matching press_release* in the asset folder
+      const searchRes = await cloudinary.search
+        .expression(`resource_type:raw AND asset_folder="${pressReleaseFolder}"`)
+        .sort_by('public_id', 'asc')
+        .max_results(10)
+        .execute();
+
+      const match = (searchRes.resources || []).find((r) =>
+        r.public_id.startsWith('press_release')
+      );
+
+      if (match) {
+        console.log(`  Found via search: public_id="${match.public_id}"`);
+        const fallbackUrl = match.secure_url;
+        const fbRes = await fetch(fallbackUrl);
+        if (!fbRes.ok) throw new Error(`HTTP ${fbRes.status} from ${fallbackUrl}`);
+        data = await fbRes.json();
+      } else {
+        throw new Error('No press_release* file found in Cloudinary');
+      }
+    }
+  } catch (err) {
+    console.warn(`  Could not fetch press releases: ${err.message}. Writing empty file.`);
+    data = { press_releases: [] };
+  }
+
+  if (!Array.isArray(data.press_releases)) {
+    console.warn('  Invalid format (missing press_releases array). Writing empty file.');
+    data = { press_releases: [] };
+  }
+
+  // For each press release, fetch images and resolve tagged link assets
+  for (const pr of data.press_releases) {
+    const prFolder = `${pressReleaseFolder}/${pr.id}`;
+
+    // --- Fetch images for this press release ---
+    try {
+      const imgRes = await cloudinary.search
+        .expression(`asset_folder="${prFolder}" AND resource_type:image`)
+        .sort_by('public_id', 'asc')
+        .max_results(100)
+        .execute();
+
+      pr.images = (imgRes.resources || [])
+        .filter((r) => ['jpg', 'jpeg', 'png', 'webp'].includes(r.format))
+        .map((r) => toOptimizedUrl(r.public_id, { width: 800 }));
+
+      console.log(`  PR ${pr.id}: found ${pr.images.length} images`);
+    } catch (err) {
+      console.warn(`  PR ${pr.id}: image search failed: ${err.message}`);
+      pr.images = pr.images || [];
+    }
+
+    // --- Resolve tagged link assets ---
+    if (Array.isArray(pr.links)) {
+      for (const link of pr.links) {
+        if (!link.tag) continue;
+        const linksFolder = `${prFolder}/links`;
+        try {
+          const linkRes = await cloudinary.search
+            .expression(`asset_folder="${linksFolder}" AND tags=${link.tag}`)
+            .sort_by('public_id', 'asc')
+            .max_results(10)
+            .execute();
+
+          const assets = (linkRes.resources || []).map((r) =>
+            cloudinary.url(r.public_id, {
+              secure: true,
+              resource_type: r.resource_type,
+              // For raw files (PDFs etc) use raw type; for images use optimized
+              ...(r.resource_type === 'image'
+                ? { transformation: [{ fetch_format: 'auto', quality: 'auto' }] }
+                : {}),
+            })
+          );
+
+          if (assets.length > 0) {
+            link.url = assets[0]; // Primary link asset
+            if (assets.length > 1) link.additional_urls = assets.slice(1);
+          }
+          console.log(`  PR ${pr.id} link tag="${link.tag}": found ${assets.length} assets`);
+        } catch (err) {
+          console.warn(`  PR ${pr.id} link tag="${link.tag}": search failed: ${err.message}`);
+        }
+      }
+    }
+  }
+
+  const output = {
+    press_releases: data.press_releases,
+    metadata: {
+      source: 'Cloudinary',
+      total: data.press_releases.length,
+      generated_at: new Date().toISOString(),
+    },
+  };
+
+  const outPath = resolve(ROOT, 'public', 'data', 'press_release.json');
+  writeFileSync(outPath, `${JSON.stringify(output, null, 2)}\n`, 'utf-8');
+  console.log(`Wrote ${data.press_releases.length} press releases.`);
+}
+
+// ---------------------------------------------------------------------------
 // Main
 // ---------------------------------------------------------------------------
 
@@ -272,6 +468,9 @@ async function main() {
   await syncCarousel();
   await syncPastEvents();
   await syncUpcoming();
+  await syncSponsors();
+  await syncTestimonials();
+  await syncPressRelease();
   console.log('\nAll syncs complete.');
 }
 

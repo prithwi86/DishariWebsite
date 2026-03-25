@@ -1,6 +1,41 @@
+import { useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
 
 function Footer() {
+  const socialRef = useRef(null)
+
+  // Auto-cycle the border animation on mobile
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 600px)')
+    let timer
+
+    function start() {
+      if (!mq.matches) return
+      const items = socialRef.current?.querySelectorAll('li')
+      if (!items?.length) return
+      let idx = 0
+
+      timer = setInterval(() => {
+        items.forEach((li) => li.classList.remove('active'))
+        items[idx].classList.add('active')
+        idx = (idx + 1) % items.length
+      }, 2000)
+    }
+
+    function stop() {
+      clearInterval(timer)
+      socialRef.current?.querySelectorAll('li').forEach((li) => li.classList.remove('active'))
+    }
+
+    function handleChange() {
+      stop()
+      start()
+    }
+
+    mq.addEventListener('change', handleChange)
+    start()
+    return () => { stop(); mq.removeEventListener('change', handleChange) }
+  }, [])
   return (
     <footer className="footer">
       <div className="container">
@@ -29,17 +64,26 @@ function Footer() {
           </div>
           <div className="footer-section footer-follow">
             <h3>Follow Us</h3>
-            <div className="social-links">
-              <a href="#" aria-label="Facebook">
-                <i className="fab fa-facebook"></i>
-              </a>
-              <a href="#" aria-label="Instagram">
-                <i className="fab fa-instagram"></i>
-              </a>
-              <a href="#" aria-label="Twitter">
-                <i className="fab fa-twitter"></i>
-              </a>
-            </div>
+            <ul className="social-3d" ref={socialRef}>
+              <li>
+                <a className="facebook" href="https://www.facebook.com/share/1NFtd3CcXq/" aria-label="Facebook" target="_blank" rel="noopener noreferrer">
+                  <span></span><span></span><span></span><span></span>
+                  <span className="fab fa-facebook"></span>
+                </a>
+              </li>
+              <li>
+                <a className="instagram" href="https://www.instagram.com/disharinp?igsh=cHgyY3gxeGRvcTl1" aria-label="Instagram" target="_blank" rel="noopener noreferrer">
+                  <span></span><span></span><span></span><span></span>
+                  <span className="fab fa-instagram"></span>
+                </a>
+              </li>
+              <li>
+                <a className="youtube" href="https://youtube.com/@dishariboston?si=ae7FiTA-iAJQK4VM" aria-label="YouTube" target="_blank" rel="noopener noreferrer">
+                  <span></span><span></span><span></span><span></span>
+                  <span className="fab fa-youtube"></span>
+                </a>
+              </li>
+            </ul>
           </div>
         </div>
         <div className="footer-bottom">

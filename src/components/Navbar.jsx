@@ -6,15 +6,19 @@ function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false)
   const [submenuOpen, setSubmenuOpen] = useState(null) // key of open submenu
   const [dropdownOpen, setDropdownOpen] = useState(false)
+  const [pressDropdownOpen, setPressDropdownOpen] = useState(false)
   const [upcomingEvents, setUpcomingEvents] = useState([])
+  const [pressReleases, setPressReleases] = useState([])
   const location = useLocation()
   const dropdownRef = useRef(null)
+  const pressDropdownRef = useRef(null)
 
   // Close everything on route change
   useEffect(() => {
     setMenuOpen(false)
     setSubmenuOpen(null)
     setDropdownOpen(false)
+    setPressDropdownOpen(false)
   }, [location])
 
   // Toggle layout class so drawer + footer fill exactly the viewport
@@ -37,11 +41,22 @@ function Navbar() {
       .catch((err) => console.error('Error loading upcoming events:', err))
   }, [])
 
+  // Load press releases
+  useEffect(() => {
+    fetch('/data/press_release.json')
+      .then((res) => res.json())
+      .then((data) => setPressReleases(data.press_releases || []))
+      .catch((err) => console.error('Error loading press releases:', err))
+  }, [])
+
   // Close desktop dropdown on outside click
   useEffect(() => {
     function handleClickOutside(e) {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
         setDropdownOpen(false)
+      }
+      if (pressDropdownRef.current && !pressDropdownRef.current.contains(e.target)) {
+        setPressDropdownOpen(false)
       }
     }
     document.addEventListener('mousedown', handleClickOutside)
@@ -91,6 +106,26 @@ function Navbar() {
               </ul>
             )}
           </li>
+          {pressReleases.length > 0 && (
+            <li className="nav-dropdown" ref={pressDropdownRef}>
+              <button
+                className="nav-dropdown-toggle"
+                onClick={() => setPressDropdownOpen((prev) => !prev)}
+                type="button"
+              >
+                Press Room <i className={`fas fa-chevron-down nav-dropdown-arrow${pressDropdownOpen ? ' open' : ''}`}></i>
+              </button>
+              {pressDropdownOpen && (
+                <ul className="nav-dropdown-menu">
+                  {pressReleases.map((pr) => (
+                    <li key={pr.id}>
+                      <Link to={`/press/${pr.id}`}>{pr.description}</Link>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </li>
+          )}
           <li><Link to="/events" className={location.pathname === '/events' ? 'active' : ''}>Past Events</Link></li>
           <li><Link to="/contact" className={location.pathname === '/contact' ? 'active' : ''}>Contact</Link></li>
           <li><Link to="/about" className={location.pathname === '/about' ? 'active' : ''}>About Us</Link></li>
@@ -122,6 +157,17 @@ function Navbar() {
             <span>Upcoming Events</span>
             <i className="fas fa-chevron-right"></i>
           </button>
+
+          {pressReleases.length > 0 && (
+            <button
+              className="drawer-row drawer-row-sub"
+              onClick={() => setSubmenuOpen('press')}
+              type="button"
+            >
+              <span>Press Room</span>
+              <i className="fas fa-chevron-right"></i>
+            </button>
+          )}
 
           <Link to="/events" className="drawer-row">Past Events</Link>
           <Link to="/contact" className="drawer-row">Contact</Link>
@@ -156,6 +202,23 @@ function Navbar() {
               </Link>
             )
           })}
+        </div>
+
+        {/* Press Room submenu panel */}
+        <div className={`drawer-panel drawer-sub${submenuOpen === 'press' ? ' visible' : ''}`}>
+          <button
+            className="drawer-back"
+            onClick={() => setSubmenuOpen(null)}
+            type="button"
+          >
+            <i className="fas fa-chevron-left"></i> Back
+          </button>
+          <div className="drawer-sub-title">Press Room</div>
+          {pressReleases.map((pr) => (
+            <Link key={pr.id} to={`/press/${pr.id}`} className="drawer-row">
+              {pr.description}
+            </Link>
+          ))}
         </div>
       </div>
     </>

@@ -9,6 +9,7 @@ import Events from './pages/Events'
 import Contact from './pages/Contact'
 import EventGallery from './pages/EventGallery'
 import FutureEvent from './pages/FutureEvent'
+import PressReleasePage from './pages/PressReleasePage'
 
 function App() {
   return (
@@ -22,6 +23,7 @@ function App() {
         <Route path="/contact" element={<Contact />} />
         <Route path="/event-gallery" element={<EventGallery />} />
         <Route path="/future-event" element={<FutureEvent />} />
+        <Route path="/press/:id" element={<PressReleasePage />} />
       </Routes>
       <Footer />
       <ScrollToTopButton />
