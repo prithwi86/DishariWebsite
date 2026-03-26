@@ -35,8 +35,15 @@ function Navbar() {
     fetch('/data/upcoming-events.json')
       .then((res) => res.json())
       .then((data) => {
-        const sorted = (data.events || []).sort((a, b) => a.order - b.order)
-        setUpcomingEvents(sorted)
+        const events = (data.events || [])
+          .filter((ev) => ev.id && ev.id.trim() !== '')
+          .sort((a, b) => {
+            const orderA = typeof a.order === 'number' ? a.order : Infinity
+            const orderB = typeof b.order === 'number' ? b.order : Infinity
+            if (orderA !== orderB) return orderA - orderB
+            return (a.id || '').localeCompare(b.id || '')
+          })
+        setUpcomingEvents(events)
       })
       .catch((err) => console.error('Error loading upcoming events:', err))
   }, [])
@@ -64,7 +71,7 @@ function Navbar() {
   }, [])
 
   const isUpcomingActive = upcomingEvents.some(
-    (ev) => location.pathname === ev.link
+    (ev) => location.pathname === `/event/${ev.id}`
   )
 
   return (
@@ -81,6 +88,7 @@ function Navbar() {
           <li>
             <Link to="/">Home</Link>
           </li>
+          {upcomingEvents.length > 0 && (
           <li className="nav-dropdown" ref={dropdownRef}>
             <button
               className={`nav-dropdown-toggle${isUpcomingActive ? ' active' : ''}`}
@@ -89,23 +97,19 @@ function Navbar() {
             >
               Upcoming Events <i className={`fas fa-chevron-down nav-dropdown-arrow${dropdownOpen ? ' open' : ''}`}></i>
             </button>
-            {dropdownOpen && upcomingEvents.length > 0 && (
+            {dropdownOpen && (
               <ul className="nav-dropdown-menu">
-                {upcomingEvents.map((ev) => {
-                  const isExternal = ev.link.startsWith('http')
-                  return (
-                    <li key={ev.order}>
-                      {isExternal ? (
-                        <a href={ev.link} target="_blank" rel="noopener noreferrer">{ev.title}</a>
-                      ) : (
-                        <Link to={ev.link} className={location.pathname === ev.link ? 'active' : ''}>{ev.title}</Link>
-                      )}
-                    </li>
-                  )
-                })}
+                {upcomingEvents.map((ev) => (
+                  <li key={ev.id}>
+                    <Link to={`/event/${ev.id}`} className={location.pathname === `/event/${ev.id}` ? 'active' : ''}>
+                      {ev.title || ev.id}
+                    </Link>
+                  </li>
+                ))}
               </ul>
             )}
           </li>
+          )}
           {pressReleases.length > 0 && (
             <li className="nav-dropdown" ref={pressDropdownRef}>
               <button
@@ -149,6 +153,7 @@ function Navbar() {
         <div className={`drawer-panel${submenuOpen ? ' hidden' : ''}`}>
           <Link to="/" className="drawer-row">Home</Link>
 
+          {upcomingEvents.length > 0 && (
           <button
             className="drawer-row drawer-row-sub"
             onClick={() => setSubmenuOpen('upcoming')}
@@ -157,6 +162,7 @@ function Navbar() {
             <span>Upcoming Events</span>
             <i className="fas fa-chevron-right"></i>
           </button>
+          )}
 
           {pressReleases.length > 0 && (
             <button
@@ -184,24 +190,11 @@ function Navbar() {
             <i className="fas fa-chevron-left"></i> Back
           </button>
           <div className="drawer-sub-title">Upcoming Events</div>
-          {upcomingEvents.map((ev) => {
-            const isExternal = ev.link.startsWith('http')
-            return isExternal ? (
-              <a
-                key={ev.order}
-                href={ev.link}
-                className="drawer-row"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                {ev.title}
-              </a>
-            ) : (
-              <Link key={ev.order} to={ev.link} className="drawer-row">
-                {ev.title}
-              </Link>
-            )
-          })}
+          {upcomingEvents.map((ev) => (
+            <Link key={ev.id} to={`/event/${ev.id}`} className="drawer-row">
+              {ev.title || ev.id}
+            </Link>
+          ))}
         </div>
 
         {/* Press Room submenu panel */}

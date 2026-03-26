@@ -7,9 +7,20 @@ function UpcomingEventBanner() {
     fetch('/data/upcoming-events.json')
       .then((res) => res.json())
       .then((data) => {
-        if (data.banner) {
-          setBannerUrl(data.banner)
-        }
+        const events = (data.events || [])
+          .filter((ev) => ev.id && ev.id.trim() !== '')
+          .sort((a, b) => {
+            const orderA = typeof a.order === 'number' ? a.order : Infinity
+            const orderB = typeof b.order === 'number' ? b.order : Infinity
+            if (orderA !== orderB) return orderA - orderB
+            return (a.id || '').localeCompare(b.id || '')
+          })
+        if (events.length === 0) return
+
+        const first = events[0]
+        const banner = first.banner
+          || (first.details?.img_urls?.length > 0 ? first.details.img_urls[0] : null)
+        if (banner) setBannerUrl(banner)
       })
       .catch((err) => console.error('Error loading upcoming events:', err))
   }, [])

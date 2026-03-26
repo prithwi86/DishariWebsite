@@ -2,37 +2,41 @@
 
 The official website for **Dishari Boston Inc.**, a nonprofit organization dedicated to preserving and promoting South Asian cultural heritage and building community in the greater Boston area.
 
-🌐 **Live site**: _Coming soon_
-
 ---
 
 ## Tech Stack
 
-- **React 18** with React Router
+- **React 18** with React Router v6
 - **Vite** — fast dev server and build tool
-- **Cloudinary** — carousel image source (build-time sync)
-- **Google Drive** — upcoming events, past events, and testimonials
-- **weserv.nl** — image proxy for Google Drive URLs (CORS bypass)
+- **Cloudinary** — all images, JSON data files, and media (build-time sync)
+- **SMTP2GO** — transactional email (via PHP proxy in production)
+- **Google Fonts** — Pacifico & Quicksand (Contact page)
 
 ## Features
 
-- Responsive multi-page layout (Home, About, Events, Contact)
+- Responsive multi-page layout (Home, About, Events, Contact, Press)
 - Image carousel synced from Cloudinary (tag-based)
-- Upcoming event banner
+- **Dynamic upcoming events system** — events driven by Cloudinary JSON with per-event folders for banners and gallery images
+- Individual event pages with embedded Zeffy registration forms, image gallery with lightbox, and video section
 - Past event galleries with photos & videos
-- Testimonials pulled from Google Docs
-- Scroll animations
-- Scroll-to-top button
+- Press releases with individual detail pages
+- Testimonials synced from Cloudinary
+- Sponsors carousel synced from Cloudinary
+- Contact page with animated SVG illustration and email form
+- Dynamic social media links in footer (loaded from Cloudinary JSON)
+- Scroll animations and scroll-to-top button
 
 ## Pages
 
-| Route              | Page             |
-| ------------------ | ---------------- |
-| `/`                | Home             |
-| `/about`           | About            |
-| `/events`          | Events           |
-| `/contact`         | Contact          |
-| `/event-gallery`   | Event Gallery    |
+| Route              | Page                    |
+| ------------------ | ----------------------- |
+| `/`                | Home                    |
+| `/about`           | About                   |
+| `/events`          | Events                  |
+| `/contact`         | Contact                 |
+| `/event-gallery`   | Event Gallery           |
+| `/event/:id`       | Individual Event Page   |
+| `/press/:id`       | Press Release Detail    |
 
 ## Getting Started
 
@@ -56,82 +60,106 @@ The site will be available at `http://localhost:5173`.
 ### Build for Production
 
 ```bash
-npm run build
+# Sync all data from Cloudinary and build
+npm run build:sync
 ```
 
 Output goes to the `dist/` folder.
 
-## Carousel Sync (Cloudinary)
+The `build:sync` command runs:
+1. `npm run sync` — fetches all data from Cloudinary (carousel, past events, upcoming events, sponsors, testimonials, press releases, contact info, video URLs)
+2. `npm run build` — builds the production bundle
 
-Carousel images are generated at build time from Cloudinary and written to `public/data/carousel-images.json`.
-
-1. Create `.env.local` in the project root with:
-
-```bash
-CLOUDINARY_CLOUD_NAME=...
-CLOUDINARY_API_KEY=...
-CLOUDINARY_API_SECRET=...
-CLOUDINARY_CAROUSEL_TAG=carousel
-```
-
-2. Run sync + build:
+### Sync Only
 
 ```bash
-npm run build:sync
+npm run sync
 ```
 
-This runs:
-1. `npm run sync:carousel`
-2. `npm run build`
+Runs `scripts/sync-cloudinary.js` which syncs all content from Cloudinary into `public/data/` JSON files.
 
-If your local network uses SSL inspection and you hit certificate issues, you can temporarily add:
+## Cloudinary Setup
+
+All content is managed via Cloudinary. See [CLOUDINARY_SETUP.md](CLOUDINARY_SETUP.md) for the full setup guide including folder structure, naming conventions, and environment variables.
+
+Create a `.env.local` file in the project root with:
+
+```bash
+CLOUDINARY_CLOUD_NAME=dqcmzcbrp
+CLOUDINARY_API_KEY=your_api_key
+CLOUDINARY_API_SECRET=your_api_secret
+```
+
+If your local network uses SSL inspection, you can temporarily add:
 
 ```bash
 CLOUDINARY_ALLOW_SELF_SIGNED_CERTS=true
 ```
 
-Use that only for local development environments.
+## Email (Contact Form)
 
-## Google Drive Sync
+The contact form uses **SMTP2GO** for sending emails:
 
-Non-carousel content is stored in shared Google Drive folders. A sync script pulls the latest data into JSON files used by the website.
+- **Production** (Hostinger): Uses a PHP proxy at `/api/send-email.php` — the API key stays server-side
+- **Development**: Calls SMTP2GO directly using credentials from `.env.development` (gitignored)
+
+To enable email in local dev, create `.env.development`:
 
 ```bash
-# One-time: install sync dependencies
-npm run sync:install
-
-# Sync Drive-backed content (upcoming, past events, testimonials)
-npm run sync
+VITE_SMTP2GO_API_KEY=your_api_key
+VITE_SMTP2GO_SENDER=web.admin@dishariboston.org
 ```
-
-See [GOOGLE_DRIVE_SETUP.md](GOOGLE_DRIVE_SETUP.md) for full setup instructions (service account, folder sharing, etc.).
 
 ## Deployment
 
-See [DEPLOYMENT.md](DEPLOYMENT.md) for hosting instructions on Hostinger (subdomain or subdirectory alongside the existing WordPress site).
+See [DEPLOYMENT.md](DEPLOYMENT.md) for hosting instructions on Hostinger.
 
 ## Project Structure
 
 ```
-├── public/data/          # JSON data files used by the website
-│   ├── carousel-images.json  # Generated from Cloudinary tag
-│   ├── past-events.json
-│   ├── testimonials.json
-│   └── upcoming-event.json
+├── public/
+│   ├── api/
+│   │   └── send-email.php        # SMTP2GO proxy for production
+│   ├── data/                     # JSON data files (generated by sync)
+│   │   ├── carousel-images.json  # Homepage carousel (Cloudinary tag)
+│   │   ├── contact.json          # Contact info & social links
+│   │   ├── past-events.json      # Past event galleries
+│   │   ├── press_release.json    # Press releases
+│   │   ├── sponsors.json         # Sponsor logos
+│   │   ├── testimonials.json     # Testimonial quotes
+│   │   ├── upcoming-events.json  # Upcoming events with full details
+│   │   └── video_urls.json       # Video URL mappings
+│   └── .htaccess                 # SPA routing for Hostinger
 ├── scripts/
-│   ├── drive-config.json           # Google Drive folder IDs
-│   ├── sync-carousel-cloudinary.js # Cloudinary carousel sync script
-│   └── sync-drive.js               # Drive sync script (non-carousel)
+│   └── sync-cloudinary.js        # Master sync script (all content)
 ├── src/
-│   ├── assets/           # Logo images
-│   ├── components/       # Reusable UI components
-│   ├── pages/            # Route pages
-│   ├── utils/            # Utilities (image proxy)
-│   ├── App.jsx           # App root with routes
-│   ├── main.jsx          # Entry point
-│   └── styles.css        # Global styles
-├── DEPLOYMENT.md         # Hosting guide
-├── GOOGLE_DRIVE_SETUP.md # Drive sync setup
+│   ├── assets/                   # Static assets (logo, fallback images)
+│   ├── components/               # Reusable UI components
+│   │   ├── Carousel.jsx
+│   │   ├── Footer.jsx            # Dynamic social links from contact.json
+│   │   ├── Lightbox.jsx          # Image lightbox overlay
+│   │   ├── Navbar.jsx            # Dynamic upcoming events dropdown
+│   │   ├── PastEvents.jsx
+│   │   ├── PressRelease.jsx
+│   │   ├── Sponsors.jsx
+│   │   ├── Testimonials.jsx
+│   │   └── UpcomingEventBanner.jsx
+│   ├── pages/
+│   │   ├── About.jsx
+│   │   ├── Contact.jsx           # Animated SVG + email form
+│   │   ├── EventGallery.jsx
+│   │   ├── Events.jsx
+│   │   ├── FutureEvent.jsx       # Dynamic event page (/event/:id)
+│   │   ├── Home.jsx
+│   │   └── PressReleasePage.jsx
+│   ├── utils/
+│   │   ├── cloudinary.js
+│   │   └── proxyImage.js
+│   ├── App.jsx                   # App root with routes
+│   ├── main.jsx                  # Entry point
+│   └── styles.css                # Global styles
+├── CLOUDINARY_SETUP.md           # Cloudinary setup guide
+├── DEPLOYMENT.md                 # Hosting guide
 ├── index.html
 ├── package.json
 └── vite.config.js

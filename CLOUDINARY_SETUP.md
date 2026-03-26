@@ -2,7 +2,7 @@
 
 ## Overview
 
-This project uses **Cloudinary** to host and serve all images (carousel, past event galleries). The sync script fetches image URLs from Cloudinary and writes them to JSON files in `public/data/`.
+This project uses **Cloudinary** as the primary CMS for all images and data. The sync script (`scripts/sync-cloudinary.js`) fetches image URLs and JSON data files from Cloudinary and writes them to `public/data/` at build time.
 
 ## Prerequisites
 
@@ -17,8 +17,18 @@ Create a `.env.local` file in the project root:
 CLOUDINARY_CLOUD_NAME=dqcmzcbrp
 CLOUDINARY_API_KEY=your_api_key
 CLOUDINARY_API_SECRET=your_api_secret
+```
+
+Optional overrides (with defaults shown):
+
+```
 CLOUDINARY_CAROUSEL_TAG=carousel
 CLOUDINARY_PAST_EVENTS_FOLDER=Dishari/Past Events
+CLOUDINARY_UPCOMING_FOLDER=Dishari/Upcoming
+CLOUDINARY_SPONSORS_FOLDER=Dishari/Sponsors
+CLOUDINARY_CONTACT_ID=contact.json
+CLOUDINARY_UPCOMING_EVENTS_ID=upcoming-events.json
+CLOUDINARY_VIDEO_URLS_ID=video_urls.json
 ```
 
 Optional (for corporate networks with SSL proxy):
@@ -32,63 +42,173 @@ CLOUDINARY_ALLOW_SELF_SIGNED_CERTS=true
 
 ```
 Dishari/
-└── Past Events/
-    ├── 1_Poush_Sankranti_2026/
-    │   ├── Banner.jpg          (tagged with "banner")
-    │   ├── photo1.jpg
-    │   └── photo2.jpg
-    ├── 2_Agomoni_2025/
-    │   ├── Banner.jpg          (tagged with "banner")
-    │   └── ...
-    └── 3_Poush_Utsav_2025/
-        ├── Banner.png          (tagged with "banner")
-        └── ...
+├── Assets/
+│   └── Contact_BG.jpg       (tagged with "asset" + "contact")
+├── Past Events/
+│   ├── 1_Poush_Sankranti_2026/
+│   │   ├── Banner.jpg        (tagged with "banner")
+│   │   ├── photo1.jpg
+│   │   └── photo2.jpg
+│   ├── 2_Agomoni_2025/
+│   │   ├── Banner.jpg        (tagged with "banner")
+│   │   └── ...
+│   └── 3_Poush_Utsav_2025/
+│       ├── Banner.png        (tagged with "banner")
+│       └── ...
+├── Sponsors/
+│   ├── sponsor1.png
+│   └── sponsor2.png
+├── Testimonials/
+│   └── testimonials.json     (raw JSON upload)
+└── Upcoming/
+    ├── Picnic2026/
+    │   ├── Banner_Picnic2026.jpg   (filename starts with "banner")
+    │   ├── gallery1.jpg
+    │   └── gallery2.jpg
+    └── Agomoni2026/
+        ├── Banner.jpg              (filename starts with "banner")
+        └── dancer_registration.jpg
 ```
 
-### Naming Convention
+### Raw JSON Files (uploaded as type "raw")
+
+These are stored directly in Cloudinary and fetched via public raw URL:
+
+| public_id             | Purpose                                    |
+| --------------------- | ------------------------------------------ |
+| `upcoming-events.json`| Master event list (id, order, title, details, registrations) |
+| `contact.json`        | Contact info, social links, background image tags |
+| `video_urls.json`     | Video URL mappings to merge into event data |
+| `testimonials.json`   | Testimonial quotes and authors              |
+| `press_release.json`  | Press release entries                       |
+
+## Sync Pipeline
+
+Running `npm run sync` executes the following in order:
+
+1. **syncCarousel** — Images tagged `carousel` → `carousel-images.json`
+2. **syncPastEvents** — Folders under `Dishari/Past Events` → `past-events.json`
+3. **syncUpcoming** — Fetches `upcoming-events.json` from Cloudinary, scans per-event folders (`Dishari/Upcoming/<id>`) for banners and gallery images → `upcoming-events.json`
+4. **syncSponsors** — Images in `Dishari/Sponsors` → `sponsors.json`
+5. **syncTestimonials** — `testimonials.json` raw file → `testimonials.json`
+6. **syncPressRelease** — `press_release.json` raw file → `press_release.json`
+7. **syncContact** — `contact.json` raw file, resolves background image by tags → `contact.json`
+8. **syncVideoUrls** — `video_urls.json` raw file, merges video URLs into target event data
+
+## Naming Conventions
+
+### Past Events
 
 Folders: `<OrderNo>_<EventName>` (e.g., `1_Poush_Sankranti_2026`)
 - **OrderNo** determines display order (ascending)
 - Only the top 3 events (by order) are synced
+- Tag one image per event folder with `banner` in Cloudinary
 
-### Banner Detection
+### Upcoming Events
 
-Tag one image per event folder with `banner` in Cloudinary. The sync script finds it via:
-```
-asset_folder="Dishari/Past Events/1_Poush_Sankranti_2026" AND tags=banner
-```
+Each event in the master `upcoming-events.json` has an `id` field (e.g., `Picnic2026`).
+The sync script looks for a matching folder at `Dishari/Upcoming/<id>`.
+
+- **Banner**: any image whose filename starts with `banner` (case-insensitive). If multiple, one is chosen randomly.
+- **Gallery images**: all other images in the folder (sorted by public_id).
 
 ### Carousel Images
 
 Tag images with `carousel` in Cloudinary (any folder). They'll be picked up for the homepage carousel.
 
+### Sponsors
+
+All images in the `Dishari/Sponsors` folder are synced as sponsor logos.
+
 ## Running the Sync
 
 ```bash
+# Sync all content from Cloudinary
 npm run sync
-```
 
-This generates:
-| Output file | Source |
-|---|---|
-| `public/data/carousel-images.json` | Images tagged `carousel` |
-| `public/data/past-events.json` | Asset folders under `Dishari/Past Events` |
-
-## Build with Sync
-
-```bash
+# Sync + build for production
 npm run build:sync
 ```
 
-Runs sync first, then builds for production.
+## Output Files
 
-## Adding a New Past Event
+| Output file                       | Source                                |
+| --------------------------------- | ------------------------------------- |
+| `public/data/carousel-images.json`| Images tagged `carousel`              |
+| `public/data/past-events.json`    | Folders under `Dishari/Past Events`   |
+| `public/data/upcoming-events.json`| Master JSON + per-event folder scans  |
+| `public/data/sponsors.json`       | Images in `Dishari/Sponsors`          |
+| `public/data/testimonials.json`   | Raw `testimonials.json`               |
+| `public/data/press_release.json`  | Raw `press_release.json`              |
+| `public/data/contact.json`        | Raw `contact.json` + image resolution |
+| `public/data/video_urls.json`     | Raw `video_urls.json`                 |
 
-1. Create a new folder in Cloudinary: `Dishari/Past Events/<OrderNo>_<EventName>`
-2. Upload images to the folder
-3. Tag one image as `banner`
-4. Run `npm run sync`
-5. Run `npm run build`
+## Upcoming Events JSON Structure
+
+The master `upcoming-events.json` uploaded to Cloudinary should follow this structure:
+
+```json
+{
+  "events": [
+    {
+      "id": "Picnic2026",
+      "order": 1,
+      "title": "Dishari Picnic 2026",
+      "details": {
+        "description": ["Paragraph 1", "Paragraph 2"],
+        "date": "06/13/2026",
+        "time": "",
+        "venue": "Hopkinton State Park, Hopkinton, MA",
+        "address": "",
+        "registrations": [
+          {
+            "button_text": "Event Registration",
+            "external_url": "https://www.zeffy.com/...",
+            "internal_url": "",
+            "embeded_form": "<div>...<iframe src='https://www.zeffy.com/embed/...'></iframe></div>"
+          }
+        ]
+      }
+    }
+  ]
+}
+```
+
+The sync script enriches each event with:
+- `banner` — resolved from the event's Cloudinary folder
+- `details.img_urls` — gallery images from the folder
+- `details.video_urls` — merged from `video_urls.json` if matching entry exists
+
+### Registration Priority
+
+On the event page, registration buttons follow this priority:
+1. `embeded_form` — shown as collapsible inline iframe (supports raw HTML snippets or plain URLs)
+2. `internal_url` — opens in same tab
+3. `external_url` — opens in new tab
+
+## Adding Content
+
+### Add a New Upcoming Event
+
+1. Add an entry to `upcoming-events.json` in Cloudinary with a unique `id`
+2. Create a folder `Dishari/Upcoming/<id>` in Cloudinary
+3. Upload a banner image (filename starting with `banner`)
+4. Upload any gallery images
+5. Run `npm run build:sync`
+
+### Add a New Past Event
+
+1. Create a folder `Dishari/Past Events/<OrderNo>_<EventName>` in Cloudinary
+2. Upload images and tag one as `banner`
+3. Run `npm run build:sync`
+
+### Update Contact Info / Social Links
+
+Edit `contact.json` in Cloudinary and run `npm run build:sync`.
+
+### Add Video URLs to Events
+
+Edit `video_urls.json` in Cloudinary — each entry maps to an event by `file_name` and `event_id`. Run `npm run build:sync`.
 
 ## Supported Image Formats
 
@@ -97,13 +217,19 @@ jpg, jpeg, png, webp, gif, avif
 ## Troubleshooting
 
 **"Missing Cloudinary env vars"**
-— Check that `.env.local` exists with all three required variables.
+— Check that `.env.local` exists with `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET`.
 
 **Empty events in JSON**
 — Verify the Cloudinary account uses **asset folders** mode (not legacy/dynamic folders). The sync script uses `asset_folder` search expressions.
 
-**Banner not found**
+**Banner not found for past events**
 — Ensure the banner image is tagged with `banner` in the Cloudinary Media Library.
+
+**Banner not found for upcoming events**
+— Ensure at least one image in the event's folder has a filename starting with `banner`.
 
 **SSL errors on corporate network**
 — Set `CLOUDINARY_ALLOW_SELF_SIGNED_CERTS=true` in `.env.local`.
+
+**`public_id` vs `asset_folder`**
+— `public_id` is the delivery URL key (used in URLs). `asset_folder` is the organizational path shown in the Cloudinary UI. They can differ — the sync script searches by `asset_folder`.

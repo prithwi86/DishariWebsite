@@ -1,21 +1,65 @@
 {
-  "banner": "https://res.cloudinary.com/dqcmzcbrp/image/upload/c_limit,f_auto,q_auto,w_1200/Banner_Picnic2026_yurtc4?_a=BAMAOGWQ0",
   "events": [
     {
+      "id": "Picnic2026",
       "order": 1,
       "title": "Dishari Picnic 2026",
-      "link": "https://www.zeffy.com/en-US/ticketing/dishari-picnic--2026"
+      "banner": "https://res.cloudinary.com/dqcmzcbrp/image/upload/c_limit,f_auto,q_auto,w_1200/Banner_Picnic2026_yurtc4?_a=BAMAOGWQ0",
+      "details": {
+        "description": [
+          "Dishari Picnic 2026 is a relaxed summer gathering where our Bengali community comes together over food, adda, and games in the Boston area 🧺🌳.",
+          "Please use this form to register your group so we can plan meals and activities thoughtfully.",
+          "By signing up, you help Dishari continue its mission of celebrating Bengali culture and creating a welcoming space for friends, families, and new community members.",
+          "We look forward to sharing the day with you."
+        ],
+        "date": "06/13/2026",
+        "time": "",
+        "venue": "Hopkinton State Park, Hopkinton, MA",
+        "address": "",
+        "img_urls": [],
+        "video_urls": [],
+        "registrations": [
+          {
+            "button_text": "Event Registration",
+            "external_url": "https://www.zeffy.com/en-US/ticketing/dishari-picnic--2026",
+            "internal_url": "",
+            "embeded_form": "<div style=\"position:relative;overflow:hidden;height:450px;width:100%;padding-top:450px;\"><iframe title='Donation form powered by Zeffy' style='position: absolute; border: 0; top:0;left:0;bottom:0;right:0;width:100%;height:100%' src='https://www.zeffy.com/embed/ticketing/dishari-picnic--2026' allowpaymentrequest allowTransparency=\"true\"></iframe></div>"
+          }
+        ]
+      }
     },
     {
+      "id": "Agomoni2026",
       "order": 2,
-      "title": "Agomoni 2026",
-      "link": "/future-event"
+      "title": "Dishari Agomoni 2026",
+      "banner": "https://res.cloudinary.com/dqcmzcbrp/image/upload/c_limit,f_auto,q_auto,w_1200/Banner_f3ordr?_a=BAMAOGWQ0",
+      "details": {
+        "description": [
+          "Dishari Agomoni 2026 is a vibrant cultural event where our Bengali community comes together to celebrate the arrival of the new year with music, dance, and traditional performances in the Boston area 🎶💃.",
+          "Please use this form to register your group so we can plan the event thoughtfully.",
+          "By signing up, you help Dishari continue its mission of celebrating Bengali culture and creating a welcoming space for friends, families, and new community members.",
+          "We look forward to sharing the day with you."
+        ],
+        "date": "10/10/2026",
+        "time": "",
+        "venue": "Littleton High School",
+        "address": "56 King Street, Littleton, MA 01460",
+        "img_urls": [
+          "https://res.cloudinary.com/dqcmzcbrp/image/upload/c_limit,f_auto,q_auto,w_1200/Dancer_registration_ndtafl?_a=BAMAOGWQ0"
+        ],
+        "video_urls": [
+          "https://www.facebook.com/reel/948376574310106",
+          "https://www.facebook.com/reel/26013520011630186",
+          "https://www.facebook.com/reel/3934610190169715"
+        ],
+        "registrations": []
+      }
     }
   ],
   "metadata": {
     "source": "Cloudinary",
     "folder": "Dishari/Upcoming",
-    "banner_found": true,
-    "generated_at": "2026-03-25T00:59:05.635Z"
+    "total_events": 2,
+    "generated_at": "2026-03-26T17:32:50.577Z"
   }
 }

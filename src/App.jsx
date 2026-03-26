@@ -22,7 +22,7 @@ function App() {
         <Route path="/events" element={<Events />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/event-gallery" element={<EventGallery />} />
-        <Route path="/future-event" element={<FutureEvent />} />
+        <Route path="/event/:id" element={<FutureEvent />} />
         <Route path="/press/:id" element={<PressReleasePage />} />
       </Routes>
       <Footer />

@@ -1,11 +1,45 @@
-import { useEffect, useRef } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
+
+// Map social_media keys to Font Awesome icon classes and display labels
+const SOCIAL_META = {
+  facebook:  { icon: 'fab fa-facebook',  label: 'Facebook' },
+  instagram: { icon: 'fab fa-instagram', label: 'Instagram' },
+  youtube:   { icon: 'fab fa-youtube',   label: 'YouTube' },
+  twitter:   { icon: 'fab fa-twitter',   label: 'Twitter' },
+  linkedin:  { icon: 'fab fa-linkedin',  label: 'LinkedIn' },
+  tiktok:    { icon: 'fab fa-tiktok',    label: 'TikTok' },
+  whatsapp:  { icon: 'fab fa-whatsapp',  label: 'WhatsApp' },
+}
 
 function Footer() {
   const socialRef = useRef(null)
+  const [socialLinks, setSocialLinks] = useState([])
+
+  // Load contact data
+  useEffect(() => {
+    fetch('/data/contact.json')
+      .then((res) => res.json())
+      .then((data) => {
+        const sm = data.contact?.social_media
+        if (!sm || typeof sm !== 'object') return
+        const links = Object.entries(sm)
+          .filter(([, url]) => url)
+          .map(([key, url]) => ({
+            key,
+            url,
+            className: key,
+            icon: SOCIAL_META[key]?.icon || 'fas fa-link',
+            label: SOCIAL_META[key]?.label || key.charAt(0).toUpperCase() + key.slice(1),
+          }))
+        setSocialLinks(links)
+      })
+      .catch((err) => console.error('Error loading contact:', err))
+  }, [])
 
   // Auto-cycle the border animation on mobile
   useEffect(() => {
+    if (socialLinks.length === 0) return
     const mq = window.matchMedia('(max-width: 600px)')
     let timer
 
@@ -35,7 +69,8 @@ function Footer() {
     mq.addEventListener('change', handleChange)
     start()
     return () => { stop(); mq.removeEventListener('change', handleChange) }
-  }, [])
+  }, [socialLinks])
+
   return (
     <footer className="footer">
       <div className="container">
@@ -64,26 +99,18 @@ function Footer() {
           </div>
           <div className="footer-section footer-follow">
             <h3>Follow Us</h3>
-            <ul className="social-3d" ref={socialRef}>
-              <li>
-                <a className="facebook" href="https://www.facebook.com/share/1NFtd3CcXq/" aria-label="Facebook" target="_blank" rel="noopener noreferrer">
-                  <span></span><span></span><span></span><span></span>
-                  <span className="fab fa-facebook"></span>
-                </a>
-              </li>
-              <li>
-                <a className="instagram" href="https://www.instagram.com/disharinp?igsh=cHgyY3gxeGRvcTl1" aria-label="Instagram" target="_blank" rel="noopener noreferrer">
-                  <span></span><span></span><span></span><span></span>
-                  <span className="fab fa-instagram"></span>
-                </a>
-              </li>
-              <li>
-                <a className="youtube" href="https://youtube.com/@dishariboston?si=ae7FiTA-iAJQK4VM" aria-label="YouTube" target="_blank" rel="noopener noreferrer">
-                  <span></span><span></span><span></span><span></span>
-                  <span className="fab fa-youtube"></span>
-                </a>
-              </li>
-            </ul>
+            {socialLinks.length > 0 && (
+              <ul className="social-3d" ref={socialRef}>
+                {socialLinks.map((link) => (
+                  <li key={link.key}>
+                    <a className={link.className} href={link.url} aria-label={link.label} target="_blank" rel="noopener noreferrer">
+                      <span></span><span></span><span></span><span></span>
+                      <span className={link.icon}></span>
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            )}
           </div>
         </div>
         <div className="footer-bottom">

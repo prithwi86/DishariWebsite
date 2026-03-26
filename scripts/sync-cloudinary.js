@@ -1,6 +1,6 @@
 import { v2 as cloudinary } from 'cloudinary';
 import dotenv from 'dotenv';
-import { writeFileSync } from 'fs';
+import { readFileSync, writeFileSync } from 'fs';
 import { resolve, dirname } from 'path';
 import { fileURLToPath } from 'url';
 
@@ -18,6 +18,9 @@ const carouselTag = process.env.CLOUDINARY_CAROUSEL_TAG || 'carousel';
 const pastEventsFolder = process.env.CLOUDINARY_PAST_EVENTS_FOLDER || 'Dishari/Past Events';
 const upcomingFolder = process.env.CLOUDINARY_UPCOMING_FOLDER || 'Dishari/Upcoming';
 const sponsorsFolder = process.env.CLOUDINARY_SPONSORS_FOLDER || 'Dishari/Sponsors';
+const contactPublicId = process.env.CLOUDINARY_CONTACT_ID || 'contact.json';
+const upcomingEventsPublicId = process.env.CLOUDINARY_UPCOMING_EVENTS_ID || 'upcoming-events.json';
+const videoUrlsPublicId = process.env.CLOUDINARY_VIDEO_URLS_ID || 'video_urls.json';
 const maxPastEvents = 3;
 const allowSelfSigned = process.env.CLOUDINARY_ALLOW_SELF_SIGNED_CERTS === 'true';
 
@@ -223,45 +226,97 @@ async function syncPastEvents() {
 // ---------------------------------------------------------------------------
 
 async function syncUpcoming() {
-  console.log(`\n--- Syncing upcoming banner (folder: ${upcomingFolder}, tag: banner) ---`);
+  console.log(`\n--- Syncing upcoming events (public_id: ${upcomingEventsPublicId}) ---`);
 
-  // Search for image tagged "banner" (case-insensitive) in the Upcoming folder
-  const res = await cloudinary.search
-    .expression(`asset_folder="${upcomingFolder}" AND tags=banner`)
-    .max_results(1)
-    .execute();
+  // 1. Fetch the master JSON from Cloudinary
+  const rawUrl = `https://res.cloudinary.com/${cloudName}/raw/upload/${upcomingEventsPublicId}`;
+  console.log(`  Fetching ${rawUrl}`);
 
-  const bannerResource = (res.resources || [])[0] || null;
-  let bannerUrl = '';
-
-  if (bannerResource) {
-    console.log(`  Banner found: "${bannerResource.public_id}"`);
-    bannerUrl = toOptimizedUrl(bannerResource.public_id);
-  } else {
-    console.log('  No image tagged "banner" found in Upcoming folder. Banner will be hidden.');
+  let masterData;
+  try {
+    const res = await fetch(rawUrl);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    masterData = await res.json();
+  } catch (err) {
+    console.warn(`  Could not fetch upcoming-events.json: ${err.message}. Writing empty file.`);
+    masterData = { events: [] };
   }
 
-  // Read existing upcoming-events.json to preserve the events list
-  const outPath = resolve(ROOT, 'public', 'data', 'upcoming-events.json');
-  let existing = { events: [] };
-  try {
-    const raw = (await import('fs')).readFileSync(outPath, 'utf-8');
-    existing = JSON.parse(raw);
-  } catch { /* file may not exist yet */ }
+  const events = (masterData.events || []).filter((ev) => ev.id && ev.id.trim() !== '');
 
+  if (events.length === 0) {
+    console.log('  No valid events found (all missing id). Writing empty events array.');
+  }
+
+  // 2. For each event, search its Cloudinary folder for banner + images
+  for (const ev of events) {
+    const eventFolder = `${upcomingFolder}/${ev.id}`;
+    console.log(`\n  Processing event "${ev.id}" → folder "${eventFolder}"`);
+
+    // List all resources in this event's folder
+    let resources = [];
+    try {
+      resources = await listAllInAssetFolder(eventFolder);
+    } catch (err) {
+      console.warn(`    Could not list folder "${eventFolder}": ${err.message}`);
+    }
+
+    const imageFormats = ['jpg', 'jpeg', 'png', 'webp', 'gif', 'avif'];
+    const images = resources.filter((r) => r.resource_type === 'image' && imageFormats.includes(r.format));
+
+    // Banner: find images starting with "banner" in filename
+    const bannerCandidates = images.filter((r) => {
+      const filename = r.public_id.split('/').pop().toLowerCase();
+      return filename.startsWith('banner');
+    });
+
+    let bannerResource = null;
+    if (bannerCandidates.length > 0) {
+      bannerResource = bannerCandidates[Math.floor(Math.random() * bannerCandidates.length)];
+      console.log(`    Banner found: "${bannerResource.public_id}" (${bannerCandidates.length} candidate(s))`);
+    } else {
+      console.log('    No banner image found.');
+    }
+
+    ev.banner = bannerResource ? toOptimizedUrl(bannerResource.public_id) : '';
+
+    // Image URLs: all images except banner files
+    const bannerId = bannerResource ? (bannerResource.asset_id || bannerResource.public_id) : null;
+    const galleryImages = images
+      .filter((r) => {
+        const filename = r.public_id.split('/').pop().toLowerCase();
+        return !filename.startsWith('banner');
+      })
+      .sort((a, b) => a.public_id.localeCompare(b.public_id))
+      .map((r) => toOptimizedUrl(r.public_id));
+
+    if (!ev.details) ev.details = {};
+    ev.details.img_urls = galleryImages;
+    console.log(`    ${galleryImages.length} gallery image(s), banner: ${ev.banner ? 'yes' : 'none'}`);
+  }
+
+  // 3. Sort by order field, fallback to id
+  events.sort((a, b) => {
+    const orderA = typeof a.order === 'number' ? a.order : Infinity;
+    const orderB = typeof b.order === 'number' ? b.order : Infinity;
+    if (orderA !== orderB) return orderA - orderB;
+    return (a.id || '').localeCompare(b.id || '');
+  });
+
+  // 4. Write output
   const output = {
-    banner: bannerUrl,
-    events: existing.events || [],
+    events,
     metadata: {
       source: 'Cloudinary',
       folder: upcomingFolder,
-      banner_found: !!bannerResource,
+      total_events: events.length,
       generated_at: new Date().toISOString(),
     },
   };
 
+  const outPath = resolve(ROOT, 'public', 'data', 'upcoming-events.json');
   writeFileSync(outPath, `${JSON.stringify(output, null, 2)}\n`, 'utf-8');
-  console.log(`Wrote upcoming-events.json (banner: ${bannerResource ? 'yes' : 'none'}).`);
+  console.log(`\nWrote upcoming-events.json (${events.length} event(s)).`);
 }
 
 // ---------------------------------------------------------------------------
@@ -460,6 +515,130 @@ async function syncPressRelease() {
 }
 
 // ---------------------------------------------------------------------------
+// Contact sync
+// ---------------------------------------------------------------------------
+
+const assetsFolder = process.env.CLOUDINARY_ASSETS_FOLDER || 'Dishari/Assets';
+
+async function syncContact() {
+  const rawUrl = `https://res.cloudinary.com/${cloudName}/raw/upload/${contactPublicId}`;
+  console.log(`\n--- Syncing contact (${rawUrl}) ---`);
+
+  let data;
+  try {
+    const res = await fetch(rawUrl);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    data = await res.json();
+  } catch (err) {
+    console.warn(`  Could not fetch contact: ${err.message}. Writing empty file.`);
+    data = { contact: {} };
+  }
+
+  if (!data.contact || typeof data.contact !== 'object') {
+    console.warn('  Invalid format (missing contact object). Writing empty file.');
+    data = { contact: {} };
+  }
+
+  // Resolve background image from Cloudinary using tags
+  const tags = data.contact.background_img_tag;
+  if (Array.isArray(tags) && tags.length > 0) {
+    const tagFilter = tags.map((t) => `tags=${t}`).join(' AND ');
+    const expr = `asset_folder="${assetsFolder}" AND ${tagFilter} AND resource_type:image`;
+    console.log(`  Searching background image: ${expr}`);
+    try {
+      const searchRes = await cloudinary.search
+        .expression(expr)
+        .sort_by('public_id', 'asc')
+        .max_results(1)
+        .execute();
+      const match = (searchRes.resources || [])[0];
+      if (match) {
+        data.contact.background_img_url = toOptimizedUrl(match.public_id, { width: 1920 });
+        console.log(`  Background image resolved: ${data.contact.background_img_url}`);
+      } else {
+        console.warn('  No background image found for given tags.');
+      }
+    } catch (err) {
+      console.warn(`  Background image search failed: ${err.message}`);
+    }
+  }
+
+  const output = {
+    contact: data.contact,
+    metadata: {
+      source: 'Cloudinary',
+      generated_at: new Date().toISOString(),
+    },
+  };
+
+  const outPath = resolve(ROOT, 'public', 'data', 'contact.json');
+  writeFileSync(outPath, `${JSON.stringify(output, null, 2)}\n`, 'utf-8');
+  console.log(`Wrote contact.json.`);
+}
+
+// ---------------------------------------------------------------------------
+// Video URLs sync — merges external video links into target JSON files
+// ---------------------------------------------------------------------------
+
+async function syncVideoUrls() {
+  const rawUrl = `https://res.cloudinary.com/${cloudName}/raw/upload/${videoUrlsPublicId}`;
+  console.log(`\n--- Syncing video URLs (${rawUrl}) ---`);
+
+  let data;
+  try {
+    const res = await fetch(rawUrl);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    data = await res.json();
+  } catch (err) {
+    console.warn(`  Could not fetch video_urls.json: ${err.message}. Skipping.`);
+    return;
+  }
+
+  const entries = data.video_urls || [];
+  if (entries.length === 0) {
+    console.log('  No video URL entries found. Skipping.');
+    return;
+  }
+
+  for (const entry of entries) {
+    const targetFile = entry.file_name;
+    const eventId = entry.event_id;
+    const urls = entry.urls || [];
+
+    if (!targetFile || !eventId) {
+      console.warn(`  Skipping entry with missing file_name or event_id.`);
+      continue;
+    }
+
+    const targetPath = resolve(ROOT, 'public', 'data', targetFile);
+    let targetData;
+    try {
+      const raw = readFileSync(targetPath, 'utf-8');
+      targetData = JSON.parse(raw);
+    } catch (err) {
+      console.warn(`  Could not read ${targetFile}: ${err.message}. Skipping.`);
+      continue;
+    }
+
+    // Find the event by id in the events array
+    const events = targetData.events || [];
+    const event = events.find((ev) => ev.id === eventId);
+    if (!event) {
+      console.warn(`  Event "${eventId}" not found in ${targetFile}. Skipping.`);
+      continue;
+    }
+
+    if (!event.details) event.details = {};
+    event.details.video_urls = urls;
+    console.log(`  Merged ${urls.length} video URL(s) into "${eventId}" in ${targetFile}.`);
+
+    writeFileSync(targetPath, `${JSON.stringify(targetData, null, 2)}\n`, 'utf-8');
+  }
+
+  console.log('Video URL sync complete.');
+}
+
+// ---------------------------------------------------------------------------
 // Main
 // ---------------------------------------------------------------------------
 
@@ -471,6 +650,8 @@ async function main() {
   await syncSponsors();
   await syncTestimonials();
   await syncPressRelease();
+  await syncContact();
+  await syncVideoUrls();
   console.log('\nAll syncs complete.');
 }
 

@@ -1,0 +1,11 @@
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /
+
+  # If the requested file exists (e.g., /api/send-email.php, images, JS), serve it directly
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+
+  # Otherwise, route everything to index.html for React Router
+  RewriteRule . /index.html [L]
+</IfModule>

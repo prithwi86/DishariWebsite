@@ -4,10 +4,11 @@
 
 - [Prerequisites](#prerequisites)
 - [Building the Project](#building-the-project)
-- [Hosting Options on Hostinger](#hosting-options-on-hostinger)
-  - [Option 1: Subdomain (Recommended)](#option-1-subdomain-recommended)
-  - [Option 2: Subdirectory](#option-2-subdirectory)
+- [Deploying to Hostinger (Subdomain)](#deploying-to-hostinger-subdomain)
+- [SPA Routing (.htaccess)](#spa-routing-htaccess)
+- [Email (PHP Proxy)](#email-php-proxy)
 - [Updating Content](#updating-content)
+- [Data Files Reference](#data-files-reference)
 
 ---
 
@@ -15,8 +16,7 @@
 
 - **Node.js** v18+ and **npm** installed
 - Access to **Hostinger hPanel**
-- **Cloudinary API credentials** in `.env.local` for carousel sync
-- (For non-carousel Drive sync) See [GOOGLE_DRIVE_SETUP.md](GOOGLE_DRIVE_SETUP.md)
+- **Cloudinary API credentials** in `.env.local`
 
 ## Building the Project
 
@@ -24,87 +24,106 @@
 # Install dependencies
 npm install
 
-# Sync carousel from Cloudinary and build for production
+# Sync all data from Cloudinary and build for production
 npm run build:sync
 ```
 
 This generates a `dist/` folder with all static files ready for deployment.
 
+The build includes:
+- All React pages and components bundled by Vite
+- `data/` folder with all synced JSON files
+- `api/send-email.php` for the contact form
+- `.htaccess` for SPA routing
+
 ---
 
-## Hosting Options on Hostinger
+## Deploying to Hostinger (Subdomain)
 
-> Your existing WordPress site will remain untouched with both options below.
-
-### Option 1: Subdomain (Recommended)
-
-Deploy the React app on a subdomain like `new.yourdomain.com`.
+Deploy the React app on a subdomain (e.g., `app.dishariboston.org`).
 
 **Steps:**
 
 1. Log in to **Hostinger hPanel**
 2. Go to **Domains → Subdomains**
-3. Create a subdomain (e.g., `new`, `app`, or `beta`) — this creates a folder like:
-   - `public_html/new/` or
-   - `domains/new.yourdomain.com/public_html/`
+3. Create a subdomain — this creates a directory like `domains/app.dishariboston.org/public_html/`
 4. Run `npm run build:sync` locally
-5. Upload the **contents** of the `dist/` folder to the subdomain's root directory using:
+5. Upload the **contents** of the `dist/` folder to the subdomain's `public_html/` directory using:
    - **Hostinger File Manager** (hPanel → Files → File Manager), or
    - **FTP** (use credentials from hPanel → Files → FTP Accounts)
-6. Visit `https://new.yourdomain.com` to verify
+6. Visit `https://app.dishariboston.org` to verify
 
 **No changes to `vite.config.js` needed** — the default base path `/` works since the app is at the subdomain root.
 
-**Pros:**
-- Completely isolated from the WordPress site
-- Easy to set up and manage
-- Can later swap to the main domain when ready
-- Separate SSL certificate (auto-provisioned by Hostinger)
+### What Gets Uploaded
+
+```
+public_html/
+├── index.html
+├── assets/              # Vite-built JS/CSS bundles
+├── data/                # JSON data files
+│   ├── carousel-images.json
+│   ├── contact.json
+│   ├── past-events.json
+│   ├── press_release.json
+│   ├── sponsors.json
+│   ├── testimonials.json
+│   ├── upcoming-events.json
+│   └── video_urls.json
+├── api/
+│   └── send-email.php   # SMTP2GO email proxy
+└── .htaccess            # SPA routing rules
+```
 
 ---
 
-### Option 2: Subdirectory
+## SPA Routing (.htaccess)
 
-Deploy the React app under a path like `yourdomain.com/newsite/`.
+The `.htaccess` file is included in `public/` and gets copied to `dist/` during build. It handles:
 
-**Steps:**
+- Serving real files directly (JS, CSS, images, PHP)
+- Routing all other requests to `index.html` for React Router
 
-1. Update `vite.config.js` to set the base path:
+```apache
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /
 
-   ```js
-   import { defineConfig } from 'vite'
-   import react from '@vitejs/plugin-react'
+  # If the requested file exists (e.g., /api/send-email.php, images, JS), serve it directly
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
 
-   export default defineConfig({
-     plugins: [react()],
-     base: '/newsite/',   // ← add this line
-   })
-   ```
+  # Otherwise, route everything to index.html for React Router
+  RewriteRule . /index.html [L]
+</IfModule>
+```
 
-2. Run `npm run build:sync`
-3. Upload the **contents** of the `dist/` folder to `public_html/newsite/` on Hostinger
-4. Add this `.htaccess` file inside `public_html/newsite/` to support client-side routing:
+> Hostinger uses **LiteSpeed**, which is compatible with Apache `.htaccess` rules.
 
-   ```apache
-   <IfModule mod_rewrite.c>
-     RewriteEngine On
-     RewriteBase /newsite/
-     RewriteRule ^index\.html$ - [L]
-     RewriteCond %{REQUEST_FILENAME} !-f
-     RewriteCond %{REQUEST_FILENAME} !-d
-     RewriteRule . /newsite/index.html [L]
-   </IfModule>
-   ```
+---
 
-5. Visit `https://yourdomain.com/newsite/` to verify
+## Email (PHP Proxy)
 
-**Pros:**
-- No subdomain needed
-- Same SSL certificate as the main site
+The contact form sends email via **SMTP2GO** through a PHP proxy at `/api/send-email.php`.
 
-**Cons:**
-- Shares the domain with WordPress — slightly more complex routing
-- Must remember to set `base` in Vite config
+This keeps the API key server-side (never exposed to the browser).
+
+### Configuration
+
+Edit `public/api/send-email.php` to set:
+- `SMTP2GO_API_KEY` — your SMTP2GO API key
+- `SMTP2GO_SENDER` — verified sender email (e.g., `web.admin@dishariboston.org`)
+- `RECIPIENT_EMAIL` — where messages are delivered (e.g., `support@dishariboston.org`)
+
+### Features
+
+- Rate limiting: 5 submissions per IP per hour
+- Input validation and HTML sanitization
+- Proper error responses in JSON format
+
+### Local Development
+
+In dev mode (`npm run dev`), the contact form calls SMTP2GO directly using credentials from `.env.development` (see README). The PHP proxy is only used in production.
 
 ---
 
@@ -112,27 +131,40 @@ Deploy the React app under a path like `yourdomain.com/newsite/`.
 
 ### Workflow
 
-1. Update carousel images/tags in Cloudinary (tag: `carousel` by default)
-2. For upcoming, past events, and testimonials, update Google Drive folders and run `npm run sync`
-3. Run `npm run build:sync` to regenerate carousel JSON and rebuild the site
-4. Upload the new `dist/` folder to Hostinger
+1. Update content in **Cloudinary** (images, JSON files)
+2. Run `npm run build:sync` locally
+3. Upload the new `dist/` folder contents to Hostinger
 
-### Automated (Optional)
+### What to Update Where
 
-You can set up a **GitHub Action** to auto-build on push. See `.github/workflows/` if configured.
+| Content                | Where to Edit                                   |
+| ---------------------- | ----------------------------------------------- |
+| Carousel images        | Tag/untag images with `carousel` in Cloudinary  |
+| Upcoming events        | Edit `upcoming-events.json` in Cloudinary        |
+| Event banners/gallery  | Upload to `Dishari/Upcoming/<event_id>/` folder |
+| Past events            | Add folders under `Dishari/Past Events/`         |
+| Sponsors               | Upload to `Dishari/Sponsors/` folder             |
+| Testimonials           | Edit `testimonials.json` in Cloudinary           |
+| Press releases         | Edit `press_release.json` in Cloudinary          |
+| Contact info           | Edit `contact.json` in Cloudinary                |
+| Video URLs             | Edit `video_urls.json` in Cloudinary             |
+
+See [CLOUDINARY_SETUP.md](CLOUDINARY_SETUP.md) for detailed folder structure and naming conventions.
 
 ---
 
-## Folder Structure Reference
+## Data Files Reference
 
 ```
 public/data/
-  carousel-images.json   ← Home page carousel images (generated from Cloudinary)
-  past-events.json       ← Event gallery images & videos
-  testimonials.json      ← Testimonial quotes
-  upcoming-event.json    ← Upcoming event banner
+  carousel-images.json    ← Homepage carousel (Cloudinary tag: carousel)
+  contact.json            ← Contact info, social links, background image
+  past-events.json        ← Past event galleries with banners & photos
+  press_release.json      ← Press release entries
+  sponsors.json           ← Sponsor logos
+  testimonials.json       ← Testimonial quotes
+  upcoming-events.json    ← Upcoming events with details, registrations, media
+  video_urls.json         ← Video URL mappings for events
 ```
 
-Each JSON file contains:
-- `carousel-images.json`: Cloudinary delivery URLs + sync metadata
-- Other JSON files: Google Drive URLs/data and metadata for re-syncing
+All files are generated by `npm run sync` from Cloudinary data. Do not edit them manually — changes will be overwritten on the next sync.
