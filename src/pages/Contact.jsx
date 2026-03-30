@@ -158,10 +158,12 @@ function Contact() {
               </p>
 
               <div className="contact-header-info">
+                {contact?.location && (
                 <div className="contact-header-row">
                   <i className="fas fa-map-marker-alt"></i>
-                  <span>{contact?.location || 'Greater Boston Area, Massachusetts, USA'}</span>
+                  <span>{contact.location}</span>
                 </div>
+                )}
                 <div className="contact-header-row">
                   <i className="fas fa-envelope"></i>
                   <a href={`mailto:${contact?.email || 'support@dishariboston.org'}`}>
