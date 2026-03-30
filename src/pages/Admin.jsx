@@ -1,8 +1,33 @@
 import { useState, useEffect, useRef } from 'react'
+import { useAuth } from '../context/AuthContext'
 
 const INDENT = 2
 
+function AdminLogin() {
+  const { error, gsiReady, renderSignInButton } = useAuth()
+  const btnRef = useRef(null)
+
+  useEffect(() => {
+    if (gsiReady && btnRef.current) {
+      renderSignInButton(btnRef.current)
+    }
+  }, [gsiReady, renderSignInButton])
+
+  return (
+    <div className="admin-page">
+      <div className="admin-login">
+        <i className="fas fa-lock admin-login-icon"></i>
+        <h2>Admin Access</h2>
+        <p>Sign in with your organization Google Workspace account to continue.</p>
+        <div ref={btnRef} className="admin-google-btn"></div>
+        {error && <div className="admin-status admin-status-error">{error}</div>}
+      </div>
+    </div>
+  )
+}
+
 function Admin() {
+  const { user, signOut } = useAuth()
   const [files, setFiles] = useState([])
   const [selectedFile, setSelectedFile] = useState('')
   const [content, setContent] = useState('')
@@ -97,11 +122,19 @@ function Admin() {
   const hasChanges = content !== originalContent
   const lineCount = content ? content.split('\n').length : 0
 
+  if (!user) return <AdminLogin />
+
   return (
     <div className="admin-page">
       <div className="admin-header">
         <h1><i className="fas fa-code"></i> Cloudinary JSON Editor</h1>
-        <span className="admin-badge">DEV ONLY</span>
+        <div className="admin-user">
+          <img src={user.picture} alt="" className="admin-avatar" referrerPolicy="no-referrer" />
+          <span className="admin-user-name">{user.name}</span>
+          <button onClick={signOut} className="admin-btn admin-btn-signout">
+            <i className="fas fa-sign-out-alt"></i> Sign Out
+          </button>
+        </div>
       </div>
 
       <div className="admin-toolbar">
