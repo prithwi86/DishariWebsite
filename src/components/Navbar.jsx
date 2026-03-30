@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import logo from '../assets/Dishari_logo_tranparent_final.png'
+import { stripCommentedFields } from '../utils/jsonHelper'
 
 function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false)
@@ -21,11 +22,14 @@ function Navbar() {
     setPressDropdownOpen(false)
   }, [location])
 
-  // Toggle layout class so drawer + footer fill exactly the viewport
+  // Prevent page scrolling when drawer is open
   useEffect(() => {
-    const root = document.getElementById('root')
-    if (root) root.classList.toggle('mobile-menu-open', menuOpen)
-    return () => { if (root) root.classList.remove('mobile-menu-open') }
+    document.body.style.overflow = menuOpen ? 'hidden' : ''
+    document.documentElement.style.overflow = menuOpen ? 'hidden' : ''
+    return () => {
+      document.body.style.overflow = ''
+      document.documentElement.style.overflow = ''
+    }
   }, [menuOpen])
 
 
@@ -34,6 +38,7 @@ function Navbar() {
   useEffect(() => {
     fetch('/data/upcoming-events.json')
       .then((res) => res.json())
+      .then((raw) => stripCommentedFields(raw))
       .then((data) => {
         const events = (data.events || [])
           .filter((ev) => ev.id && ev.id.trim() !== '')
@@ -52,6 +57,7 @@ function Navbar() {
   useEffect(() => {
     fetch('/data/press_release.json')
       .then((res) => res.json())
+      .then((raw) => stripCommentedFields(raw))
       .then((data) => setPressReleases(data.press_releases || []))
       .catch((err) => console.error('Error loading press releases:', err))
   }, [])
@@ -147,8 +153,11 @@ function Navbar() {
       </div>
     </nav>
 
-      {/* ─── Mobile drawer ─── */}
-      <div className={`mobile-drawer${menuOpen ? ' open' : ''}`}>
+      {/* ─── Mobile drawer (floating overlay) ─── */}
+      <div
+        className={`mobile-drawer${menuOpen ? ' open' : ''}`}
+        onClick={(e) => { if (e.target === e.currentTarget) { setMenuOpen(false); setSubmenuOpen(null) } }}
+      >
         {/* Main menu panel */}
         <div className={`drawer-panel${submenuOpen ? ' hidden' : ''}`}>
           <Link to="/" className="drawer-row">Home</Link>

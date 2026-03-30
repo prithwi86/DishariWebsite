@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import AnimateOnScroll from '../components/AnimateOnScroll'
+import { stripCommentedFields } from '../utils/jsonHelper'
 
 /*
 const featuredEvents = [
@@ -84,6 +85,7 @@ function Events() {
   useEffect(() => {
     fetch('/data/past-events.json')
       .then((res) => res.json())
+      .then((raw) => stripCommentedFields(raw))
       .then((data) => setEvents(data.events || []))
       .catch((err) => console.error('Error loading events:', err))
   }, [])

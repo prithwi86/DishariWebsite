@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useParams, Link } from 'react-router-dom'
+import { stripCommentedFields } from '../utils/jsonHelper'
 
 function PressReleasePage() {
   const { id } = useParams()
@@ -9,6 +10,7 @@ function PressReleasePage() {
   useEffect(() => {
     fetch('/data/press_release.json')
       .then((res) => res.json())
+      .then((raw) => stripCommentedFields(raw))
       .then((data) => {
         const found = (data.press_releases || []).find((item) => item.id === id)
         setPr(found || null)

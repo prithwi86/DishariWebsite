@@ -1,0 +1,84 @@
+{
+  "body": {
+    "upcoming_events": {
+      "header_text": "Upcoming Events",
+      "img_urls": {
+        "folder": "Dishari/Upcoming",
+        "include_subfolders": true,
+        "tag": "carousel",
+        "urls": [
+          "https://res.cloudinary.com/dqcmzcbrp/image/upload/c_limit,f_auto,q_auto,w_1200/Banner?_a=BAMAOGWQ0",
+          "https://res.cloudinary.com/dqcmzcbrp/image/upload/c_limit,f_auto,q_auto,w_1200/Banner_KS_Agomoni_Flier_LS_jvkmik?_a=BAMAOGWQ0",
+          "https://res.cloudinary.com/dqcmzcbrp/image/upload/c_limit,f_auto,q_auto,w_1200/Banner_Agomoni_2026_LS_sgludp?_a=BAMAOGWQ0"
+        ]
+      }
+    },
+    "moments": {
+      "header_text": "Moments from Past Events",
+      "img_urls": {
+        "folder": "Dishari/Moments",
+        "include_subfolders": false,
+        "tag": "",
+        "urls": [
+          "https://res.cloudinary.com/dqcmzcbrp/image/upload/c_limit,f_auto,q_auto,w_1200/1_lkfgiw?_a=BAMAOGWQ0",
+          "https://res.cloudinary.com/dqcmzcbrp/image/upload/c_limit,f_auto,q_auto,w_1200/4_r1inah?_a=BAMAOGWQ0",
+          "https://res.cloudinary.com/dqcmzcbrp/image/upload/c_limit,f_auto,q_auto,w_1200/3_hjtsbv?_a=BAMAOGWQ0",
+          "https://res.cloudinary.com/dqcmzcbrp/image/upload/c_limit,f_auto,q_auto,w_1200/2_iumkey?_a=BAMAOGWQ0",
+          "https://res.cloudinary.com/dqcmzcbrp/image/upload/c_limit,f_auto,q_auto,w_1200/8_bjuxg8?_a=BAMAOGWQ0",
+          "https://res.cloudinary.com/dqcmzcbrp/image/upload/c_limit,f_auto,q_auto,w_1200/6_kwmmi3?_a=BAMAOGWQ0",
+          "https://res.cloudinary.com/dqcmzcbrp/image/upload/c_limit,f_auto,q_auto,w_1200/5_hsvvoq?_a=BAMAOGWQ0",
+          "https://res.cloudinary.com/dqcmzcbrp/image/upload/c_limit,f_auto,q_auto,w_1200/9_bk2mha?_a=BAMAOGWQ0"
+        ]
+      }
+    },
+    "sponsors": {
+      "header_text": "Our Sponsors",
+      "img_urls": {
+        "folder": "Dishari/Sponsors",
+        "include_subfolders": false,
+        "tag": "",
+        "urls": [
+          "https://res.cloudinary.com/dqcmzcbrp/image/upload/c_limit,f_auto,q_auto,w_250/guru_tax_frbrqu?_a=BAMAOGWQ0",
+          "https://res.cloudinary.com/dqcmzcbrp/image/upload/c_limit,f_auto,q_auto,w_250/tob1_ssu7gc?_a=BAMAOGWQ0",
+          "https://res.cloudinary.com/dqcmzcbrp/image/upload/c_limit,f_auto,q_auto,w_250/Perez_bvham3?_a=BAMAOGWQ0",
+          "https://res.cloudinary.com/dqcmzcbrp/image/upload/c_limit,f_auto,q_auto,w_250/Singing_grass_1_rqtm8i?_a=BAMAOGWQ0",
+          "https://res.cloudinary.com/dqcmzcbrp/image/upload/c_limit,f_auto,q_auto,w_250/singing_grass_hjjehe?_a=BAMAOGWQ0",
+          "https://res.cloudinary.com/dqcmzcbrp/image/upload/c_limit,f_auto,q_auto,w_250/RSM_rmaj7n?_a=BAMAOGWQ0",
+          "https://res.cloudinary.com/dqcmzcbrp/image/upload/c_limit,f_auto,q_auto,w_250/list_rz4tim.zip?_a=BAMAOGWQ0",
+          "https://res.cloudinary.com/dqcmzcbrp/image/upload/c_limit,f_auto,q_auto,w_250/ellen_tfqepe?_a=BAMAOGWQ0",
+          "https://res.cloudinary.com/dqcmzcbrp/image/upload/c_limit,f_auto,q_auto,w_250/EJ_lgjpiq?_a=BAMAOGWQ0",
+          "https://res.cloudinary.com/dqcmzcbrp/image/upload/c_limit,f_auto,q_auto,w_250/cramsn_ovqdht?_a=BAMAOGWQ0",
+          "https://res.cloudinary.com/dqcmzcbrp/image/upload/c_limit,f_auto,q_auto,w_250/Bob_gmryjl?_a=BAMAOGWQ0",
+          "https://res.cloudinary.com/dqcmzcbrp/image/upload/c_limit,f_auto,q_auto,w_250/barbara_h7tnle?_a=BAMAOGWQ0",
+          "https://res.cloudinary.com/dqcmzcbrp/image/upload/c_limit,f_auto,q_auto,w_250/banks_uuc0gx?_a=BAMAOGWQ0"
+        ]
+      }
+    },
+    "past_events": {
+      "header_text": "Past Events",
+      "json_file": "past-events.json"
+    },
+    "testimonials": [
+      {
+        "name": "Alokesh Duttaroy",
+        "text": "A wonderful evening unfolded with some of greater-Boston fantastic group of Bengali writers, who gathered to share their creative thoughts together with a super-energetic audience."
+      },
+      {
+        "name": "Kasturi SenBhunia",
+        "text": "It was an incredible experience celebrating the Bengali Parampara of Poush Parban through music and festivity! A heartfelt thanks to my amazing team members Malay, Somnath."
+      },
+      {
+        "name": "Soumitro Pal",
+        "text": "It is a pleasure to present some of my students of 'Pal Academy' at the Poush Utsav, 2025 organised by Dishari Boston. We are super"
+      },
+      {
+        "name": "Subhrajit Saha",
+        "text": "A wonderful time at Dishari Poush Utsav: Friends, Food, Adda, Music, Dance, Cultural Events: An Evening Well Spent."
+      }
+    ],
+    "press_releases": {
+      "header_text": "Press Room",
+      "json_file_public_id": "press_release.json"
+    }
+  }
+}

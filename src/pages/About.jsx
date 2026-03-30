@@ -1,32 +1,85 @@
+import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import AnimateOnScroll from '../components/AnimateOnScroll'
+import logo from '../assets/Dishari_logo_tranparent_final.png'
+import { stripCommentedFields } from '../utils/jsonHelper'
+
+const VALUE_ICONS = {
+  Inclusion: 'fas fa-hands-holding-circle',
+  Coexistence: 'fas fa-link',
+  Resilience: 'fas fa-shield-heart',
+  Creativity: 'fas fa-lightbulb',
+}
 
 function About() {
+  const [data, setData] = useState(null)
+
+  useEffect(() => {
+    fetch('/data/about-us.json')
+      .then((r) => r.json())
+      .then((raw) => stripCommentedFields(raw))
+      .then((json) => setData(json.organization))
+      .catch(() => {})
+  }, [])
+
+  if (!data) return null
+
+  const whoWeAre = data['Who We Are']
+  const vision = data['Our Vision']
+  const mission = data['Our Mission']
+  const coreValues = data['Our Core Values'] || []
+  const impact = data['Our Impact'] || []
+  const committees = whoWeAre?.commities || []
+
   return (
     <>
       {/* Page Header */}
-      <section className="page-header">
+      <section className="about-page-header">
         <div className="container">
-          <h1>About Dishari Boston Inc.</h1>
-          <p>Our Story, Vision, and Commitment to Community</p>
-        </div>
-      </section>
-
-      {/* About Section */}
-      <section className="about-section">
-        <div className="container">
-          <div className="about-content">
-            <h2>Who We Are</h2>
-            <p className="about-text">
-              Founded on January 15th, 2025, Dishari is a dynamic nonprofit
-              organization dedicated to preserving and promoting cultural
-              heritage, fostering community well-being, and celebrating diversity
-              among South Asian community in greater Boston area. Inspired by the
-              values of inclusion, coexistence, resilience, and creativity,
-              Dishari serves as a vibrant hub for cultural exchange, lifelong
-              friendship, and communal growth.
-            </p>
+          <div className="about-header-title">
+            <h1>About {data.name}</h1>
+            <p>{data.About}</p>
           </div>
+          <div className="about-header-grid">
+            <div className="about-header-image">
+              <img
+                src={data.Img_Url || logo}
+                alt={data.name}
+                onError={(e) => { e.target.onerror = null; e.target.src = logo }}
+              />
+            </div>
+            <div className="about-header-text">
+              <h2>Who We Are</h2>
+              {whoWeAre?.text?.map((para, i) => (
+                <p key={i} className="about-text">{para}</p>
+              ))}
+            </div>
+          </div>
+
+          {/* Members */}
+          {committees.map((committee) => (
+            <div key={committee.name} className="committee-block">
+              <h3 className="committee-title">{committee.name}</h3>
+              <div className="members-grid">
+                {committee.members.map((member) => (
+                  <a
+                    key={member.email}
+                    href={`mailto:${member.email}`}
+                    className="member-card"
+                  >
+                    <div className="member-hex">
+                      <img
+                        src={member.pic_url || logo}
+                        alt={member.name}
+                        className="member-pic"
+                      />
+                    </div>
+                    <span className="member-name">{member.name}</span>
+                  </a>
+                ))}
+              </div>
+            </div>
+          ))}
         </div>
       </section>
 
@@ -36,12 +89,9 @@ function About() {
           <div className="statement-content">
             <i className="fas fa-eye"></i>
             <h2>Our Vision</h2>
-            <p>
-              To build a community that embodies respect, unity, culture,
-              heritage, service and well-being, offering a place where traditions
-              are honored, diversity is respected, and future generation is
-              inspired in a supportive and respectful environment.
-            </p>
+            {vision?.text?.map((para, i) => (
+              <p key={i}>{para}</p>
+            ))}
           </div>
         </div>
       </section>
@@ -52,19 +102,7 @@ function About() {
           <div className="statement-content">
             <i className="fas fa-heart"></i>
             <h2>Our Mission</h2>
-            <p>
-              At Dishari, we believe in the power of collective effort and shared
-              dreams. Our events are designed to inspire collaboration among
-              individuals, organizations, and institutions who share our vision
-              of building a more connected and compassionate world. Our events
-              are vibrant celebrations of Indian cultural festivals that bring
-              together families, friends, and the community at large. These
-              events are not only social gatherings but also an opportunity to
-              experience the rich heritage and cultural traditions through music,
-              drama, dance, ethnic attires and food. Our annual events serve as a
-              testament to the enduring strength of our heritage and the unity of
-              our community.
-            </p>
+            <p>{mission?.text?.join(' ')}</p>
           </div>
         </div>
       </section>
@@ -74,34 +112,13 @@ function About() {
         <div className="container">
           <h2>Our Core Values</h2>
           <div className="values-detail-grid">
-            {[
-              {
-                icon: 'fas fa-hands-holding-circle',
-                title: 'Inclusion',
-                text: 'We are committed to creating welcoming and inclusive spaces where every member of our community feels valued, heard, and respected, regardless of their background or beliefs.',
-              },
-              {
-                icon: 'fas fa-link',
-                title: 'Coexistence',
-                text: 'We foster harmony and mutual understanding, believing that diverse perspectives strengthen our community and enrich our cultural experiences.',
-              },
-              {
-                icon: 'fas fa-shield-heart',
-                title: 'Resilience',
-                text: 'We build strength through cultural preservation and community support, ensuring that our traditions endure while adapting to contemporary needs.',
-              },
-              {
-                icon: 'fas fa-lightbulb',
-                title: 'Creativity',
-                text: 'We celebrate and support the artistic and cultural expressions of our community, from traditional performances to contemporary innovations.',
-              },
-            ].map((value) => (
-              <AnimateOnScroll key={value.title} className="value-detail">
+            {coreValues.map((value) => (
+              <AnimateOnScroll key={value.name} className="value-detail">
                 <div className="value-icon">
-                  <i className={value.icon}></i>
+                  <i className={VALUE_ICONS[value.name] || 'fas fa-star'}></i>
                 </div>
-                <h3>{value.title}</h3>
-                <p>{value.text}</p>
+                <h3>{value.name}</h3>
+                <p>{value.text?.join(' ')}</p>
               </AnimateOnScroll>
             ))}
           </div>
@@ -113,103 +130,13 @@ function About() {
         <div className="container">
           <h2>Our Impact</h2>
           <div className="impact-grid">
-            {[
-              {
-                title: 'Cultural Preservation',
-                text: 'Maintaining and promoting Indian cultural traditions in the Boston area',
-              },
-              {
-                title: 'Community Building',
-                text: 'Creating meaningful connections and lifelong friendships among community members',
-              },
-              {
-                title: 'Cultural Exchange',
-                text: 'Facilitating dialogue and understanding between diverse communities',
-              },
-              {
-                title: 'Youth Engagement',
-                text: 'Inspiring and mentoring the next generation to value their heritage',
-              },
-            ].map((item) => (
-              <AnimateOnScroll key={item.title} className="impact-card">
-                <h3>{item.title}</h3>
-                <p>{item.text}</p>
+            {impact.map((item) => (
+              <AnimateOnScroll key={item.name} className="impact-card">
+                <h3>{item.name}</h3>
+                <p>{item.text?.join(' ')}</p>
               </AnimateOnScroll>
             ))}
           </div>
-        </div>
-      </section>
-
-      {/* Leadership Tables */}
-      <section className="leadership-section">
-        <div className="container">
-          {/* Board of Directors */}
-          <h2>Board of Directors</h2>
-          <div className="leadership-table-wrapper">
-            <table className="leadership-table">
-              <thead>
-                <tr>
-                  <th>Name</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr><td>Sulagna Sanyal</td></tr>
-                <tr><td>Sunanda Ghosh</td></tr>
-                <tr><td>Shreyashi Roy</td></tr>
-              </tbody>
-            </table>
-          </div>
-
-          {/* Executive Committee 2026 */}
-          <h2>Executive Committee 2026</h2>
-          <div className="leadership-table-wrapper">
-            <table className="leadership-table">
-              <thead>
-                <tr>
-                  <th>Name</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr><td>Sanjit Sanyal</td></tr>
-                <tr><td>Prithwiraj Ghosh</td></tr>
-                <tr><td>Souvik Dey</td></tr>
-                <tr><td>Pintu Neogi</td></tr>
-                <tr><td>Abhishek Ghosh</td></tr>
-                <tr><td>Gautam Sharma (Gomzy)</td></tr>
-                <tr><td>Biswajit Banerjee</td></tr>
-              </tbody>
-            </table>
-          </div>
-
-          {/* Special Committee 2026 */}
-          <h2>Special Committee 2026</h2>
-          <div className="leadership-table-wrapper">
-            <table className="leadership-table">
-              <thead>
-                <tr>
-                  <th>Name</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr><td>Sayan Ghanti</td></tr>
-                <tr><td>Arunava Banerjee</td></tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </section>
-
-      {/* Call to Action */}
-      <section className="cta">
-        <div className="container">
-          <h2>Get Involved</h2>
-          <p>
-            We welcome volunteers, donors, and community members who share our
-            vision.
-          </p>
-          <Link to="/contact" className="btn btn-large">
-            Contact Us
-          </Link>
         </div>
       </section>
     </>

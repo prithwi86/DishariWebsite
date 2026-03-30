@@ -1,4 +1,5 @@
 import { Routes, Route } from 'react-router-dom'
+import { lazy, Suspense } from 'react'
 import Navbar from './components/Navbar'
 import Footer from './components/Footer'
 import ScrollToTop from './components/ScrollToTop'
@@ -10,6 +11,8 @@ import Contact from './pages/Contact'
 import EventGallery from './pages/EventGallery'
 import FutureEvent from './pages/FutureEvent'
 import PressReleasePage from './pages/PressReleasePage'
+
+const Admin = import.meta.env.DEV ? lazy(() => import('./pages/Admin')) : () => null
 
 function App() {
   return (
@@ -24,6 +27,9 @@ function App() {
         <Route path="/event-gallery" element={<EventGallery />} />
         <Route path="/event/:id" element={<FutureEvent />} />
         <Route path="/press/:id" element={<PressReleasePage />} />
+        {import.meta.env.DEV && (
+          <Route path="/admin" element={<Suspense fallback={<div>Loading…</div>}><Admin /></Suspense>} />
+        )}
       </Routes>
       <Footer />
       <ScrollToTopButton />

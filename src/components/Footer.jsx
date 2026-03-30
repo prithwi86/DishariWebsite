@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
+import { stripCommentedFields } from '../utils/jsonHelper'
 
 // Map social_media keys to Font Awesome icon classes and display labels
 const SOCIAL_META = {
@@ -20,6 +21,7 @@ function Footer() {
   useEffect(() => {
     fetch('/data/contact.json')
       .then((res) => res.json())
+      .then((raw) => stripCommentedFields(raw))
       .then((data) => {
         const sm = data.contact?.social_media
         if (!sm || typeof sm !== 'object') return

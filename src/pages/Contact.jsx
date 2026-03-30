@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import AnimateOnScroll from '../components/AnimateOnScroll'
 import contactBg from '../assets/Contact_BG.jpg'
+import { stripCommentedFields } from '../utils/jsonHelper'
 
 // Dev-only: these env vars are loaded from .env.development (never included in production builds)
 const SMTP2GO_API_KEY = import.meta.env.VITE_SMTP2GO_API_KEY || ''
@@ -45,6 +46,7 @@ function Contact() {
   useEffect(() => {
     fetch('/data/contact.json')
       .then((res) => res.json())
+      .then((raw) => stripCommentedFields(raw))
       .then((data) => {
         setContact(data.contact || {})
       })

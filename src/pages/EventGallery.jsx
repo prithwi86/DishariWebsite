@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import Lightbox from '../components/Lightbox'
+import { stripCommentedFields } from '../utils/jsonHelper'
 
 function EventGallery() {
   const [searchParams] = useSearchParams()
@@ -17,6 +18,7 @@ function EventGallery() {
 
     fetch('/data/past-events.json')
       .then((res) => res.json())
+      .then((raw) => stripCommentedFields(raw))
       .then((data) => {
         const found = (data.events || []).find((e) => e.id === eventId)
         if (!found) return

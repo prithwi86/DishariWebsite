@@ -1,8 +1,8 @@
 {
   "contact": {
-    "location": "Belmont, MA",
+    "location": "",
     "email": "support@dishariboston.org",
-    "phone": "+1 (617) 555-1234",
+    "phone": "",
     "social_media": {
       "facebook": "https://www.facebook.com/dishari.boston",
       "instagram": "https://www.instagram.com/disharinp?igsh=cHgyY3gxeGRvcTl1",
@@ -16,6 +16,6 @@
   },
   "metadata": {
     "source": "Cloudinary",
-    "generated_at": "2026-03-26T17:32:52.540Z"
+    "generated_at": "2026-03-30T00:13:13.405Z"
   }
 }

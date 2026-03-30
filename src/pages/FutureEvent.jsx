@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import Lightbox from '../components/Lightbox'
+import { stripCommentedFields } from '../utils/jsonHelper'
 
 function FutureEvent() {
   const { id } = useParams()
@@ -8,6 +9,7 @@ function FutureEvent() {
   const [loading, setLoading] = useState(true)
   const [embedOpen, setEmbedOpen] = useState(false)
   const [embedHeight, setEmbedHeight] = useState(900)
+  const [modalUrl, setModalUrl] = useState(null) // external URL for modal iframe
   const [lightboxIndex, setLightboxIndex] = useState(-1)
   const [videoModal, setVideoModal] = useState(null) // embed URL string or null
   const embedRef = useRef(null)
@@ -16,6 +18,7 @@ function FutureEvent() {
     setLoading(true)
     fetch('/data/upcoming-events.json')
       .then((res) => res.json())
+      .then((raw) => stripCommentedFields(raw))
       .then((data) => {
         const found = (data.events || []).find((ev) => ev.id === id)
         setEvent(found || null)
@@ -25,11 +28,21 @@ function FutureEvent() {
   }, [id])
 
   // Scroll embed into view when opened
+  // useEffect(() => {
+  //   if (embedOpen && embedRef.current) {
+  //     embedRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' })
+  //   }
+  // }, [embedOpen])
+
+  // Lock body scroll when embed modal or external modal is open
   useEffect(() => {
-    if (embedOpen && embedRef.current) {
-      embedRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    if (embedOpen || modalUrl) {
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = ''
     }
-  }, [embedOpen])
+    return () => { document.body.style.overflow = '' }
+  }, [embedOpen, modalUrl])
 
   // Listen for postMessage from Zeffy iframe to dynamically resize
   useEffect(() => {
@@ -74,7 +87,34 @@ function FutureEvent() {
   const imgUrls = details.img_urls || []
   const videoUrls = details.video_urls || []
   const registrations = details.registrations || []
-  const lightboxItems = imgUrls.map((url) => ({ url, type: 'image' }))
+
+  // Collect sub-event banner URLs to exclude from main gallery
+  const subEventBanners = new Set(
+    (event.sub_events || []).map((s) => s.banner).filter(Boolean)
+  )
+  const galleryImgs = imgUrls.filter((url) => !subEventBanners.has(url))
+  const lightboxItems = galleryImgs.map((url) => ({ url, type: 'image' }))
+
+  // Build Google Maps search URL from venue + address
+  const getMapsUrl = () => {
+    const parts = [details.venue, details.address].filter(Boolean).join(', ')
+    return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(parts)}`
+  }
+
+  // Build Google Calendar "Add Event" URL from date, time, title, venue
+  const getCalendarUrl = () => {
+    const [m, d, y] = (details.date || '').split('/')
+    if (!m || !d || !y) return null
+    const dateStr = `${y}${m}${d}`
+    const location = [details.venue, details.address].filter(Boolean).join(', ')
+    const params = new URLSearchParams({
+      action: 'TEMPLATE',
+      text: event.title || event.id,
+      dates: `${dateStr}/${dateStr}`,
+      location,
+    })
+    return `https://calendar.google.com/calendar/render?${params}`
+  }
 
   /**
    * Convert a social media URL into an embeddable iframe src.
@@ -159,15 +199,13 @@ function FutureEvent() {
 
     if (reg.external_url) {
       return (
-        <a
+        <button
           key={index}
-          href={reg.external_url}
           className="btn btn-large future-event-reg-btn"
-          target="_blank"
-          rel="noopener noreferrer"
+          onClick={() => setModalUrl(reg.external_url)}
         >
           <i className="fas fa-external-link-alt"></i> {btnText}
-        </a>
+        </button>
       )
     }
 
@@ -177,10 +215,9 @@ function FutureEvent() {
   return (
     <>
       {/* Page Header */}
-      <section className="page-header">
+      <section className="future-event-header">
         <div className="container">
           <h1>{event.title || event.id}</h1>
-          {details.date && <p>{details.date}</p>}
         </div>
       </section>
 
@@ -212,13 +249,19 @@ function FutureEvent() {
           {(details.date || details.time || details.venue) && (
             <div className="future-event-details">
               {details.date && (
-                <div className="future-event-detail">
+                <a
+                  href={getCalendarUrl()}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="future-event-detail future-event-detail-link"
+                >
                   <i className="fas fa-calendar-alt"></i>
                   <div>
                     <strong>Date</strong>
                     <span>{details.date}</span>
+                    <span className="future-event-link-hint">Add to Calendar</span>
                   </div>
-                </div>
+                </a>
               )}
               {details.time && (
                 <div className="future-event-detail">
@@ -230,7 +273,12 @@ function FutureEvent() {
                 </div>
               )}
               {details.venue && (
-                <div className="future-event-detail">
+                <a
+                  href={getMapsUrl()}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="future-event-detail future-event-detail-link"
+                >
                   <i className="fas fa-map-marker-alt"></i>
                   <div>
                     <strong>Venue</strong>
@@ -238,8 +286,9 @@ function FutureEvent() {
                     {details.address && (
                       <span className="future-event-address">{details.address}</span>
                     )}
+                    <span className="future-event-link-hint">View on Maps</span>
                   </div>
-                </div>
+                </a>
               )}
             </div>
           )}
@@ -251,7 +300,7 @@ function FutureEvent() {
             </div>
           )}
 
-          {/* Embedded Form (collapsible) */}
+          {/* Embedded Form — OLD inline collapsible (commented out)
           {hasEmbed && (
             <div
               ref={embedRef}
@@ -280,13 +329,163 @@ function FutureEvent() {
               </div>
             </div>
           )}
+          */}
+
+          {/* Embedded Form — Modal overlay */}
+          {hasEmbed && embedOpen && (
+            <div className="embed-modal-overlay" onClick={() => setEmbedOpen(false)}>
+              <div className="embed-modal" onClick={(e) => e.stopPropagation()}>
+                <button
+                  className="embed-modal-close"
+                  onClick={() => setEmbedOpen(false)}
+                  type="button"
+                  aria-label="Close registration form"
+                >
+                  <i className="fas fa-times"></i>
+                </button>
+                <div className="embed-modal-body">
+                  <iframe
+                    src={embedFormUrl}
+                    title="Event Registration"
+                    style={{ height: embedHeight + 'px' }}
+                    allowFullScreen
+                    allowpaymentrequest=""
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* External URL — Modal overlay */}
+          {modalUrl && (
+            <div className="embed-modal-overlay" onClick={() => setModalUrl(null)}>
+              <div className="embed-modal" onClick={(e) => e.stopPropagation()}>
+                <button
+                  className="embed-modal-close"
+                  onClick={() => setModalUrl(null)}
+                  type="button"
+                  aria-label="Close"
+                >
+                  <i className="fas fa-times"></i>
+                </button>
+                <div className="embed-modal-body">
+                  <iframe
+                    src={modalUrl}
+                    title="Registration"
+                    allowFullScreen
+                    allowpaymentrequest=""
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Sub Events */}
+          {(event.sub_events || []).length > 0 && (
+            <div className="future-event-sub-events">
+              {[...event.sub_events]
+                .sort((a, b) => (a.order || 0) - (b.order || 0))
+                .map((sub) => {
+                  const subDetails = sub.details || {}
+                  const subDesc = subDetails.description || []
+                  const subImgs = subDetails.img_urls || []
+                  const subVideos = subDetails.video_urls || []
+                  const subRegs = subDetails.registrations || []
+
+                  return (
+                    <div key={sub.id} className="future-event-sub-card">
+                      {sub.banner && (
+                        <div className="future-event-sub-banner">
+                          <img src={sub.banner} alt={sub.title || sub.id} />
+                        </div>
+                      )}
+                      <h3 className="future-event-sub-title">{sub.title || sub.id}</h3>
+
+                      {subDesc.length > 0 && (
+                        <div className="future-event-sub-desc">
+                          {subDesc.map((para, i) => (
+                            <p key={i}>{para}</p>
+                          ))}
+                        </div>
+                      )}
+
+                      {(subDetails.date || subDetails.time || subDetails.venue) && (
+                        <div className="future-event-sub-details">
+                          {subDetails.date && (
+                            <span><i className="fas fa-calendar-alt"></i> {subDetails.date}</span>
+                          )}
+                          {subDetails.time && (
+                            <span><i className="fas fa-clock"></i> {subDetails.time}</span>
+                          )}
+                          {subDetails.venue && (
+                            <span><i className="fas fa-map-marker-alt"></i> {subDetails.venue}</span>
+                          )}
+                        </div>
+                      )}
+
+                      {subImgs.length > 0 && (
+                        <div className="future-event-sub-images">
+                          {subImgs.map((url, i) => (
+                            <img key={i} src={url} alt={`${sub.title} ${i + 1}`} loading="lazy" />
+                          ))}
+                        </div>
+                      )}
+
+                      {subVideos.length > 0 && (
+                        <div className="future-event-sub-videos">
+                          {subVideos.map((url, i) => {
+                            const embedSrc = getEmbedUrl(url)
+                            return (
+                              <button
+                                key={i}
+                                className="future-event-video-link"
+                                onClick={() => embedSrc ? setVideoModal(embedSrc) : window.open(url, '_blank', 'noopener')}
+                              >
+                                <i className="fas fa-play-circle"></i>
+                                <span>Watch Video {i + 1}</span>
+                              </button>
+                            )
+                          })}
+                        </div>
+                      )}
+
+                      {subRegs.length > 0 && (
+                        <div className="future-event-sub-regs">
+                          {subRegs.map((reg, i) => {
+                            if (reg.external_url) {
+                              return (
+                                <button
+                                  key={i}
+                                  className="btn future-event-reg-btn"
+                                  onClick={() => setModalUrl(reg.external_url)}
+                                >
+                                  <i className="fas fa-external-link-alt"></i> {reg.button_text || 'Register'}
+                                </button>
+                              )
+                            }
+                            if (reg.internal_url) {
+                              return (
+                                <a key={i} href={reg.internal_url} className="btn future-event-reg-btn">
+                                  <i className="fas fa-clipboard-list"></i> {reg.button_text || 'Register'}
+                                </a>
+                              )
+                            }
+                            return null
+                          })}
+                        </div>
+                      )}
+                    </div>
+                  )
+                })}
+            </div>
+          )}
 
           {/* Image Gallery */}
-          {imgUrls.length > 0 && (
+          {galleryImgs.length > 0 && (
             <div className="future-event-gallery">
-              <h2>Event Gallery</h2>
+              <h2>Event Attractions</h2>
               <div className="future-event-gallery-grid">
-                {imgUrls.map((url, i) => (
+                {galleryImgs.map((url, i) => (
                   <div
                     key={i}
                     className="future-event-gallery-item"

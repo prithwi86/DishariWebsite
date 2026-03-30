@@ -1,9 +1,9 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
-
-const CAROUSEL_DATA_URL = '/data/carousel-images.json'
+import { stripCommentedFields } from '../utils/jsonHelper'
 
 function Carousel() {
   const [images, setImages] = useState([])
+  const [headerText, setHeaderText] = useState('Moments from Past Events')
   const [currentIndex, setCurrentIndex] = useState(0)
   const [status, setStatus] = useState('loading')
   const timerRef = useRef(null)
@@ -13,13 +13,16 @@ function Carousel() {
 
     async function loadImages() {
       try {
-        const res = await fetch(CAROUSEL_DATA_URL, { cache: 'no-store' })
+        const res = await fetch('/data/home-page.json', { cache: 'no-store' })
         if (!res.ok) {
-          throw new Error(`Carousel data fetch failed (${res.status})`)
+          throw new Error(`Home page data fetch failed (${res.status})`)
         }
 
-        const data = await res.json()
-        const cloudinaryImages = (Array.isArray(data?.images) ? data.images : [])
+        const data = stripCommentedFields(await res.json())
+        const section = data?.body?.moments || {}
+        if (section.header_text && !cancelled) setHeaderText(section.header_text)
+
+        const cloudinaryImages = (Array.isArray(section.img_urls?.urls) ? section.img_urls.urls : [])
           .filter((url) => typeof url === 'string' && url.trim().length > 0)
           .map((url, index) => ({
             id: `carousel-${index}`,
@@ -85,7 +88,7 @@ function Carousel() {
     return (
       <section className="carousel-section">
         <div className="container">
-          <h2>Moments from Our Events</h2>
+          <h2>{headerText}</h2>
           <div className="carousel-container">
             <div className="carousel-wrapper">
               <div className="carousel">
@@ -127,7 +130,7 @@ function Carousel() {
   return (
     <section className="carousel-section">
       <div className="container">
-        <h2>Moments from Our Events</h2>
+        <h2>{headerText}</h2>
         <div className="carousel-container">
           <div className="carousel-wrapper">
             <div className="carousel">

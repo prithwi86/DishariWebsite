@@ -1,0 +1,155 @@
+{
+  "organization": {
+    "name": "Dishari Boston Inc.",
+    "About": "Our Story, Vision, and Commitment to Community",
+    "Img_Url": "https://res.cloudinary.com/dqcmzcbrp/image/upload/about_us.jpg",
+    "Who We Are": {
+      "commities": [
+        {
+          "name": "Board of Directors",
+          "members": [
+            {
+              "name": "Shreyashi Roy",
+              "email": "shreyashi.roy@dishariboston.org",
+              "pic_url": ""
+            },
+            {
+              "name": "Sulagna Sanyal",
+              "email": "sulagna.sanyal@dishariboston.org",
+              "pic_url": ""
+            },
+            {
+              "name": "Sunanda Ghosh",
+              "email": "sunanda.ghosh@dishariboston.org",
+              "pic_url": "https://res.cloudinary.com/dqcmzcbrp/image/upload/c_limit,f_auto,q_auto,w_200/Sunanda_Ghosh?_a=BAMAOGWQ0"
+            }
+          ]
+        },
+        {
+          "name": "Executive Committee 2026",
+          "members": [
+            {
+              "name": "Abhishek Ghosh",
+              "email": "abhishek.ghosh@dishariboston.org",
+              "pic_url": ""
+            },
+            {
+              "name": "Biswajit Banerjee",
+              "email": "biswajit.banerjee@dishariboston.org",
+              "pic_url": ""
+            },
+            {
+              "name": "Gautam Sharma (Gomzy)",
+              "email": "gautam.sharma@dishariboston.org",
+              "pic_url": ""
+            },
+            {
+              "name": "Pintu Neogi",
+              "email": "pintu.neogi@dishariboston.org",
+              "pic_url": ""
+            },
+            {
+              "name": "Prithwiraj Ghosh",
+              "email": "prithwi.ghosh@dishariboston.org",
+              "pic_url": "https://res.cloudinary.com/dqcmzcbrp/image/upload/c_limit,f_auto,q_auto,w_200/Prithwiraj_Ghosh?_a=BAMAOGWQ0"
+            },
+            {
+              "name": "Sanjit Sanyal",
+              "email": "sanjit.sanyal@dishariboston.org",
+              "pic_url": ""
+            },
+            {
+              "name": "Souvik Dey",
+              "email": "souvik.dey@dishariboston.org",
+              "pic_url": ""
+            }
+          ]
+        },
+        {
+          "name": "Special Committee 2026",
+          "members": [
+            {
+              "name": "Arunava Banerjee",
+              "email": "arunava.banerjee@dishariboston.org",
+              "pic_url": ""
+            },
+            {
+              "name": "Sayan Ghanti",
+              "email": "sayan.ghanti@dishariboston.org",
+              "pic_url": ""
+            }
+          ]
+        }
+      ],
+      "text": [
+        "Founded on January 15th, 2025, Dishari is a dynamic nonprofit organization dedicated to preserving and promoting cultural heritage, fostering community well-being, and celebrating diversity among South Asian community in greater Boston area. Inspired by the values of inclusion, coexistence, resilience, and creativity, Dishari serves as a vibrant hub for cultural exchange, lifelong friendship, and communal growth."
+      ]
+    },
+    "Our Vision": {
+      "text": [
+        "To build a community that embodies respect, unity, culture, heritage, service and well-being, offering a place where traditions are honored, diversity is respected, and future generation is inspired in a supportive and respectful environment."
+      ]
+    },
+    "Our Mission": {
+      "text": [
+        "At Dishari, we believe in the power of collective effort and shared dreams.",
+        "Our events are designed to inspire collaboration among individuals, organizations, and institutions who share our vision of building a more connected and compassionate world.",
+        "Our events are vibrant celebrations of Indian cultural festivals that bring together families, friends, and the community at large.",
+        "These events are not only social gatherings but also an opportunity to experience the rich heritage and cultural traditions through music, drama, dance, ethnic attires and food.",
+        "Our annual events serve as a testament to the enduring strength of our heritage and the unity of our community."
+      ]
+    },
+    "Our Core Values": [
+      {
+        "name": "Inclusion",
+        "text": [
+          "We are committed to creating welcoming and inclusive spaces where every member of our community feels valued, heard, and respected, regardless of their background or beliefs."
+        ]
+      },
+      {
+        "name": "Coexistence",
+        "text": [
+          "We foster harmony and mutual understanding, believing that diverse perspectives strengthen our community and enrich our cultural experiences."
+        ]
+      },
+      {
+        "name": "Resilience",
+        "text": [
+          "We build strength through cultural preservation and community support, ensuring that our traditions endure while adapting to contemporary needs."
+        ]
+      },
+      {
+        "name": "Creativity",
+        "text": [
+          "We celebrate and support the artistic and cultural expressions of our community, from traditional performances to contemporary innovations."
+        ]
+      }
+    ],
+    "Our Impact": [
+      {
+        "name": "Cultural Preservation",
+        "text": [
+          "Maintaining and promoting Indian cultural traditions in the Boston area"
+        ]
+      },
+      {
+        "name": "Community Building",
+        "text": [
+          "Creating meaningful connections and lifelong friendships among community members"
+        ]
+      },
+      {
+        "name": "Cultural Exchange",
+        "text": [
+          "Facilitating dialogue and understanding between diverse communities"
+        ]
+      },
+      {
+        "name": "Youth Engagement",
+        "text": [
+          "Inspiring and mentoring the next generation to value their heritage"
+        ]
+      }
+    ]
+  }
+}

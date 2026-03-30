@@ -1,15 +1,19 @@
 import { useState, useEffect } from 'react'
+import { stripCommentedFields } from '../utils/jsonHelper'
 
 function Sponsors() {
   const [images, setImages] = useState([])
 
   useEffect(() => {
-    fetch('/data/sponsors.json')
+    fetch('/data/home-page.json')
       .then((res) => res.json())
+      .then((raw) => stripCommentedFields(raw))
       .then((data) => {
-        if (!data.images?.length) return
+        const section = data?.body?.sponsors || {}
+        const urls = section.img_urls?.urls || []
+        if (!urls.length) return
         Promise.all(
-          data.images.map(
+          urls.map(
             (url) =>
               new Promise((resolve) => {
                 const img = new Image()

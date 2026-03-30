@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
+import { stripCommentedFields } from '../utils/jsonHelper'
 
 function Testimonials() {
   const [testimonials, setTestimonials] = useState([])
@@ -6,14 +7,16 @@ function Testimonials() {
   const pausedRef = useRef(false)
 
   useEffect(() => {
-    fetch('/data/testimonials.json')
+    fetch('/data/home-page.json')
       .then((res) => {
         if (!res.ok) throw new Error(`HTTP ${res.status}`)
         return res.json()
       })
+      .then((raw) => stripCommentedFields(raw))
       .then((data) => {
-        if (!Array.isArray(data.testimonials)) return
-        const valid = data.testimonials.filter(
+        const items = data.body?.testimonials
+        if (!Array.isArray(items)) return
+        const valid = items.filter(
           (t) => t && typeof t.text === 'string' && t.text.trim()
         )
         setTestimonials(valid)

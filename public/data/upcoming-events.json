@@ -4,7 +4,7 @@
       "id": "Picnic2026",
       "order": 1,
       "title": "Dishari Picnic 2026",
-      "banner": "https://res.cloudinary.com/dqcmzcbrp/image/upload/c_limit,f_auto,q_auto,w_1200/Banner_Picnic2026_yurtc4?_a=BAMAOGWQ0",
+      "banner": "https://res.cloudinary.com/dqcmzcbrp/image/upload/c_limit,f_auto,q_auto,w_1200/Banner?_a=BAMAOGWQ0",
       "details": {
         "description": [
           "Dishari Picnic 2026 is a relaxed summer gathering where our Bengali community comes together over food, adda, and games in the Boston area 🧺🌳.",
@@ -23,43 +23,72 @@
             "button_text": "Event Registration",
             "external_url": "https://www.zeffy.com/en-US/ticketing/dishari-picnic--2026",
             "internal_url": "",
-            "embeded_form": "<div style=\"position:relative;overflow:hidden;height:450px;width:100%;padding-top:450px;\"><iframe title='Donation form powered by Zeffy' style='position: absolute; border: 0; top:0;left:0;bottom:0;right:0;width:100%;height:100%' src='https://www.zeffy.com/embed/ticketing/dishari-picnic--2026' allowpaymentrequest allowTransparency=\"true\"></iframe></div>"
+            "_embeded_form": "<div style=\"position:relative;overflow:hidden;height:450px;width:100%;padding-top:450px;\"><iframe title='Donation form powered by Zeffy' style='position: absolute; border: 0; top:0;left:0;bottom:0;right:0;width:100%;height:100%' src='https://www.zeffy.com/embed/ticketing/dishari-picnic--2026' allowpaymentrequest allowTransparency=\"true\"></iframe></div>"
           }
         ]
-      }
+      },
+      "sub_events": []
     },
     {
       "id": "Agomoni2026",
       "order": 2,
       "title": "Dishari Agomoni 2026",
-      "banner": "https://res.cloudinary.com/dqcmzcbrp/image/upload/c_limit,f_auto,q_auto,w_1200/Banner_f3ordr?_a=BAMAOGWQ0",
+      "banner": "https://res.cloudinary.com/dqcmzcbrp/image/upload/c_limit,f_auto,q_auto,w_1200/Banner_Agomoni_2026_LS_sgludp?_a=BAMAOGWQ0",
       "details": {
         "description": [
-          "Dishari Agomoni 2026 is a vibrant cultural event where our Bengali community comes together to celebrate the arrival of the new year with music, dance, and traditional performances in the Boston area 🎶💃.",
-          "Please use this form to register your group so we can plan the event thoughtfully.",
-          "By signing up, you help Dishari continue its mission of celebrating Bengali culture and creating a welcoming space for friends, families, and new community members.",
-          "We look forward to sharing the day with you."
+          "AGOMONI – THE RISING",
+          "Dishari is proud to unveil its MEGA EVENT of 2026, Agomoni - The Rising",
+          "A spectacular celebration where tradition meets transformation, and culture rises in all its glory",
+          "Prepare yourself for an unforgettable evening of never seen before and soul-stirring performances.",
+          "This is NOT JUST AN EVENT - THIS IS AGOMONI—reborn, reimagined, and rising.",
+          "The countdown to the rise begins now….Stay tuned, more information to follow soon."
         ],
         "date": "10/10/2026",
         "time": "",
         "venue": "Littleton High School",
         "address": "56 King Street, Littleton, MA 01460",
-        "img_urls": [
-          "https://res.cloudinary.com/dqcmzcbrp/image/upload/c_limit,f_auto,q_auto,w_1200/Dancer_registration_ndtafl?_a=BAMAOGWQ0"
-        ],
+        "img_urls": [],
         "video_urls": [
           "https://www.facebook.com/reel/948376574310106",
           "https://www.facebook.com/reel/26013520011630186",
           "https://www.facebook.com/reel/3934610190169715"
         ],
         "registrations": []
-      }
+      },
+      "sub_events": [
+        {
+          "id": "DANCE_WITH_KUMAR_SHARMA",
+          "order": 1,
+          "title": "DANCE WITH KUMAR SHARMA",
+          "banner": "https://res.cloudinary.com/dqcmzcbrp/image/upload/c_limit,f_auto,q_auto,w_1200/Banner_KS_Agomoni_Flier_LS_jvkmik?_a=BAMAOGWQ0",
+          "details": {
+            "description": [
+              "Dishari proudly invites you to be part of “Mahishasurmardini – Reimagined” — an electrifying celebration of Shakti through the powerful blend of tradition and contemporary dance featuring Kumar Sharma.",
+              "This is a golden opportunity to learn and perform with one of the most dynamic dancers of recent times.",
+              "\n\nREGISTRATION PACKAGE Includes:",
+              "• Three virtual mentoring sessions",
+              "• One exclusive in-person mentoring session",
+              "• Stage performance with Kumar Sharma",
+              "• Admission to Agomoni 2026",
+              "\n🎟 Early Bird Offer: $99 only till April 30th.",
+              "✨ Spots are limited — REGISTER NOW !!"
+            ],
+            "date": "",
+            "time": "",
+            "venue": "",
+            "address": "",
+            "img_urls": [],
+            "video_urls": [],
+            "registrations": []
+          }
+        }
+      ]
     }
   ],
   "metadata": {
     "source": "Cloudinary",
     "folder": "Dishari/Upcoming",
     "total_events": 2,
-    "generated_at": "2026-03-26T17:32:50.577Z"
+    "generated_at": "2026-03-30T00:13:12.021Z"
   }
 }

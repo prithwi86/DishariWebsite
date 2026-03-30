@@ -14,13 +14,14 @@ dotenv.config();
 const cloudName = process.env.CLOUDINARY_CLOUD_NAME;
 const apiKey = process.env.CLOUDINARY_API_KEY;
 const apiSecret = process.env.CLOUDINARY_API_SECRET;
-const carouselTag = process.env.CLOUDINARY_CAROUSEL_TAG || 'carousel';
 const pastEventsFolder = process.env.CLOUDINARY_PAST_EVENTS_FOLDER || 'Dishari/Past Events';
 const upcomingFolder = process.env.CLOUDINARY_UPCOMING_FOLDER || 'Dishari/Upcoming';
-const sponsorsFolder = process.env.CLOUDINARY_SPONSORS_FOLDER || 'Dishari/Sponsors';
 const contactPublicId = process.env.CLOUDINARY_CONTACT_ID || 'contact.json';
 const upcomingEventsPublicId = process.env.CLOUDINARY_UPCOMING_EVENTS_ID || 'upcoming-events.json';
 const videoUrlsPublicId = process.env.CLOUDINARY_VIDEO_URLS_ID || 'video_urls.json';
+const aboutUsPublicId = process.env.CLOUDINARY_ABOUT_US_ID || 'about-us.json';
+const aboutUsFolder = process.env.CLOUDINARY_ABOUT_US_FOLDER || 'Dishari/About_Us';
+const homePagePublicId = process.env.CLOUDINARY_HOME_PAGE_ID || 'home-page.json';
 const maxPastEvents = 3;
 const allowSelfSigned = process.env.CLOUDINARY_ALLOW_SELF_SIGNED_CERTS === 'true';
 
@@ -52,27 +53,13 @@ function toOptimizedUrl(publicId, { width = 1200 } = {}) {
   });
 }
 
-async function listAllByTag(tag) {
-  const resources = [];
-  let nextCursor;
-  do {
-    const res = await cloudinary.api.resources_by_tag(tag, {
-      resource_type: 'image',
-      max_results: 500,
-      next_cursor: nextCursor,
-    });
-    resources.push(...(res.resources || []));
-    nextCursor = res.next_cursor;
-  } while (nextCursor);
-  return resources;
-}
-
 async function listAllInAssetFolder(folderPath) {
   const resources = [];
   let nextCursor;
   do {
     const res = await cloudinary.search
       .expression(`asset_folder="${folderPath}"`)
+      .with_field('tags')
       .max_results(500)
       .next_cursor(nextCursor || undefined)
       .execute();
@@ -110,30 +97,111 @@ function parseEventFolder(folderName) {
 }
 
 // ---------------------------------------------------------------------------
-// Carousel sync
+// Home page sync
 // ---------------------------------------------------------------------------
 
-async function syncCarousel() {
-  console.log(`\n--- Syncing carousel (tag: ${carouselTag}) ---`);
+/**
+ * Generic helper: fetch images from Cloudinary based on img_urls config object.
+ * Reads folder, include_subfolders, and tag from the JSON itself.
+ * Sorts results by order-N tag if present (e.g. order-1, order-2).
+ */
+async function resolveImageUrls(config, { width = 1200 } = {}) {
+  const folder = config.folder;
+  const tag = config.tag || '';
+  const includeSubfolders = config.include_subfolders === true;
 
-  const resources = await listAllByTag(carouselTag);
-  const images = resources
-    .filter((r) => typeof r.public_id === 'string' && r.public_id.length > 0)
-    .map((r) => toOptimizedUrl(r.public_id));
+  if (!folder) return [];
 
-  const output = {
-    images,
-    metadata: {
-      source: 'Cloudinary',
-      tag: carouselTag,
-      total_images: images.length,
-      generated_at: new Date().toISOString(),
-    },
+  // Extract order from tags like "order-1", "order-2"
+  const getOrder = (resource) => {
+    const tags = resource.tags || [];
+    for (const t of tags) {
+      const match = t.match(/^order-(\d+)$/);
+      if (match) return parseInt(match[1], 10);
+    }
+    return Infinity;
   };
 
-  const outPath = resolve(ROOT, 'public', 'data', 'carousel-images.json');
-  writeFileSync(outPath, `${JSON.stringify(output, null, 2)}\n`, 'utf-8');
-  console.log(`Wrote ${images.length} carousel image URLs.`);
+  if (tag) {
+    // Search for tagged images in folder (and optionally subfolders)
+    const expressions = [];
+    expressions.push(`asset_folder="${folder}" AND tags=${tag}`);
+    if (includeSubfolders) {
+      expressions.push(`asset_folder:${folder}/* AND tags=${tag}`);
+    }
+
+    const allResources = [];
+    for (const expr of expressions) {
+      const res = await cloudinary.search.expression(expr).with_field('tags').max_results(500).execute();
+      allResources.push(...(res.resources || []));
+    }
+
+    // Deduplicate and sort by order tag
+    const seen = new Set();
+    return allResources
+      .filter((r) => {
+        if (!r.public_id || seen.has(r.public_id)) return false;
+        seen.add(r.public_id);
+        return true;
+      })
+      .sort((a, b) => getOrder(a) - getOrder(b))
+      .map((r) => toOptimizedUrl(r.public_id, { width }));
+  }
+
+  // No tag — just list all images in folder, sorted by order tag
+  const resources = await listAllInAssetFolder(folder);
+  return resources
+    .filter((r) => typeof r.public_id === 'string' && r.public_id.length > 0)
+    .sort((a, b) => getOrder(a) - getOrder(b))
+    .map((r) => toOptimizedUrl(r.public_id, { width }));
+}
+
+async function syncHomePage() {
+  console.log('\n--- Syncing home page ---');
+
+  // Fetch the home-page.json from Cloudinary
+  const rawUrl = cloudinary.url(homePagePublicId, { resource_type: 'raw', secure: true });
+  console.log(`  Fetching home page JSON from: ${rawUrl}`);
+  const res = await fetch(rawUrl);
+  if (!res.ok) {
+    console.warn(`  Failed to fetch home-page.json (${res.status}). Skipping.`);
+    return;
+  }
+  const data = await res.json();
+  const body = data.body || {};
+
+  // --- Upcoming Events ---
+  const upcomingConfig = body.upcoming_events?.img_urls || {};
+  console.log(`  Upcoming events: folder="${upcomingConfig.folder}", tag="${upcomingConfig.tag}", subfolders=${upcomingConfig.include_subfolders}`);
+  const upcomingUrls = await resolveImageUrls(upcomingConfig);
+  console.log(`  Found ${upcomingUrls.length} upcoming image(s).`);
+  if (body.upcoming_events?.img_urls) body.upcoming_events.img_urls.urls = upcomingUrls;
+
+  // --- Moments ---
+  const momentsConfig = body.moments?.img_urls || {};
+  console.log(`  Moments: folder="${momentsConfig.folder}", tag="${momentsConfig.tag}", subfolders=${momentsConfig.include_subfolders}`);
+  const momentsUrls = await resolveImageUrls(momentsConfig);
+  console.log(`  Found ${momentsUrls.length} moments image(s).`);
+  if (body.moments?.img_urls) body.moments.img_urls.urls = momentsUrls;
+
+  // --- Sponsors ---
+  const sponsorsConfig = body.sponsors?.img_urls || {};
+  console.log(`  Sponsors: folder="${sponsorsConfig.folder}", tag="${sponsorsConfig.tag}", subfolders=${sponsorsConfig.include_subfolders}`);
+  const sponsorsUrls = await resolveImageUrls(sponsorsConfig, { width: 250 });
+  console.log(`  Found ${sponsorsUrls.length} sponsor image(s).`);
+  if (body.sponsors?.img_urls) body.sponsors.img_urls.urls = sponsorsUrls;
+
+  // --- Past Events ---
+  const pastEventsJsonFile = body.past_events?.json_file;
+  if (pastEventsJsonFile) {
+    console.log(`  Past events: json_file="${pastEventsJsonFile}" (synced separately by syncPastEvents)`);
+  }
+
+  data.body = body;
+
+  const outPath = resolve(ROOT, 'public', 'data', 'home-page.json');
+  writeFileSync(outPath, `${JSON.stringify(data, null, 2)}\n`, 'utf-8');
+  console.log(`  Wrote home-page.json.`);
 }
 
 // ---------------------------------------------------------------------------
@@ -141,7 +209,17 @@ async function syncCarousel() {
 // ---------------------------------------------------------------------------
 
 async function syncPastEvents() {
-  console.log(`\n--- Syncing past events (folder: ${pastEventsFolder}) ---`);
+  // Read output filename from home-page.json
+  const homePagePath = resolve(ROOT, 'public', 'data', 'home-page.json');
+  let pastEventsFileName = 'past-events.json';
+  try {
+    const homeData = JSON.parse(readFileSync(homePagePath, 'utf-8'));
+    pastEventsFileName = homeData.body?.past_events?.json_file || pastEventsFileName;
+  } catch (err) {
+    console.warn(`  Could not read home-page.json for past_events config: ${err.message}. Using default filename.`);
+  }
+
+  console.log(`\n--- Syncing past events (folder: ${pastEventsFolder}, output: ${pastEventsFileName}) ---`);
 
   // 1. List sub-folders under the past-events root
   const { folders } = await cloudinary.api.sub_folders(pastEventsFolder);
@@ -216,9 +294,9 @@ async function syncPastEvents() {
     },
   };
 
-  const outPath = resolve(ROOT, 'public', 'data', 'past-events.json');
+  const outPath = resolve(ROOT, 'public', 'data', pastEventsFileName);
   writeFileSync(outPath, `${JSON.stringify(output, null, 2)}\n`, 'utf-8');
-  console.log(`Wrote ${events.length} past events (${events.reduce((n, e) => n + e.images.length, 0)} total images).`);
+  console.log(`Wrote ${pastEventsFileName}: ${events.length} past events (${events.reduce((n, e) => n + e.images.length, 0)} total images).`);
 }
 
 // ---------------------------------------------------------------------------
@@ -293,6 +371,53 @@ async function syncUpcoming() {
     if (!ev.details) ev.details = {};
     ev.details.img_urls = galleryImages;
     console.log(`    ${galleryImages.length} gallery image(s), banner: ${ev.banner ? 'yes' : 'none'}`);
+
+    // Process sub-events
+    if (Array.isArray(ev.sub_events)) {
+      for (const sub of ev.sub_events) {
+        if (!sub.id) continue;
+        const subFolder = `${eventFolder}/${sub.id}`;
+        console.log(`\n    Processing sub-event "${sub.id}" → folder "${subFolder}"`);
+
+        let subResources = [];
+        try {
+          subResources = await listAllInAssetFolder(subFolder);
+        } catch (err) {
+          console.warn(`      Could not list folder "${subFolder}": ${err.message}`);
+        }
+
+        const subImages = subResources.filter((r) => r.resource_type === 'image' && imageFormats.includes(r.format));
+
+        // Sub-event banner
+        const subBannerCandidates = subImages.filter((r) => {
+          const filename = r.public_id.split('/').pop().toLowerCase();
+          return filename.startsWith('banner');
+        });
+
+        let subBannerResource = null;
+        if (subBannerCandidates.length > 0) {
+          subBannerResource = subBannerCandidates[Math.floor(Math.random() * subBannerCandidates.length)];
+          console.log(`      Sub-event banner found: "${subBannerResource.public_id}"`);
+        } else {
+          console.log('      No sub-event banner found.');
+        }
+
+        sub.banner = subBannerResource ? toOptimizedUrl(subBannerResource.public_id) : '';
+
+        // Sub-event gallery images (exclude banners)
+        const subGalleryImages = subImages
+          .filter((r) => {
+            const filename = r.public_id.split('/').pop().toLowerCase();
+            return !filename.startsWith('banner');
+          })
+          .sort((a, b) => a.public_id.localeCompare(b.public_id))
+          .map((r) => toOptimizedUrl(r.public_id));
+
+        if (!sub.details) sub.details = {};
+        sub.details.img_urls = subGalleryImages;
+        console.log(`      ${subGalleryImages.length} sub-event image(s), banner: ${sub.banner ? 'yes' : 'none'}`);
+      }
+    }
   }
 
   // 3. Sort by order field, fallback to id
@@ -320,76 +445,6 @@ async function syncUpcoming() {
 }
 
 // ---------------------------------------------------------------------------
-// Sponsors sync
-// ---------------------------------------------------------------------------
-
-async function syncSponsors() {
-  console.log(`\n--- Syncing sponsors (folder: ${sponsorsFolder}, tag: sponsor) ---`);
-
-  const res = await cloudinary.search
-    .expression(`asset_folder="${sponsorsFolder}" AND tags=sponsor`)
-    .max_results(500)
-    .execute();
-
-  const images = (res.resources || [])
-    .filter((r) => ['jpg', 'jpeg', 'png', 'webp'].includes(r.format))
-    .sort((a, b) => a.public_id.localeCompare(b.public_id))
-    .map((r) => toOptimizedUrl(r.public_id, { width: 250 }));
-
-  const output = {
-    images,
-    metadata: {
-      source: 'Cloudinary',
-      folder: sponsorsFolder,
-      total_images: images.length,
-      generated_at: new Date().toISOString(),
-    },
-  };
-
-  const outPath = resolve(ROOT, 'public', 'data', 'sponsors.json');
-  writeFileSync(outPath, `${JSON.stringify(output, null, 2)}\n`, 'utf-8');
-  console.log(`Wrote ${images.length} sponsor image URLs.`);
-}
-
-// ---------------------------------------------------------------------------
-// Testimonials sync
-// ---------------------------------------------------------------------------
-
-const testimonialsPublicId = process.env.CLOUDINARY_TESTIMONIALS_ID || 'testimonials.json';
-
-async function syncTestimonials() {
-  const rawUrl = `https://res.cloudinary.com/${cloudName}/raw/upload/${testimonialsPublicId}`;
-  console.log(`\n--- Syncing testimonials (${rawUrl}) ---`);
-
-  let data;
-  try {
-    const res = await fetch(rawUrl);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    data = await res.json();
-  } catch (err) {
-    console.warn(`  Could not fetch testimonials: ${err.message}. Writing empty file.`);
-    data = { testimonials: [] };
-  }
-
-  // Validate structure
-  if (!Array.isArray(data.testimonials)) {
-    console.warn('  Invalid format (missing testimonials array). Writing empty file.');
-    data = { testimonials: [] };
-  }
-
-  const output = {
-    testimonials: data.testimonials,
-    metadata: {
-      source: 'Cloudinary',
-      total: data.testimonials.length,
-      generated_at: new Date().toISOString(),
-    },
-  };
-
-  const outPath = resolve(ROOT, 'public', 'data', 'testimonials.json');
-  writeFileSync(outPath, `${JSON.stringify(output, null, 2)}\n`, 'utf-8');
-  console.log(`Wrote ${data.testimonials.length} testimonials.`);
-}
 
 // ---------------------------------------------------------------------------
 // Press Release sync
@@ -400,8 +455,16 @@ const pressReleaseFolder = 'Dishari/Press_Release';
 async function syncPressRelease() {
   console.log(`\n--- Syncing press releases ---`);
 
-  // Try direct public_id first, then fall back to Cloudinary search
-  const candidateId = process.env.CLOUDINARY_PRESS_RELEASE_ID || 'press_release.json';
+  // Read public_id from home-page.json
+  const homePagePath = resolve(ROOT, 'public', 'data', 'home-page.json');
+  let candidateId = 'press_release.json';
+  try {
+    const homeData = JSON.parse(readFileSync(homePagePath, 'utf-8'));
+    candidateId = homeData.body?.press_releases?.json_file_public_id || candidateId;
+  } catch (err) {
+    console.warn(`  Could not read home-page.json for press_releases config: ${err.message}. Using default public_id.`);
+  }
+
   const directUrl = `https://res.cloudinary.com/${cloudName}/raw/upload/${candidateId}`;
 
   let data;
@@ -577,6 +640,70 @@ async function syncContact() {
 }
 
 // ---------------------------------------------------------------------------
+// About Us sync
+// ---------------------------------------------------------------------------
+
+async function syncAboutUs() {
+  const rawUrl = `https://res.cloudinary.com/${cloudName}/raw/upload/${aboutUsPublicId}`;
+  console.log(`\n--- Syncing about-us (${rawUrl}) ---`);
+
+  let data;
+  try {
+    const res = await fetch(rawUrl);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    data = await res.json();
+  } catch (err) {
+    console.warn(`  Could not fetch about-us.json: ${err.message}. Skipping.`);
+    return;
+  }
+
+  const org = data.organization;
+  if (!org) {
+    console.warn('  Invalid format (missing organization). Skipping.');
+    return;
+  }
+
+  // Fetch all images in the About_Us folder
+  const images = await listAllInAssetFolder(aboutUsFolder);
+  console.log(`  Found ${images.length} image(s) in ${aboutUsFolder}.`);
+
+  // Build a list of lowercase filenames for starts-with matching
+  const imgEntries = images.map((img) => ({
+    key: img.public_id.split('/').pop().toLowerCase(),
+    resource: img,
+  }));
+
+  // Resolve org-level image (filename starts with "about_us")
+  const aboutImg = imgEntries.find((e) => e.key.startsWith('about_us'));
+  if (aboutImg) {
+    org.Img_Url = toOptimizedUrl(aboutImg.resource.public_id, { width: 800 });
+    console.log(`  Org image resolved: ${org.Img_Url}`);
+  } else {
+    console.warn('  No "about_us" image found in folder.');
+  }
+
+  // Resolve member pics
+  const committees = org['Who We Are']?.commities || [];
+  for (const committee of committees) {
+    for (const member of committee.members || []) {
+      // Match by member name: convert to lowercase, replace spaces with underscores
+      const nameKey = member.name.toLowerCase().replace(/[\s()]+/g, '_').replace(/_+$/, '');
+      const match = imgEntries.find((e) => e.key.startsWith(nameKey));
+      if (match) {
+        member.pic_url = toOptimizedUrl(match.resource.public_id, { width: 200 });
+        console.log(`  Member pic for "${member.name}": ${member.pic_url}`);
+      } else {
+        console.log(`  No pic found for "${member.name}" (looked for "${nameKey}").`);
+      }
+    }
+  }
+
+  const outPath = resolve(ROOT, 'public', 'data', 'about-us.json');
+  writeFileSync(outPath, `${JSON.stringify(data, null, 2)}\n`, 'utf-8');
+  console.log('Wrote about-us.json.');
+}
+
+// ---------------------------------------------------------------------------
 // Video URLs sync — merges external video links into target JSON files
 // ---------------------------------------------------------------------------
 
@@ -644,13 +771,12 @@ async function syncVideoUrls() {
 
 async function main() {
   console.log('Cloudinary sync started');
-  await syncCarousel();
+  await syncHomePage();
   await syncPastEvents();
   await syncUpcoming();
-  await syncSponsors();
-  await syncTestimonials();
   await syncPressRelease();
   await syncContact();
+  await syncAboutUs();
   await syncVideoUrls();
   console.log('\nAll syncs complete.');
 }
