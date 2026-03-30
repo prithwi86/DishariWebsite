@@ -11,12 +11,13 @@ import Contact from './pages/Contact'
 import EventGallery from './pages/EventGallery'
 import FutureEvent from './pages/FutureEvent'
 import PressReleasePage from './pages/PressReleasePage'
+import { AuthProvider } from './context/AuthContext'
 
-const Admin = import.meta.env.DEV ? lazy(() => import('./pages/Admin')) : () => null
+const Admin = lazy(() => import('./pages/Admin'))
 
 function App() {
   return (
-    <>
+    <AuthProvider>
       <ScrollToTop />
       <Navbar />
       <Routes>
@@ -27,13 +28,11 @@ function App() {
         <Route path="/event-gallery" element={<EventGallery />} />
         <Route path="/event/:id" element={<FutureEvent />} />
         <Route path="/press/:id" element={<PressReleasePage />} />
-        {import.meta.env.DEV && (
-          <Route path="/admin" element={<Suspense fallback={<div>Loading…</div>}><Admin /></Suspense>} />
-        )}
+        <Route path="/admin" element={<Suspense fallback={<div>Loading…</div>}><Admin /></Suspense>} />
       </Routes>
       <Footer />
       <ScrollToTopButton />
-    </>
+    </AuthProvider>
   )
 }
 
