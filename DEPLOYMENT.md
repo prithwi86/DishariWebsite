@@ -4,9 +4,11 @@
 
 - [Prerequisites](#prerequisites)
 - [Building the Project](#building-the-project)
-- [Deploying to Hostinger (Subdomain)](#deploying-to-hostinger-subdomain)
+- [CI/CD with GitHub Actions](#cicd-with-github-actions)
+- [Deploying Manually to Hostinger](#deploying-manually-to-hostinger)
 - [SPA Routing (.htaccess)](#spa-routing-htaccess)
 - [Email (PHP Proxy)](#email-php-proxy)
+- [Admin Panel & Google OAuth](#admin-panel--google-oauth)
 - [Updating Content](#updating-content)
 - [Data Files Reference](#data-files-reference)
 
@@ -17,6 +19,7 @@
 - **Node.js** v18+ and **npm** installed
 - Access to **Hostinger hPanel**
 - **Cloudinary API credentials** in `.env.local`
+- **Google OAuth Client ID** for admin panel (see [Admin Panel](#admin-panel--google-oauth))
 
 ## Building the Project
 
@@ -35,10 +38,62 @@ The build includes:
 - `data/` folder with all synced JSON files
 - `api/send-email.php` for the contact form
 - `.htaccess` for SPA routing
+- `favicon.png`
 
 ---
 
-## Deploying to Hostinger (Subdomain)
+## CI/CD with GitHub Actions
+
+Automated deployment is configured via GitHub Actions workflows. Pushing to `dev` or `main` triggers a build and FTP deploy to Hostinger.
+
+### Workflows
+
+| File | Trigger | Target |
+|------|---------|--------|
+| `.github/workflows/deploy-dev.yml` | Push to `dev` or manual dispatch | Dev subdomain (FTP) |
+| `.github/workflows/deploy-prod.yml` | Push to `main` or manual dispatch | Prod subdomain (FTP) |
+
+### How It Works
+
+1. Checks out the repo
+2. Installs Node.js 20 + `npm ci`
+3. Runs `npm run build:sync` (with Cloudinary + Google env secrets)
+4. Deploys the `dist/` folder to Hostinger via FTP using `SamKirkland/FTP-Deploy-Action@v4.3.5`
+5. Uses `dangerous-clean-slate: true` for clean deploys
+
+### Required GitHub Secrets
+
+| Secret | Description |
+|--------|-------------|
+| `CLOUDINARY_CLOUD_NAME` | Cloudinary cloud name |
+| `CLOUDINARY_API_KEY` | Cloudinary API key |
+| `CLOUDINARY_API_SECRET` | Cloudinary API secret |
+| `VITE_GOOGLE_CLIENT_ID` | Google OAuth Client ID |
+| `VITE_ALLOWED_DOMAIN` | Allowed email domain (e.g., `dishariboston.org`) |
+| `DEV_FTP_HOST` | Dev FTP hostname |
+| `DEV_FTP_USERNAME` | Dev FTP username |
+| `DEV_FTP_PASSWORD` | Dev FTP password |
+| `PROD_FTP_HOST` | Prod FTP hostname |
+| `PROD_FTP_USERNAME` | Prod FTP username |
+| `PROD_FTP_PASSWORD` | Prod FTP password |
+
+Add these in GitHub → Settings → Secrets and variables → Actions.
+
+### Code Owners
+
+`.github/CODEOWNERS` requires `@prithwi86` approval for all PRs. Enable branch protection on `main`:
+- Require pull request before merging
+- Require review from Code Owners
+
+### Manual Dispatch
+
+You can trigger either workflow manually from GitHub → Actions → select workflow → "Run workflow".
+
+> **Note**: The `workflow_dispatch` UI button only appears if the workflow file exists on the default branch (main).
+
+---
+
+## Deploying Manually to Hostinger
 
 Deploy the React app on a subdomain (e.g., `app.dishariboston.org`).
 
@@ -60,6 +115,7 @@ Deploy the React app on a subdomain (e.g., `app.dishariboston.org`).
 ```
 public_html/
 ├── index.html
+├── favicon.png           # Site favicon
 ├── assets/              # Vite-built JS/CSS bundles
 ├── data/                # JSON data files
 │   ├── home-page.json
@@ -126,13 +182,44 @@ In dev mode (`npm run dev`), the contact form calls SMTP2GO directly using crede
 
 ---
 
+## Admin Panel & Google OAuth
+
+The `/admin` route provides a content management UI for editing Cloudinary JSON files directly from the browser.
+
+### Access Control
+
+- Protected by **Google OAuth** (Google Identity Services)
+- Only users with a `@dishariboston.org` Google Workspace account can sign in
+- Domain restriction is enforced via the JWT `hd` (hosted domain) claim
+
+### Environment Variables
+
+| Variable | Description |
+|----------|-------------|
+| `VITE_GOOGLE_CLIENT_ID` | Google OAuth Client ID |
+| `VITE_ALLOWED_DOMAIN` | Allowed email domain (e.g., `dishariboston.org`) |
+
+These must be set in `.env.local` for local development and as GitHub Secrets for CI/CD.
+
+### Google OAuth Setup
+
+1. Go to [Google Cloud Console](https://console.cloud.google.com/) → APIs & Services → Credentials
+2. Create an OAuth 2.0 Client ID (Web application)
+3. Add authorized JavaScript origins for your deployment domains
+4. Set the Client ID as `VITE_GOOGLE_CLIENT_ID`
+
+---
+
 ## Updating Content
 
 ### Workflow
 
 1. Update content in **Cloudinary** (images, JSON files)
-2. Run `npm run build:sync` locally
-3. Upload the new `dist/` folder contents to Hostinger
+2. Run `npm run build:sync` locally to verify changes
+3. Push to `dev` branch → auto-deploys to dev via GitHub Actions
+4. After testing, merge to `main` → auto-deploys to prod via GitHub Actions
+
+Alternatively, upload the `dist/` folder manually via FTP (see [Deploying Manually](#deploying-manually-to-hostinger)).
 
 ### What to Update Where
 

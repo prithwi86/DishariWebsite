@@ -226,9 +226,9 @@ Sub-event folders live at `Dishari/Upcoming/<event_id>/<sub_event_id>` and follo
 ### Registration Priority
 
 On the event page, registration buttons follow this priority:
-1. `embeded_form` — shown as collapsible inline iframe (supports raw HTML snippets or plain URLs)
+1. `embeded_form` — opens in a modal overlay (supports raw HTML snippets or plain URL)
 2. `internal_url` — opens in same tab
-3. `external_url` — opens in new tab
+3. `external_url` — opens in a modal overlay
 
 ### Description Formatting
 
