@@ -4030,7 +4030,6 @@ h3 {
     .events-intro,
     .hex-gallery-section,
     .event-features,
-    .past-events-section,
     .testimonials-section,
     .sponsors-section,
     .press-release-section {
@@ -4052,6 +4051,18 @@ h3 {
 
     .carousel-section {
         background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        backdrop-filter: none;
+        -webkit-backdrop-filter: none;
+        border: none;
+        border-radius: 0;
+        box-shadow: none;
+        max-width: none;
+        margin: 0;
+        padding: 1.5rem 0 4rem;
+    }
+
+    .past-events-section {
+        background: white;
         backdrop-filter: none;
         -webkit-backdrop-filter: none;
         border: none;
