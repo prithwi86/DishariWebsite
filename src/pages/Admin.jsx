@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { useAuth } from '../context/AuthContext'
+import { CLOUD_NAME } from '../utils/cloudinary'
 
 const INDENT = 2
 
@@ -36,9 +37,9 @@ function Admin() {
   const [loading, setLoading] = useState(false)
   const editorRef = useRef(null)
 
-  // Fetch file list on mount
+  // Load file list from config
   useEffect(() => {
-    fetch('/api/cloudinary/list')
+    fetch('/data/admin-files.json')
       .then((r) => r.json())
       .then((data) => setFiles(data.files || []))
       .catch(() => setStatus({ type: 'error', msg: 'Failed to load file list' }))
@@ -51,7 +52,8 @@ function Admin() {
     setStatus({ type: 'info', msg: 'Loading…' })
     setLoading(true)
     try {
-      const res = await fetch(`/api/cloudinary/fetch?id=${encodeURIComponent(id)}`)
+      const rawUrl = `https://res.cloudinary.com/${CLOUD_NAME}/raw/upload/${encodeURIComponent(id)}`
+      const res = await fetch(rawUrl)
       if (!res.ok) throw new Error(`HTTP ${res.status}`)
       const data = await res.json()
       const formatted = JSON.stringify(data, null, INDENT)
@@ -90,6 +92,10 @@ function Admin() {
   }
 
   // Save to Cloudinary
+  // Dev: Vite middleware handles /api/cloudinary/upload
+  // Prod: PHP endpoint at /api/cloudinary-upload.php
+  const uploadUrl = import.meta.env.DEV ? '/api/cloudinary/upload' : '/api/cloudinary-upload.php'
+
   async function save() {
     if (!selectedFile) return
     if (!validate()) return
@@ -97,7 +103,7 @@ function Admin() {
     setStatus({ type: 'info', msg: 'Saving…' })
     setLoading(true)
     try {
-      const res = await fetch('/api/cloudinary/upload', {
+      const res = await fetch(uploadUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ publicId: selectedFile, content }),

@@ -79,7 +79,14 @@
             "address": "",
             "img_urls": [],
             "video_urls": [],
-            "registrations": []
+            "registrations": [
+              {
+                "button_text": "Dance with Kumar Sharma",
+                "external_url": "https://www.zeffy.com/en-US/ticketing/mahishasurmardini-2026-registration-package-with-stage-performance-mentor-kumar-sharma",
+                "internal_url": "",
+                "embeded_form": ""
+              }
+            ]
           }
         }
       ]
@@ -89,6 +96,6 @@
     "source": "Cloudinary",
     "folder": "Dishari/Upcoming",
     "total_events": 2,
-    "generated_at": "2026-03-31T12:14:55.864Z"
+    "generated_at": "2026-04-02T00:54:48.507Z"
   }
 }

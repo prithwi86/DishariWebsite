@@ -1,0 +1,10 @@
+{
+  "files": [
+    { "id": "about-us.json", "label": "About Us" },
+    { "id": "upcoming-events.json", "label": "Upcoming Events" },
+    { "id": "contact.json", "label": "Contact" },
+    { "id": "video_urls.json", "label": "Video URLs" },
+    { "id": "home-page.json", "label": "Home Page" },
+    { "id": "press_releases.json", "label": "Press Releases" }
+  ]
+}
