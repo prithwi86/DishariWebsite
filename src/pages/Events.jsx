@@ -205,20 +205,6 @@ function Events() {
           </div>
         </div>
       </section>
-
-      {/* Call to Action */}
-      <section className="cta">
-        <div className="container">
-          <h2>Stay Updated</h2>
-          <p>
-            Don&apos;t miss our upcoming events! Subscribe to our newsletter for
-            event announcements and updates.
-          </p>
-          <Link to="/contact" className="btn btn-large">
-            Get Event Updates
-          </Link>
-        </div>
-      </section>
     </>
   )
 }

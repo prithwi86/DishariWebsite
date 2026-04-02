@@ -239,11 +239,11 @@ The master list of upcoming events. Stored in Cloudinary as raw JSON — the syn
 | Field          | Type   | Description                              |
 |----------------|--------|------------------------------------------|
 | `button_text`  | string | Button label (e.g., "Event Registration")|
-| `external_url` | string | Opens in new tab                         |
+| `external_url` | string | Opens in a modal overlay                 |
 | `internal_url` | string | Opens in same tab                        |
-| `embeded_form` | string | HTML snippet with iframe, shown inline   |
+| `embeded_form` | string | HTML snippet with iframe, shown in modal overlay |
 
-**Priority**: `embeded_form` > `internal_url` > `external_url`
+**Priority**: `embeded_form` (modal) > `internal_url` > `external_url` (modal)
 
 ### Sub-Events
 

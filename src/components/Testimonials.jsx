@@ -68,9 +68,6 @@ function Testimonials() {
     <section className="testimonials-section">
       <div className="container">
         <h2>What others are saying about us.....</h2>
-        <p className="msg-supports">
-          Sorry, your browser doesn&rsquo;t support <code>::scroll-*</code>
-        </p>
         <section className="testimonials-carousel" ref={carouselRef}>
           {testimonials.map((item, index) => (
             <blockquote

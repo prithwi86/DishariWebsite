@@ -33,6 +33,19 @@ jobs:
           VITE_GOOGLE_CLIENT_ID: ${{ secrets.VITE_GOOGLE_CLIENT_ID }}
           VITE_ALLOWED_DOMAIN: ${{ secrets.VITE_ALLOWED_DOMAIN }}
 
+      - name: Inject Cloudinary credentials into .htaccess
+        run: |
+          HTACCESS="./dist/.htaccess"
+          ORIGINAL=$(cat "$HTACCESS")
+          {
+            echo "# Cloudinary credentials (injected by CI)"
+            echo "SetEnv CLOUDINARY_CLOUD_NAME ${{ secrets.CLOUDINARY_CLOUD_NAME }}"
+            echo "SetEnv CLOUDINARY_API_KEY ${{ secrets.CLOUDINARY_API_KEY }}"
+            echo "SetEnv CLOUDINARY_API_SECRET ${{ secrets.CLOUDINARY_API_SECRET }}"
+            echo ""
+            echo "$ORIGINAL"
+          } > "$HTACCESS"
+
       - name: Deploy to Hostinger (Prod)
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
