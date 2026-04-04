@@ -348,6 +348,7 @@ function FutureEvent() {
                     src={embedFormUrl}
                     title="Event Registration"
                     style={{ height: embedHeight + 'px' }}
+                    allow="payment"
                     allowFullScreen
                     allowpaymentrequest=""
                   />
@@ -372,6 +373,7 @@ function FutureEvent() {
                   <iframe
                     src={modalUrl}
                     title="Registration"
+                    allow="payment"
                     allowFullScreen
                     allowpaymentrequest=""
                   />
