@@ -7,10 +7,21 @@
       "banner": "https://res.cloudinary.com/dqcmzcbrp/image/upload/c_limit,f_auto,q_auto,w_1200/Banner?_a=BAMAOGWQ0",
       "details": {
         "description": [
-          "Dishari Picnic 2026 is a relaxed summer gathering where our Bengali community comes together over food, adda, and games in the Boston area 🧺🌳.",
-          "Please use this form to register your group so we can plan meals and activities thoughtfully.",
-          "By signing up, you help Dishari continue its mission of celebrating Bengali culture and creating a welcoming space for friends, families, and new community members.",
-          "We look forward to sharing the day with you."
+          "Please come and join Dishari for a relaxed summer outing at a state park.",
+          "Bring your family and friends and your favorite games for a day of fun, laughter, and connection while enjoying the live cooking of mouthwatering Indian dishes onsite.",
+          "<h2>Menu</h2>",
+          "<h4>Breakfast (Served until 12:30 pm EST)</h4>",
+          "Luchi (Fresh Onsite), Aloor Tarkari, Bonde (sweet), Summer Fruits Mocktail",
+          "<h4>Lunch (Served until 3:00pm EST)</h4>",
+          "Saada Bhaat, Daal, Jhuri aloo bhaja, Mutton Curry  (cooked Onsite), Paneer Curry (Veg only), Chutney, Papad, Mishti Doi",
+          "<h4>KIDS Food – All Day</h4>",
+          "Noodles, Pasta",
+          "<h4>Evening Snacks (4-5PM)</h4>",
+          "Tea, Jhalmuri",
+          "Please use the form below to register for the picnic.",
+          "Please note that, although no registration fee is needed for kids under 5 years, you need to include them for head count purposes (state park requirement).",
+          "Once registered, you will receive details of the venue and parking information via email.",
+          "We look forward to seeing you at the picnic."
         ],
         "date": "06/13/2026",
         "time": "",
@@ -96,6 +107,6 @@
     "source": "Cloudinary",
     "folder": "Dishari/Upcoming",
     "total_events": 2,
-    "generated_at": "2026-04-02T00:54:48.507Z"
+    "generated_at": "2026-04-05T14:44:46.173Z"
   }
 }
