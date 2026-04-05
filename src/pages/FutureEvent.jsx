@@ -240,7 +240,7 @@ function FutureEvent() {
           {description.length > 0 && (
             <div className="future-event-description">
               {description.map((para, i) => (
-                <p key={i}>{para}</p>
+                <p key={i} dangerouslySetInnerHTML={{ __html: para }} />
               ))}
             </div>
           )}
@@ -406,7 +406,7 @@ function FutureEvent() {
                       {subDesc.length > 0 && (
                         <div className="future-event-sub-desc">
                           {subDesc.map((para, i) => (
-                            <p key={i}>{para}</p>
+                            <p key={i} dangerouslySetInnerHTML={{ __html: para }} />
                           ))}
                         </div>
                       )}
