@@ -9,14 +9,14 @@
         "description": [
           "Please come and join Dishari for a relaxed summer outing at a state park.",
           "Bring your family and friends and your favorite games for a day of fun, laughter, and connection while enjoying the live cooking of mouthwatering Indian dishes onsite.",
-          "<h2>Menu</h2>",
-          "<h4>Breakfast (Served until 12:30 pm EST)</h4>",
+          "<h2 style=\"margin-bottom: 4px;\">Menu</h2>",
+          "<p style=\"margin-top: 0;\"><b>Breakfast (Served until 12:30 pm EST)<b></p>",
           "Luchi (Fresh Onsite), Aloor Tarkari, Bonde (sweet), Summer Fruits Mocktail",
-          "<h4>Lunch (Served until 3:00pm EST)</h4>",
+          "<b>Lunch (Served until 3:00pm EST)<b>",
           "Saada Bhaat, Daal, Jhuri aloo bhaja, Mutton Curry  (cooked Onsite), Paneer Curry (Veg only), Chutney, Papad, Mishti Doi",
-          "<h4>KIDS Food – All Day</h4>",
+          "<b>KIDS Food – All Day<b>",
           "Noodles, Pasta",
-          "<h4>Evening Snacks (4-5PM)</h4>",
+          "<b>Evening Snacks (4-5PM)<b>",
           "Tea, Jhalmuri",
           "Please use the form below to register for the picnic.",
           "Please note that, although no registration fee is needed for kids under 5 years, you need to include them for head count purposes (state park requirement).",
@@ -33,7 +33,7 @@
           {
             "button_text": "Event Registration",
             "external_url": "https://www.zeffy.com/en-US/ticketing/dishari-picnic--2026",
-            "internal_url": "",
+            "internal_url": "https://www.zeffy.com/en-US/ticketing/dishari-picnic--2026",
             "_embeded_form": "<div style=\"position:relative;overflow:hidden;height:450px;width:100%;padding-top:450px;\"><iframe title='Donation form powered by Zeffy' style='position: absolute; border: 0; top:0;left:0;bottom:0;right:0;width:100%;height:100%' src='https://www.zeffy.com/embed/ticketing/dishari-picnic--2026' allowpaymentrequest allowTransparency=\"true\"></iframe></div>"
           }
         ]
@@ -107,6 +107,6 @@
     "source": "Cloudinary",
     "folder": "Dishari/Upcoming",
     "total_events": 2,
-    "generated_at": "2026-04-05T14:44:46.173Z"
+    "generated_at": "2026-04-06T03:03:11.435Z"
   }
 }

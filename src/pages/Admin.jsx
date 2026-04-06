@@ -5,7 +5,7 @@ import { CLOUD_NAME } from '../utils/cloudinary'
 const INDENT = 2
 
 function AdminLogin() {
-  const { error, gsiReady, renderSignInButton } = useAuth()
+  const { error, gsiReady, renderSignInButton, promptSignIn } = useAuth()
   const btnRef = useRef(null)
 
   useEffect(() => {
@@ -20,7 +20,29 @@ function AdminLogin() {
         <i className="fas fa-lock admin-login-icon"></i>
         <h2>Admin Access</h2>
         <p>Sign in with your organization Google Workspace account to continue.</p>
-        <div ref={btnRef} className="admin-google-btn"></div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', justifyContent: 'center' }}>
+          <div ref={btnRef} className="admin-google-btn"></div>
+          {gsiReady && (
+            <button
+              type="button"
+              onClick={promptSignIn}
+              className="btn admin-go-btn"
+              title="Sign in with preselected account"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                width: '40px',
+                height: '40px',
+                padding: 0,
+                borderRadius: '50%',
+                fontSize: '1.1rem',
+              }}
+            >
+              <i className="fas fa-arrow-right"></i>
+            </button>
+          )}
+        </div>
         {error && <div className="admin-status admin-status-error">{error}</div>}
       </div>
     </div>
