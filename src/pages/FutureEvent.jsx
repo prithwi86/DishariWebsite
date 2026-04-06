@@ -170,6 +170,19 @@ function FutureEvent() {
   const embedFormUrl = primaryReg ? getEmbedFormUrl(primaryReg.embeded_form) : null
   const hasEmbed = !!embedFormUrl
 
+  // iOS/iPadOS Safari blocks Apple Pay in cross-origin iframes,
+  // so open external URLs in a new tab on those devices.
+  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)
+
+  const handleExternalUrl = (url) => {
+    if (isIOS) {
+      window.open(url, '_blank')
+    } else {
+      setModalUrl(url)
+    }
+  }
+
   const renderRegistrationButton = (reg, index) => {
     const btnText = reg.button_text || 'Register Here'
 
@@ -202,7 +215,9 @@ function FutureEvent() {
         <button
           key={index}
           className="btn btn-large future-event-reg-btn"
-          onClick={() => setModalUrl(reg.external_url)}
+          onClick={() => handleExternalUrl(reg.external_url)}
+          // popup approach (commented out):
+          // onClick={() => window.open(reg.external_url, 'registration', 'width=500,height=750,scrollbars=yes,resizable=yes')}
         >
           <i className="fas fa-external-link-alt"></i> {btnText}
         </button>
@@ -357,7 +372,7 @@ function FutureEvent() {
             </div>
           )}
 
-          {/* External URL — Modal overlay */}
+          {/* External URL — Modal overlay (used on non-iOS devices; iOS opens new tab instead) */}
           {modalUrl && (
             <div className="embed-modal-overlay" onClick={() => setModalUrl(null)}>
               <div className="embed-modal" onClick={(e) => e.stopPropagation()}>
@@ -459,7 +474,9 @@ function FutureEvent() {
                                 <button
                                   key={i}
                                   className="btn future-event-reg-btn"
-                                  onClick={() => setModalUrl(reg.external_url)}
+                                  onClick={() => handleExternalUrl(reg.external_url)}
+                                  // popup approach (commented out):
+                                  // onClick={() => window.open(reg.external_url, 'registration', 'width=500,height=750,scrollbars=yes,resizable=yes')}
                                 >
                                   <i className="fas fa-external-link-alt"></i> {reg.button_text || 'Register'}
                                 </button>

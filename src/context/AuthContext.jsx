@@ -97,6 +97,12 @@ export function AuthProvider({ children }) {
     }
   }, [])
 
+  const promptSignIn = useCallback(() => {
+    if (window.google?.accounts?.id) {
+      window.google.accounts.id.prompt()
+    }
+  }, [])
+
   const renderSignInButton = useCallback((element) => {
     if (!element || !window.google?.accounts?.id) return
     window.google.accounts.id.renderButton(element, {
@@ -108,7 +114,7 @@ export function AuthProvider({ children }) {
   }, [])
 
   return (
-    <AuthContext.Provider value={{ user, error, gsiReady, signOut, renderSignInButton }}>
+    <AuthContext.Provider value={{ user, error, gsiReady, signOut, promptSignIn, renderSignInButton }}>
       {children}
     </AuthContext.Provider>
   )
