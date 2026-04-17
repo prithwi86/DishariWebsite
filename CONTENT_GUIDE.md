@@ -38,6 +38,7 @@ To re-enable the field, simply remove the leading underscore.
 - [contact.json — Contact Info & Social Links](#contactjson)
 - [about-us.json — Organization & Team](#about-usjson)
 - [video_urls.json — Video URL Mappings](#video_urlsjson)
+- [web-admin.json — Dashboard Access Allowlist](#web-adminjson)
 - [Component → JSON Mapping](#component--json-mapping)
 
 ---
@@ -441,6 +442,38 @@ After all other syncs complete, `syncVideoUrls` reads each entry and merges the 
 
 ---
 
+## web-admin.json
+
+**Cloudinary public_id**: `web-admin.json`
+**Used by**: `Admin.jsx`, `Dashboard.jsx`
+
+Controls which Google Workspace users have access to the Admin panel (Cloudinary JSON editor). All authenticated `@dishariboston.org` users can access the Dashboard and Reports, but only emails listed here can access the Admin panel.
+
+### Structure
+
+```json
+{
+  "emails": [
+    "user1@dishariboston.org",
+    "user2@dishariboston.org"
+  ]
+}
+```
+
+### Fields
+
+| Field    | Type     | Description                                    |
+|----------|----------|------------------------------------------------|
+| `emails` | string[] | Email addresses allowed to access Admin panel  |
+
+### How It Works
+
+- `Dashboard.jsx` fetches this file to show/grey out the Admin card
+- `Admin.jsx` fetches this file on mount and shows "Access Denied" if the user's email is not in the list
+- Synced from Cloudinary like all other JSON files via `syncWebAdmin()`
+
+---
+
 ## Component → JSON Mapping
 
 | Component               | Primary JSON Source    | Fields Used                              |
@@ -458,6 +491,9 @@ After all other syncs complete, `syncVideoUrls` reads each entry and merges the 
 | `Contact`               | `contact.json`        | `contact.email`, `contact.background_img_url` |
 | `About`                 | `about-us.json`       | `organization.*`                         |
 | `EventGallery`          | `past-events.json`    | `events[]` images by query param         |
+| `Admin`                 | `web-admin.json`      | `emails[]` for access control            |
+| `Dashboard`             | `web-admin.json`      | `emails[]` to show/grey out Admin card   |
+| `Reports`               | `reports.json`        | `tabs.*` registration data by event      |
 
 ---
 
@@ -479,5 +515,6 @@ After all other syncs complete, `syncVideoUrls` reads each entry and merges the 
 | Contact info / social links        | `contact.json`                                        |
 | Video URLs for events              | `video_urls.json`                                     |
 | About us / team members            | `about-us.json` + member photos in `Dishari/About_Us/`|
+| Admin allowlist                    | `web-admin.json` in Cloudinary                        |
 
 After any change, run `npm run build:sync` and deploy the updated `dist/` folder.

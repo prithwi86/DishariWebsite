@@ -32,11 +32,19 @@ CLOUDINARY_VIDEO_URLS_ID=video_urls.json
 CLOUDINARY_ABOUT_US_ID=about-us.json
 CLOUDINARY_ABOUT_US_FOLDER=Dishari/About_Us
 CLOUDINARY_HOME_PAGE_ID=home-page.json
+CLOUDINARY_WEB_ADMIN_ID=web-admin.json
 ```
 
 Optional (for corporate networks with SSL proxy):
 ```
 CLOUDINARY_ALLOW_SELF_SIGNED_CERTS=true
+```
+
+Optional (for Google Sheets sync):
+```
+GOOGLE_SHEETS_ID=your_spreadsheet_id
+GOOGLE_SERVICE_ACCOUNT_EMAIL=your_service_account@project.iam.gserviceaccount.com
+GOOGLE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n"
 ```
 
 > **Never commit `.env.local` to git** — it's in `.gitignore`.
@@ -108,6 +116,8 @@ Running `npm run sync` executes the following in order:
 5. **syncContact** — `contact.json` raw file, resolves background image by tags → `contact.json`
 6. **syncAboutUs** — `about-us.json` raw file, resolves org image and member pics → `about-us.json`
 7. **syncVideoUrls** — `video_urls.json` raw file, merges video URLs into target event data
+8. **syncWebAdmin** — `web-admin.json` raw file, downloads admin allowlist → `web-admin.json`
+9. **syncSheets** — Google Sheets API, fetches Zeffy registration data → `reports.json`
 
 ## Image Ordering with Tags
 
@@ -166,6 +176,8 @@ npm run build:sync
 | `public/data/press_release.json`  | Press release JSON + image resolution |
 | `public/data/contact.json`        | Raw `contact.json` + image resolution |
 | `public/data/about-us.json`       | Raw `about-us.json` + member pics     |
+| `public/data/web-admin.json`      | Admin allowlist (emails)              |
+| `public/data/reports.json`        | Google Sheets registration data       |
 
 ## Upcoming Events JSON Structure
 

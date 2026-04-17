@@ -10,13 +10,14 @@ The official website for **Dishari Boston Inc.**, a nonprofit organization dedic
 - **Vite** — fast dev server and build tool
 - **Cloudinary** — all images, JSON data files, and media (build-time sync)
 - **Google OAuth** — admin panel authentication (Google Identity Services, restricted to `@dishariboston.org`)
+- **Google Sheets API** — Zeffy registration data via service account (reports dashboard)
 - **GitHub Actions** — CI/CD pipeline for dev and prod deployments via FTP
 - **SMTP2GO** — transactional email (via PHP proxy in production)
 - **Google Fonts** — Pacifico & Quicksand (Contact page)
 
 ## Features
 
-- Responsive multi-page layout (Home, About, Events, Contact, Press, Admin)
+- Responsive multi-page layout (Home, About, Events, Contact, Press, Admin, Dashboard, Reports)
 - **3D frosted glass UI** — glass card effects with backdrop blur on Home and Events page sections
 - **Centralized content management** via `home-page.json` in Cloudinary — controls homepage sections, testimonials, and references to other JSON files
 - **JSON commenting convention** — prefix keys with `_` to disable fields without deleting (`stripCommentedFields` in `jsonHelper.js`)
@@ -32,6 +33,10 @@ The official website for **Dishari Boston Inc.**, a nonprofit organization dedic
 - Dynamic social media links in footer (loaded from Cloudinary JSON)
 - Scroll animations and scroll-to-top button
 - **Admin panel** at `/admin` — Google OAuth-protected content editor for Cloudinary JSON files
+- **Dashboard portal** at `/dashboard` — centralized hub with Admin and Reports access cards
+- **Reports dashboard** at `/reports` — glassmorphic UI for viewing Zeffy registration data from Google Sheets
+- **Allowlist-based access control** — `web-admin.json` (synced from Cloudinary) restricts Admin panel access
+- **Navbar login button** — Google sign-in from any page, navigates to Dashboard
 - **CI/CD** — GitHub Actions workflows for automated dev/prod deployment via FTP
 
 ## Pages
@@ -45,7 +50,9 @@ The official website for **Dishari Boston Inc.**, a nonprofit organization dedic
 | `/event-gallery`   | Event Gallery           |
 | `/event/:id`       | Individual Event Page   |
 | `/press/:id`       | Press Release Detail    |
-| `/admin`           | Admin Panel (OAuth-protected) |
+| `/admin`           | Admin Panel (OAuth-protected, allowlist-gated) |
+| `/dashboard`       | Dashboard Portal (OAuth-protected) |
+| `/reports`         | Reports Dashboard (OAuth-protected) |
 
 ## Getting Started
 
@@ -76,7 +83,7 @@ npm run build:sync
 Output goes to the `dist/` folder.
 
 The `build:sync` command runs:
-1. `npm run sync` — fetches all data from Cloudinary (home page config, past events, upcoming events with sub-events, press releases, contact info, about us, video URLs)
+1. `npm run sync` — fetches all data from Cloudinary (home page config, past events, upcoming events with sub-events, press releases, contact info, about us, video URLs, admin allowlist) and Google Sheets (registration data)
 2. `npm run build` — builds the production bundle
 
 ### Sync Only
@@ -143,7 +150,9 @@ See [DEPLOYMENT.md](DEPLOYMENT.md) for hosting instructions on Hostinger.
 │   │   ├── past-events.json      # Past event galleries
 │   │   ├── press_release.json    # Press releases
 │   │   ├── upcoming-events.json  # Upcoming events with sub-events and full details
-│   │   └── video_urls.json       # Video URL mappings
+│   │   ├── video_urls.json       # Video URL mappings
+│   │   ├── web-admin.json        # Admin allowlist (synced from Cloudinary)
+│   │   └── reports.json          # Registration data (synced from Google Sheets)
 │   ├── favicon.png               # Site favicon
 │   └── .htaccess                 # SPA routing for Hostinger
 ├── scripts/
@@ -167,13 +176,15 @@ See [DEPLOYMENT.md](DEPLOYMENT.md) for hosting instructions on Hostinger.
 │   │   └── AuthContext.jsx       # Google OAuth provider (GIS)
 │   ├── pages/
 │   │   ├── About.jsx
-│   │   ├── Admin.jsx             # Admin panel (OAuth-protected)
+│   │   ├── Admin.jsx             # Admin panel (OAuth-protected, allowlist-gated)
 │   │   ├── Contact.jsx           # Animated SVG + email form
+│   │   ├── Dashboard.jsx         # Dashboard portal (Admin + Reports cards)
 │   │   ├── EventGallery.jsx
 │   │   ├── Events.jsx
 │   │   ├── FutureEvent.jsx       # Dynamic event page (/event/:id)
 │   │   ├── Home.jsx
-│   │   └── PressReleasePage.jsx
+│   │   ├── PressReleasePage.jsx
+│   │   └── Reports.jsx           # Reports dashboard (Google Sheets data)
 │   ├── utils/
 │   │   ├── cloudinary.js
 │   │   ├── jsonHelper.js         # stripCommentedFields() for _ prefix convention
