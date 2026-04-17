@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { CLOUD_NAME } from '../utils/cloudinary'
 
@@ -51,13 +52,29 @@ function AdminLogin() {
 
 function Admin() {
   const { user, signOut } = useAuth()
+  const navigate = useNavigate()
   const [files, setFiles] = useState([])
   const [selectedFile, setSelectedFile] = useState('')
   const [content, setContent] = useState('')
   const [originalContent, setOriginalContent] = useState('')
   const [status, setStatus] = useState({ type: '', msg: '' })
   const [loading, setLoading] = useState(false)
+  const [accessDenied, setAccessDenied] = useState(false)
   const editorRef = useRef(null)
+
+  // Allowlist check
+  useEffect(() => {
+    if (!user) return
+    fetch('/data/web-admin.json')
+      .then((r) => r.ok ? r.json() : { emails: [] })
+      .then((al) => {
+        const emails = (al.emails || []).map((e) => e.toLowerCase())
+        if (emails.length && !emails.includes(user.email.toLowerCase())) {
+          setAccessDenied(true)
+        }
+      })
+      .catch(() => {}) // if file missing, allow all
+  }, [user])
 
   // Load file list from config
   useEffect(() => {
@@ -152,9 +169,21 @@ function Admin() {
 
   if (!user) return <AdminLogin />
 
+  if (accessDenied) return (
+    <div className="admin-page">
+      <div className="admin-login">
+        <i className="fas fa-ban admin-login-icon" style={{ color: '#dc2626' }}></i>
+        <h2>Access Denied</h2>
+        <p>Your account ({user.email}) does not have access to the admin panel.</p>
+        <button className="admin-btn" onClick={() => navigate('/dashboard')}><i className="fas fa-arrow-left"></i> Dashboard</button>
+      </div>
+    </div>
+  )
+
   return (
     <div className="admin-page">
       <div className="admin-header">
+        <button className="admin-btn dash-back-btn" onClick={() => navigate('/dashboard')}><i className="fas fa-arrow-left"></i> Dashboard</button>
         <h1><i className="fas fa-code"></i> Cloudinary JSON Editor</h1>
         <div className="admin-user">
           <img src={user.picture} alt="" className="admin-avatar" referrerPolicy="no-referrer" />

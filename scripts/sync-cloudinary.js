@@ -22,6 +22,7 @@ const videoUrlsPublicId = process.env.CLOUDINARY_VIDEO_URLS_ID || 'video_urls.js
 const aboutUsPublicId = process.env.CLOUDINARY_ABOUT_US_ID || 'about-us.json';
 const aboutUsFolder = process.env.CLOUDINARY_ABOUT_US_FOLDER || 'Dishari/About_Us';
 const homePagePublicId = process.env.CLOUDINARY_HOME_PAGE_ID || 'home-page.json';
+const webAdminPublicId = process.env.CLOUDINARY_WEB_ADMIN_ID || 'web-admin.json';
 const maxPastEvents = 3;
 const allowSelfSigned = process.env.CLOUDINARY_ALLOW_SELF_SIGNED_CERTS === 'true';
 
@@ -769,6 +770,26 @@ async function syncVideoUrls() {
 // Google Sheets → Registration Reports
 // ---------------------------------------------------------------------------
 
+async function syncWebAdmin() {
+  const rawUrl = `https://res.cloudinary.com/${cloudName}/raw/upload/${webAdminPublicId}`;
+  console.log(`\n--- Syncing web-admin (${rawUrl}) ---`);
+
+  let data;
+  try {
+    const res = await fetch(rawUrl);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    data = await res.json();
+  } catch (err) {
+    console.warn(`  Could not fetch web-admin.json: ${err.message}. Skipping.`);
+    return;
+  }
+
+  const out = resolve(ROOT, 'public', 'data', 'web-admin.json');
+  writeFileSync(out, `${JSON.stringify(data, null, 2)}\n`, 'utf-8');
+  console.log(`  Wrote ${(data.emails || []).length} email(s) to ${out}`);
+}
+
+
 async function syncSheets() {
   const spreadsheetId = (process.env.GOOGLE_SHEETS_ID || '').replace(/"/g, '').trim();
   const clientEmail = (process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL || '').replace(/"/g, '').trim();
@@ -856,6 +877,7 @@ async function main() {
   await syncContact();
   await syncAboutUs();
   await syncVideoUrls();
+  await syncWebAdmin();
   await syncSheets();
   console.log('\nAll syncs complete.');
 }

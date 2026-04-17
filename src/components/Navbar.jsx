@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from 'react'
-import { Link, useLocation } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import logo from '../assets/Dishari_logo_tranparent_final.png'
 import { stripCommentedFields } from '../utils/jsonHelper'
+import { useAuth } from '../context/AuthContext'
 
 function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false)
@@ -11,8 +12,10 @@ function Navbar() {
   const [upcomingEvents, setUpcomingEvents] = useState([])
   const [pressReleases, setPressReleases] = useState([])
   const location = useLocation()
+  const navigate = useNavigate()
   const dropdownRef = useRef(null)
   const pressDropdownRef = useRef(null)
+  const { user, promptSignIn, gsiReady } = useAuth()
 
   // Close everything on route change
   useEffect(() => {
@@ -139,6 +142,17 @@ function Navbar() {
           <li><Link to="/events" className={location.pathname === '/events' ? 'active' : ''}>Past Events</Link></li>
           <li><Link to="/contact" className={location.pathname === '/contact' ? 'active' : ''}>Contact</Link></li>
           <li><Link to="/about" className={location.pathname === '/about' ? 'active' : ''}>About Us</Link></li>
+          <li>
+            {user ? (
+              <Link to="/dashboard" className={`nav-login-btn nav-login-authenticated${location.pathname === '/dashboard' ? ' active' : ''}`}>
+                <img src={user.picture} alt="" className="nav-login-avatar" referrerPolicy="no-referrer" />
+              </Link>
+            ) : (
+              <button className="nav-login-btn" onClick={() => { if (gsiReady) { navigate('/dashboard'); } }} type="button">
+                <i className="fas fa-sign-in-alt"></i> Login
+              </button>
+            )}
+          </li>
         </ul>
 
         {/* ─── Hamburger ─── */}
@@ -187,6 +201,16 @@ function Navbar() {
           <Link to="/events" className="drawer-row">Past Events</Link>
           <Link to="/contact" className="drawer-row">Contact</Link>
           <Link to="/about" className="drawer-row">About Us</Link>
+          {user ? (
+            <Link to="/dashboard" className="drawer-row drawer-login">
+              <img src={user.picture} alt="" className="nav-login-avatar" referrerPolicy="no-referrer" />
+              <span>{user.name}</span>
+            </Link>
+          ) : (
+            <button className="drawer-row drawer-login" onClick={() => { setMenuOpen(false); navigate('/dashboard'); }} type="button">
+              <i className="fas fa-sign-in-alt"></i> <span>Login</span>
+            </button>
+          )}
         </div>
 
         {/* Upcoming Events submenu panel */}

@@ -15,6 +15,7 @@ import { AuthProvider } from './context/AuthContext'
 
 const Admin = lazy(() => import('./pages/Admin'))
 const Reports = lazy(() => import('./pages/Reports'))
+const Dashboard = lazy(() => import('./pages/Dashboard'))
 
 function App() {
   return (
@@ -31,6 +32,7 @@ function App() {
         <Route path="/press/:id" element={<PressReleasePage />} />
         <Route path="/admin" element={<Suspense fallback={<div>Loading…</div>}><Admin /></Suspense>} />
         <Route path="/reports" element={<Suspense fallback={<div>Loading…</div>}><Reports /></Suspense>} />
+        <Route path="/dashboard" element={<Suspense fallback={<div>Loading…</div>}><Dashboard /></Suspense>} />
       </Routes>
       <Footer />
       <ScrollToTopButton />
