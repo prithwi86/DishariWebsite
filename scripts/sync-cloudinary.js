@@ -766,6 +766,84 @@ async function syncVideoUrls() {
 }
 
 // ---------------------------------------------------------------------------
+// Google Sheets → Registration Reports
+// ---------------------------------------------------------------------------
+
+async function syncSheets() {
+  const spreadsheetId = (process.env.GOOGLE_SHEETS_ID || '').replace(/"/g, '').trim();
+  const clientEmail = (process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL || '').replace(/"/g, '').trim();
+  const privateKey = (process.env.GOOGLE_PRIVATE_KEY || '').replace(/"/g, '').replace(/\\n/g, '\n').trim();
+
+  if (!spreadsheetId || !clientEmail || !privateKey) {
+    console.warn('Skipping Google Sheets sync – missing GOOGLE_SHEETS_ID, GOOGLE_SERVICE_ACCOUNT_EMAIL, or GOOGLE_PRIVATE_KEY.');
+    return;
+  }
+
+  const { google } = await import('googleapis');
+
+  const auth = new google.auth.GoogleAuth({
+    credentials: { client_email: clientEmail, private_key: privateKey },
+    scopes: ['https://www.googleapis.com/auth/spreadsheets.readonly'],
+  });
+
+  const sheets = google.sheets({ version: 'v4', auth });
+
+  // Tabs to pull and the columns we care about
+  const tabConfigs = [
+    {
+      tab: 'Picnic',
+      cols: ['eventTitle', 'ticketQty', 'firstname', 'lastname', 'totalAmount', 'createdAtUtc'],
+    },
+  ];
+
+  const result = {};
+
+  for (const { tab, cols } of tabConfigs) {
+    console.log(`  Fetching tab "${tab}"…`);
+    const res = await sheets.spreadsheets.values.get({
+      spreadsheetId,
+      range: `${tab}!A1:Z`,
+    });
+
+    const rows = res.data.values || [];
+    if (rows.length < 2) {
+      console.warn(`  Tab "${tab}" has no data rows.`);
+      result[tab] = [];
+      continue;
+    }
+
+    const header = rows[0];
+    const colIndices = cols.map((c) => {
+      const idx = header.findIndex((h) => h.toLowerCase() === c.toLowerCase());
+      if (idx === -1) console.warn(`  Column "${c}" not found in "${tab}".`);
+      return { name: c, idx };
+    });
+
+    const dataRows = rows.slice(1).map((row) => {
+      const obj = {};
+      for (const { name, idx } of colIndices) {
+        obj[name] = idx >= 0 ? (row[idx] || '') : '';
+      }
+      return obj;
+    });
+
+    result[tab] = dataRows;
+    console.log(`  Got ${dataRows.length} rows from "${tab}".`);
+  }
+
+  const outPath = resolve(ROOT, 'public', 'data', 'reports.json');
+  const output = {
+    tabs: result,
+    metadata: {
+      source: 'Google Sheets',
+      generated_at: new Date().toISOString(),
+    },
+  };
+  writeFileSync(outPath, `${JSON.stringify(output, null, 2)}\n`, 'utf-8');
+  console.log(`  Wrote ${outPath}`);
+}
+
+// ---------------------------------------------------------------------------
 // Main
 // ---------------------------------------------------------------------------
 
@@ -778,6 +856,7 @@ async function main() {
   await syncContact();
   await syncAboutUs();
   await syncVideoUrls();
+  await syncSheets();
   console.log('\nAll syncs complete.');
 }
 
