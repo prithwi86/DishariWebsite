@@ -3314,6 +3314,139 @@ h3 {
 }
 
 /* ===========================
+   REPORTS DASHBOARD
+   =========================== */
+.reports-tabs {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+  border-bottom: 2px solid #e5e7eb;
+  padding-bottom: 0;
+}
+
+.reports-tab {
+  padding: 0.6rem 1.2rem;
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #6b7280;
+  border-bottom: 3px solid transparent;
+  margin-bottom: -2px;
+  transition: color 0.2s, border-color 0.2s;
+}
+
+.reports-tab:hover {
+  color: #1e3a5f;
+}
+
+.reports-tab-active {
+  color: #1e3a5f;
+  border-bottom-color: #1e3a5f;
+}
+
+.reports-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.reports-card {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 1.2rem 1.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+
+.reports-card h3 {
+  margin: 0 0 0.8rem;
+  font-size: 1rem;
+  color: #374151;
+}
+
+.reports-card-stats {
+  display: flex;
+  gap: 1.5rem;
+}
+
+.reports-card-stats > div {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.reports-stat-value {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #1e3a5f;
+}
+
+.reports-stat-label {
+  font-size: 0.75rem;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.reports-table-wrapper {
+  overflow-x: auto;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+}
+
+.reports-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.88rem;
+}
+
+.reports-table th,
+.reports-table td {
+  padding: 0.6rem 0.8rem;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.reports-table thead {
+  background: #f3f4f6;
+}
+
+.reports-table th {
+  font-weight: 600;
+  color: #374151;
+  border-bottom: 2px solid #e5e7eb;
+  user-select: none;
+}
+
+.reports-table tbody tr:nth-child(even) {
+  background: #f9fafb;
+}
+
+.reports-table tbody tr:hover {
+  background: #eef2ff;
+}
+
+.reports-meta {
+  text-align: right;
+  font-size: 0.78rem;
+  color: #9ca3af;
+  margin-top: 0.5rem;
+}
+
+@media (max-width: 640px) {
+  .reports-card-stats {
+    gap: 1rem;
+  }
+  .reports-stat-value {
+    font-size: 1.1rem;
+  }
+}
+
+/* ===========================
    CONTACT PAGE
    =========================== */
 .contact-section {
