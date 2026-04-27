@@ -95,6 +95,7 @@ function Admin() {
       const res = await fetch(rawUrl)
       if (!res.ok) throw new Error(`HTTP ${res.status}`)
       const data = await res.json()
+
       const formatted = JSON.stringify(data, null, INDENT)
       setContent(formatted)
       setOriginalContent(formatted)
