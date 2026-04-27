@@ -116,4 +116,9 @@ function cloudinaryDevApi() {
 
 export default defineConfig({
   plugins: [react(), cloudinaryDevApi()],
+  server: {
+    host: 'localhost',
+    port: 5173,
+    strictPort: true,
+  },
 })
