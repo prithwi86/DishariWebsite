@@ -8,6 +8,7 @@ import Home from './pages/Home'
 import About from './pages/About'
 import Events from './pages/Events'
 import Contact from './pages/Contact'
+import Donate from './pages/Donate'
 import EventGallery from './pages/EventGallery'
 import FutureEvent from './pages/FutureEvent'
 import PressReleasePage from './pages/PressReleasePage'
@@ -27,6 +28,7 @@ function App() {
         <Route path="/about" element={<About />} />
         <Route path="/events" element={<Events />} />
         <Route path="/contact" element={<Contact />} />
+        <Route path="/donate" element={<Donate />} />
         <Route path="/event-gallery" element={<EventGallery />} />
         <Route path="/event/:id" element={<FutureEvent />} />
         <Route path="/press/:id" element={<PressReleasePage />} />

@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
+import { Link } from 'react-router-dom'
 import AnimateOnScroll from '../components/AnimateOnScroll'
 import contactBg from '../assets/Contact_BG.jpg'
 import { stripCommentedFields } from '../utils/jsonHelper'
@@ -584,13 +585,21 @@ function Contact() {
         <div className="container">
           <h2>Ways to Get Involved</h2>
           <div className="help-grid">
-            {waysToHelp.map((item) => (
-              <AnimateOnScroll key={item.title} className="help-card">
-                <i className={item.icon}></i>
-                <h3>{item.title}</h3>
-                <p>{item.text}</p>
-              </AnimateOnScroll>
-            ))}
+            {waysToHelp.map((item) => {
+              const isDonatCard = item.title === 'Donate'
+              const CardWrapper = isDonatCard ? Link : 'div'
+              const wrapperProps = isDonatCard ? { to: '/donate', className: 'help-card-link' } : {}
+              
+              return (
+                <AnimateOnScroll key={item.title} className="help-card">
+                  <CardWrapper {...wrapperProps}>
+                    <i className={item.icon}></i>
+                    <h3>{item.title}</h3>
+                    <p>{item.text}</p>
+                  </CardWrapper>
+                </AnimateOnScroll>
+              )
+            })}
           </div>
         </div>
       </section>

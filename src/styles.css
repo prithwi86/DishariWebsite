@@ -4377,6 +4377,259 @@ h3 {
     font-size: 0.95rem;
 }
 
+/* Make donate card a clickable link */
+.help-card-link {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+}
+
+/* ===========================
+   DONATE PAGE
+   =========================== */
+.donate-page {
+    background: white;
+}
+
+.donate-header {
+    background: transparent;
+    padding: 0;
+    text-align: center;
+}
+
+.donate-header .container {
+    background: rgba(255, 255, 255, 0.45);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.45);
+    border-radius: 20px;
+    box-shadow: 0 8px 32px rgba(31, 38, 135, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.5);
+    padding: 0 2rem 3rem 2rem;
+}
+
+.donate-title {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    font-weight: 700;
+    color: var(--accent-color);
+}
+
+.donate-description {
+    font-size: 1.1rem;
+    opacity: 0.9;
+    max-width: 600px;
+    margin: 0 auto;
+    color: var(--text-light);
+}
+
+.donate-container {
+    padding: 3rem 0;
+}
+
+.donate-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3rem;
+    align-items: start;
+}
+
+.donate-info h2 {
+    font-size: 1.8rem;
+    color: var(--accent-color);
+    margin-bottom: 1.5rem;
+}
+
+.donate-info p {
+    color: var(--text-light);
+    margin-bottom: 1.5rem;
+    line-height: 1.8;
+}
+
+.donate-benefits {
+    list-style: none;
+    padding: 0;
+    margin-bottom: 2rem;
+}
+
+.donate-benefits li {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    background: var(--light-bg);
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.donate-benefits li:hover {
+    background: #f0f0f0;
+    transform: translateX(5px);
+}
+
+.donate-benefits i {
+    font-size: 1.5rem;
+    color: var(--primary-color);
+    flex-shrink: 0;
+    margin-top: 0.2rem;
+}
+
+.donate-benefits span {
+    color: var(--text-color);
+    font-weight: 500;
+}
+
+.donate-forms {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    padding: 2rem;
+    background: var(--light-bg);
+    border-radius: 10px;
+    border: 2px solid var(--border-color);
+}
+
+.donate-form-wrapper {
+    text-align: center;
+}
+
+.btn-donate {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.8rem;
+    background: linear-gradient(135deg, var(--primary-color) 0%, #c93d52 100%);
+    color: white;
+    padding: 1rem 2rem;
+    border-radius: 50px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 1.05rem;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: var(--shadow-lg);
+}
+
+.btn-donate:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(212, 73, 92, 0.4);
+}
+
+.btn-donate i {
+    font-size: 1.2rem;
+}
+
+.donate-note {
+    font-size: 0.9rem;
+    color: var(--text-light);
+    margin-top: 0.8rem;
+}
+
+.donate-placeholder {
+    color: var(--text-light);
+    padding: 1rem;
+    text-align: center;
+}
+
+.donate-placeholder a {
+    color: var(--primary-color);
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.donate-placeholder a:hover {
+    text-decoration: underline;
+}
+
+.donate-footer {
+    background: var(--light-bg);
+    padding: 2rem 0;
+    border-top: 1px solid var(--border-color);
+    text-align: center;
+    color: var(--text-light);
+    font-size: 0.95rem;
+}
+
+.donate-footer p {
+    max-width: 700px;
+    margin: 0 auto;
+}
+
+.donate-cta {
+    padding: 3rem 0;
+    text-align: center;
+    background: white;
+}
+
+.donate-cta h3 {
+    font-size: 1.8rem;
+    color: var(--accent-color);
+    margin-bottom: 1rem;
+}
+
+.donate-cta p {
+    color: var(--text-light);
+    margin-bottom: 2rem;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.btn-secondary {
+    display: inline-block;
+    background: linear-gradient(135deg, var(--secondary-color) 0%, #e89b1c 100%);
+    color: white;
+    padding: 0.8rem 1.8rem;
+    border-radius: 30px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+}
+
+.btn-secondary:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+}
+
+/* Responsive for donate page */
+@media (max-width: 768px) {
+    .donate-title {
+        font-size: 2rem;
+    }
+
+    .donate-description {
+        font-size: 1rem;
+    }
+
+    .donate-content {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+    }
+
+    .donate-info h2 {
+        font-size: 1.5rem;
+    }
+
+    .donate-benefits li {
+        padding: 0.8rem;
+    }
+
+    .donate-forms {
+        padding: 1.5rem;
+    }
+
+    .btn-donate {
+        padding: 0.8rem 1.5rem;
+        font-size: 1rem;
+    }
+
+    .donate-cta h3 {
+        font-size: 1.5rem;
+    }
+}
+
 /* ===========================
    RESPONSIVE DESIGN
    =========================== */
