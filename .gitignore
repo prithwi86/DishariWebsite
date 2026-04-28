@@ -26,3 +26,6 @@ credentials.json
 
 # Environment files with secrets
 .env.development
+
+# Review/Documentation files (local analysis)
+PROJECT_REVIEW.md

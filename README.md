@@ -47,6 +47,7 @@ The official website for **Dishari Boston Inc.**, a nonprofit organization dedic
 | `/about`           | About                   |
 | `/events`          | Events                  |
 | `/contact`         | Contact                 |
+| `/donate`          | Donate (Donations & Support) |
 | `/event-gallery`   | Event Gallery           |
 | `/event/:id`       | Individual Event Page   |
 | `/press/:id`       | Press Release Detail    |

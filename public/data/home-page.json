@@ -77,6 +77,18 @@
     "press_releases": {
       "header_text": "Press Room",
       "json_file_public_id": "press_release.json"
+    },
+    "donation_page": {
+      "header_text": "Support Us",
+      "description": "Your generous contributions help us continue to promote Bengali culture and organize memorable events for our community. Every donation, big or small, makes a significant impact. Thank you for your support!",
+      "donation_link": [
+        {
+            "button_text": "Donate Now",
+            "external_url": "https://www.zeffy.com/en-US/donation-form/dishari-donation-form",
+            "internal_url": "",
+            "embeded_form": ""
+        }
+      ]
     }
   }
 }
