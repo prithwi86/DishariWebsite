@@ -9,14 +9,12 @@ function Navbar() {
   const [submenuOpen, setSubmenuOpen] = useState(null) // key of open submenu
   const [dropdownOpen, setDropdownOpen] = useState(false)
   const [pressDropdownOpen, setPressDropdownOpen] = useState(false)
-  const [contactDropdownOpen, setContactDropdownOpen] = useState(false)
   const [upcomingEvents, setUpcomingEvents] = useState([])
   const [pressReleases, setPressReleases] = useState([])
   const location = useLocation()
   const navigate = useNavigate()
   const dropdownRef = useRef(null)
   const pressDropdownRef = useRef(null)
-  const contactDropdownRef = useRef(null)
   const { user, promptSignIn, gsiReady } = useAuth()
 
   // Close everything on route change
@@ -25,7 +23,6 @@ function Navbar() {
     setSubmenuOpen(null)
     setDropdownOpen(false)
     setPressDropdownOpen(false)
-    setContactDropdownOpen(false)
   }, [location])
 
   // Prevent page scrolling when drawer is open
@@ -76,9 +73,6 @@ function Navbar() {
       }
       if (pressDropdownRef.current && !pressDropdownRef.current.contains(e.target)) {
         setPressDropdownOpen(false)
-      }
-      if (contactDropdownRef.current && !contactDropdownRef.current.contains(e.target)) {
-        setContactDropdownOpen(false)
       }
     }
     document.addEventListener('mousedown', handleClickOutside)
@@ -146,25 +140,8 @@ function Navbar() {
             </li>
           )}
           <li><Link to="/events" className={location.pathname === '/events' ? 'active' : ''}>Past Events</Link></li>
-          <li className="nav-dropdown" ref={contactDropdownRef}>
-            <button
-              className={`nav-dropdown-toggle${location.pathname === '/contact' || location.pathname === '/donate' ? ' active' : ''}`}
-              onClick={() => setContactDropdownOpen((prev) => !prev)}
-              type="button"
-            >
-              Contact <i className={`fas fa-chevron-down nav-dropdown-arrow${contactDropdownOpen ? ' open' : ''}`}></i>
-            </button>
-            {contactDropdownOpen && (
-              <ul className="nav-dropdown-menu">
-                <li>
-                  <Link to="/contact" className={location.pathname === '/contact' ? 'active' : ''}>Contact Us</Link>
-                </li>
-                <li>
-                  <Link to="/donate" className={location.pathname === '/donate' ? 'active' : ''}>Donate</Link>
-                </li>
-              </ul>
-            )}
-          </li>
+          <li><Link to="/contact" className={location.pathname === '/contact' ? 'active' : ''}>Contact</Link></li>
+          <li><Link to="/donate" className={location.pathname === '/donate' ? 'active' : ''}>Support Us</Link></li>
           <li><Link to="/about" className={location.pathname === '/about' ? 'active' : ''}>About Us</Link></li>
           <li>
             {user ? (
@@ -223,14 +200,8 @@ function Navbar() {
           )}
 
           <Link to="/events" className="drawer-row">Past Events</Link>
-          <button
-            className="drawer-row drawer-row-sub"
-            onClick={() => setSubmenuOpen('contact')}
-            type="button"
-          >
-            <span>Contact</span>
-            <i className="fas fa-chevron-right"></i>
-          </button>
+          <Link to="/contact" className="drawer-row">Contact</Link>
+          <Link to="/donate" className="drawer-row">Support Us</Link>
           <Link to="/about" className="drawer-row">About Us</Link>
           {user ? (
             <Link to="/dashboard" className="drawer-row drawer-login">
@@ -278,19 +249,7 @@ function Navbar() {
           ))}
         </div>
 
-        {/* Contact submenu panel */}
-        <div className={`drawer-panel drawer-sub${submenuOpen === 'contact' ? ' visible' : ''}`}>
-          <button
-            className="drawer-back"
-            onClick={() => setSubmenuOpen(null)}
-            type="button"
-          >
-            <i className="fas fa-chevron-left"></i> Back
-          </button>
-          <div className="drawer-sub-title">Contact</div>
-          <Link to="/contact" className="drawer-row">Contact Us</Link>
-          <Link to="/donate" className="drawer-row">Donate</Link>
-        </div>
+
       </div>
     </>
   )

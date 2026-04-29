@@ -9,7 +9,7 @@
         "urls": [
           "https://res.cloudinary.com/dqcmzcbrp/image/upload/c_limit,f_auto,q_auto,w_1200/Banner?_a=BAMAOGWQ0",
           "https://res.cloudinary.com/dqcmzcbrp/image/upload/c_limit,f_auto,q_auto,w_1200/Banner_KS_Agomoni_Flier_LS_jvkmik?_a=BAMAOGWQ0",
-          "https://res.cloudinary.com/dqcmzcbrp/image/upload/c_limit,f_auto,q_auto,w_1200/Banner_Agomoni_2026_LS_sgludp?_a=BAMAOGWQ0"
+          "https://res.cloudinary.com/dqcmzcbrp/image/upload/c_limit,f_auto,q_auto,w_1200/Banner_Agomoni_2026_V1_Website_wd8tdj?_a=BAMAOGWQ0"
         ]
       }
     },
@@ -83,10 +83,10 @@
       "description": "Your generous contributions help us continue to promote Bengali culture and organize memorable events for our community. Every donation, big or small, makes a significant impact. Thank you for your support!",
       "donation_link": [
         {
-            "button_text": "Donate Now",
-            "external_url": "https://www.zeffy.com/en-US/donation-form/dishari-donation-form",
-            "internal_url": "",
-            "embeded_form": ""
+          "button_text": "Donate Now",
+          "external_url": "https://www.zeffy.com/en-US/donation-form/dishari-donation-form",
+          "internal_url": "",
+          "embeded_form": ""
         }
       ]
     }
