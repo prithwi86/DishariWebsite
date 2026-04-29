@@ -44,7 +44,7 @@
       "id": "Agomoni2026",
       "order": 2,
       "title": "Dishari Agomoni 2026",
-      "banner": "https://res.cloudinary.com/dqcmzcbrp/image/upload/c_limit,f_auto,q_auto,w_1200/Banner_Agomoni_2026_LS_sgludp?_a=BAMAOGWQ0",
+      "banner": "https://res.cloudinary.com/dqcmzcbrp/image/upload/c_limit,f_auto,q_auto,w_1200/Banner_Agomoni_2026_V1_Website_wd8tdj?_a=BAMAOGWQ0",
       "details": {
         "description": [
           "AGOMONI – THE RISING",
@@ -107,6 +107,6 @@
     "source": "Cloudinary",
     "folder": "Dishari/Upcoming",
     "total_events": 2,
-    "generated_at": "2026-04-17T08:12:13.729Z"
+    "generated_at": "2026-04-29T02:13:19.832Z"
   }
 }
