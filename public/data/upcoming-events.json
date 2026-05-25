@@ -7,21 +7,10 @@
       "banner": "https://res.cloudinary.com/dqcmzcbrp/image/upload/c_limit,f_auto,q_auto,w_1200/Banner?_a=BAMAOGWQ0",
       "details": {
         "description": [
-          "Please come and join Dishari for a relaxed summer outing at a state park.",
-          "Bring your family and friends and your favorite games for a day of fun, laughter, and connection while enjoying the live cooking of mouthwatering Indian dishes onsite.",
-          "<h2 style=\"margin-bottom: 4px;\">Menu</h2>",
-          "<p style=\"margin-top: 0;\"><b>Breakfast (Served until 12:30 pm EST)<b></p>",
-          "Luchi (Fresh Onsite), Aloor Tarkari, Bonde (sweet), Summer Fruits Mocktail",
-          "<b>Lunch (Served until 3:00pm EST)<b>",
-          "Saada Bhaat, Daal, Jhuri aloo bhaja, Mutton Curry  (cooked Onsite), Paneer Curry (Veg only), Chutney, Papad, Mishti Doi",
-          "<b>KIDS Food – All Day<b>",
-          "Noodles, Pasta",
-          "<b>Evening Snacks (4-5PM)<b>",
-          "Tea, Jhalmuri",
-          "Please use the form below to register for the picnic.",
-          "Please note that, although no registration fee is needed for kids under 5 years, you need to include them for head count purposes (state park requirement).",
-          "Once registered, you will receive details of the venue and parking information via email.",
-          "We look forward to seeing you at the picnic."
+          "Dishari Picnic 2026 is a relaxed summer gathering where our Bengali community comes together over food, adda, and games in the Boston area 🧺🌳.",
+          "Please use this form to register your group so we can plan meals and activities thoughtfully.",
+          "By signing up, you help Dishari continue its mission of celebrating Bengali culture and creating a welcoming space for friends, families, and new community members.",
+          "We look forward to sharing the day with you."
         ],
         "date": "06/13/2026",
         "time": "",
@@ -58,7 +47,9 @@
         "time": "",
         "venue": "Littleton High School",
         "address": "56 King Street, Littleton, MA 01460",
-        "img_urls": [],
+        "img_urls": [
+          "https://res.cloudinary.com/dqcmzcbrp/image/upload/c_limit,f_auto,q_auto,w_1200/DISHARI_PRESENTS_w5l8q3?_a=BAMAOGWQ0"
+        ],
         "video_urls": [
           "https://www.facebook.com/reel/948376574310106",
           "https://www.facebook.com/reel/26013520011630186",
@@ -69,7 +60,7 @@
       "sub_events": [
         {
           "id": "DANCE_WITH_KUMAR_SHARMA",
-          "order": 1,
+          "order": 2,
           "title": "DANCE WITH KUMAR SHARMA",
           "banner": "https://res.cloudinary.com/dqcmzcbrp/image/upload/c_limit,f_auto,q_auto,w_1200/Banner_KS_Agomoni_Flier_LS_jvkmik?_a=BAMAOGWQ0",
           "details": {
@@ -81,7 +72,7 @@
               "• One exclusive in-person mentoring session",
               "• Stage performance with Kumar Sharma",
               "• Admission to Agomoni 2026",
-              "\n🎟 Early Bird Offer: $99 only till April 30th.",
+              "\n🎟 Early Bird Offer: $99 only till May 3rd.",
               "✨ Spots are limited — REGISTER NOW !!"
             ],
             "date": "",
@@ -99,6 +90,40 @@
               }
             ]
           }
+        },
+        {
+          "id": "MELODIES_RELOADED",
+          "order": 1,
+          "title": "🎶✨ DISHARI NEXT-GEN PRESENTS — MELODIES RELOADED at Agomoni - The Rising ✨🎶",
+          "banner": "https://res.cloudinary.com/dqcmzcbrp/image/upload/c_limit,f_auto,q_auto,w_1200/Banner_Melodies_Reloaded_kngf7o?_a=BAMAOGWQ0",
+          "details": {
+            "description": [
+              "Dishari proudly brings an exciting musical journey — “Melodies Reloaded” -  a vibrant kids’ music segment directed by the immensely talented Shovan Ganguly🌟.",
+              "This is a unique opportunity for kids (9-18 Years) to be mentored and perform with master artist Shovan Ganguly.🎤🎵",
+              "\nPlease register your kid(s) today to be part of something truly magical.",
+              "\n\nREGISTRATION PACKAGE Includes:",
+              "• Virtual mentoring sessions with Shovan Ganguly",
+              "• In-person mentoring session with local mentor(s)",
+              "• Stage performance with Shovan Ganguly",
+              "• Participant’s Admission to Agomoni 2026",
+              "\n🎟️ Registration Fee: $50 only",
+              "✨ Spots are limited — REGISTER NOW !!"
+            ],
+            "date": "",
+            "time": "",
+            "venue": "",
+            "address": "",
+            "img_urls": [],
+            "video_urls": [],
+            "registrations": [
+              {
+                "button_text": "MELODIES RELOADED with Shovon",
+                "external_url": "https://www.zeffy.com/en-US/ticketing/agomoni-2026-kids-musical-registration-form",
+                "internal_url": "",
+                "embeded_form": ""
+              }
+            ]
+          }
         }
       ]
     }
@@ -107,6 +132,6 @@
     "source": "Cloudinary",
     "folder": "Dishari/Upcoming",
     "total_events": 2,
-    "generated_at": "2026-04-29T02:13:19.832Z"
+    "generated_at": "2026-05-25T22:48:37.657Z"
   }
 }

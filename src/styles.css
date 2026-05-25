@@ -4851,6 +4851,10 @@ h3 {
         height: 350px;
     }
 
+    .carousel-item img {
+        object-fit: contain;
+    }
+
     .carousel-caption {
         padding: 1.5rem;
     }
