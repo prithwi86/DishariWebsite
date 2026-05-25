@@ -4847,8 +4847,17 @@ h3 {
         text-align: left;
     }
 
+    .carousel-section {
+        padding: 1.5rem 0.5rem 4rem;
+    }
+
+    .carousel-wrapper {
+        overflow: hidden;
+        margin: 0 -0.5rem;
+    }
+
     .carousel {
-        height: 350px;
+        height: 250px;
     }
 
     .carousel-item img {
