@@ -83,11 +83,32 @@
         "https://res.cloudinary.com/dqcmzcbrp/image/upload/c_limit,f_auto,q_auto,w_800/04_k4azjw?_a=BAMAOGWQ0"
       ],
       "videos": []
+    },
+    {
+      "id": "4",
+      "description": "Voluenteering for Seniors",
+      "date": "2026-05-03",
+      "summary": "Voluenteering for Seniors",
+      "header": "Collaboration with Volunteering For Seniors Inc",
+      "text": [
+        "Dishari is deeply grateful to have collaborated with Volunteering For Seniors Inc to bring a truly heartwarming Musical Bingo program to the wonderful residents of CareOne at Sharon on Saturday, May 3rd, 2026.",
+        "The talented next-gen Dishari stars—Shriya, Shaira, Aarush, Ayushman, and Shaurya performed live music during this event. The connection they created through music was simply magical. Watching the seniors sing along, smile, and joyfully shout “BINGO!” after each win was a moment we will all treasure. We would like to extend our heartfelt thanks to Pratima Penumarthy for the collaboration between Dishari and VFS and making this event a great success. We are also thankful to the amazing seniors at CareOne Sharon for their enthusiastic participation and support.",
+        "For Dishari, service is not just an act—it is a journey of connection, and gratitude. Together, we continue to build a community rooted in care, connection, and compassion. 🙏"
+      ],
+      "links": [],
+      "images": [
+        "https://res.cloudinary.com/dqcmzcbrp/image/upload/c_limit,f_auto,q_auto,w_800/1_flelc9?_a=BAMAOGWQ0",
+        "https://res.cloudinary.com/dqcmzcbrp/image/upload/c_limit,f_auto,q_auto,w_800/2_cjypb5?_a=BAMAOGWQ0",
+        "https://res.cloudinary.com/dqcmzcbrp/image/upload/c_limit,f_auto,q_auto,w_800/3_jv6jw0?_a=BAMAOGWQ0",
+        "https://res.cloudinary.com/dqcmzcbrp/image/upload/c_limit,f_auto,q_auto,w_800/4_lu5hoj?_a=BAMAOGWQ0",
+        "https://res.cloudinary.com/dqcmzcbrp/image/upload/c_limit,f_auto,q_auto,w_800/5_wktbzh?_a=BAMAOGWQ0"
+      ],
+      "videos": []
     }
   ],
   "metadata": {
     "source": "Cloudinary",
-    "total": 3,
-    "generated_at": "2026-04-29T02:13:20.795Z"
+    "total": 4,
+    "generated_at": "2026-05-25T22:48:38.748Z"
   }
 }
