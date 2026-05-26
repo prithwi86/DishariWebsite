@@ -18,6 +18,7 @@
         "address": "",
         "img_urls": [],
         "video_urls": [],
+        "donation": {},
         "registrations": [
           {
             "button_text": "Event Registration",
@@ -55,6 +56,39 @@
           "https://www.facebook.com/reel/26013520011630186",
           "https://www.facebook.com/reel/3934610190169715"
         ],
+        "donation": {
+          "button_text": "Become a Donor for Agomoni 2026",
+          "external_url": "https://www.zeffy.com/en-US/donation-form/dishari-donation-form",
+          "internal_url": "",
+          "embeded_form": "",
+          "donation_table": [
+            {
+              "order": 1,
+              "category": "Platinum",
+              "amount": "$1,000+",
+              "perks": [
+                "✓ Special mention from Event Stage",
+                "✓ Up to 6 VIP tickets & 1 group photo at Meet & Greet with Jisshu"
+              ]
+            },
+            {
+              "order": 2,
+              "category": "Gold",
+              "amount": "$500 - $999",
+              "perks": [
+                "✓ Up to 4 VIP tickets & 1 group photo at Meet & Greet with Jisshu"                
+              ]
+            },
+            {
+              "order": 3,
+              "category": "Silver",
+              "amount": "$250 - $499",
+              "perks": [
+                "✓ 2 VIP tickets & 1 group photo at Meet & Greet with Jisshu"
+              ]
+            }
+          ]
+        },
         "registrations": []
       },
       "sub_events": [
@@ -132,6 +166,6 @@
     "source": "Cloudinary",
     "folder": "Dishari/Upcoming",
     "total_events": 2,
-    "generated_at": "2026-05-25T23:11:09.501Z"
+    "generated_at": "2026-05-26T01:12:32.721Z"
   }
 }
