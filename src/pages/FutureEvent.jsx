@@ -87,6 +87,7 @@ function FutureEvent() {
   const imgUrls = details.img_urls || []
   const videoUrls = details.video_urls || []
   const registrations = details.registrations || []
+  const donation = details.donation || {}
 
   // Collect sub-event banner URLs to exclude from main gallery
   const subEventBanners = new Set(
@@ -312,6 +313,63 @@ function FutureEvent() {
           {registrations.length > 0 && (
             <div className="future-event-cta">
               {registrations.map((reg, i) => renderRegistrationButton(reg, i))}
+            </div>
+          )}
+
+          {/* Donation Section */}
+          {Object.keys(donation).length > 0 && (
+            <div className="future-event-donation">
+              <h2>Support Our Events</h2>
+              
+              {donation.button_text && (
+                <div className="future-event-donation-button-container">
+                  {donation.external_url && (
+                    <button
+                      className="btn btn-large future-event-donation-btn"
+                      onClick={() => handleExternalUrl(donation.external_url)}
+                    >
+                      <i className="fas fa-heart"></i> {donation.button_text}
+                    </button>
+                  )}
+                  {donation.internal_url && !donation.external_url && (
+                    <a
+                      href={donation.internal_url}
+                      className="btn btn-large future-event-donation-btn"
+                    >
+                      <i className="fas fa-heart"></i> {donation.button_text}
+                    </a>
+                  )}
+                </div>
+              )}
+
+              {donation.donation_table && donation.donation_table.length > 0 && (
+                <div className="future-event-donation-table-container">
+                  <table className="future-event-donation-table">
+                    <thead>
+                      <tr>
+                        <th>Tier</th>
+                        <th>Amount</th>
+                        <th>Perks</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {[...donation.donation_table]
+                        .sort((a, b) => (a.order || 0) - (b.order || 0))
+                        .map((tier, i) => (
+                          <tr key={i}>
+                            <td className="tier-category">{tier.category}</td>
+                            <td className="tier-amount">{tier.amount}</td>
+                            <td className="tier-perks">
+                              {Array.isArray(tier.perks) && tier.perks.map((perk, j) => (
+                                <div key={j} dangerouslySetInnerHTML={{ __html: perk }} />
+                              ))}
+                            </td>
+                          </tr>
+                        ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
             </div>
           )}
 

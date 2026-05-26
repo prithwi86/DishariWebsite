@@ -988,6 +988,222 @@ h3 {
     display: block;
 }
 
+/* Donation Section */
+.future-event-donation {
+    max-width: 900px;
+    margin: 2.5rem auto;
+    background: linear-gradient(135deg, rgba(212, 73, 92, 0.12), rgba(245, 166, 35, 0.08));
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 20px;
+    box-shadow:
+        0 8px 32px rgba(0, 0, 0, 0.08),
+        inset 0 1px 0 rgba(255, 255, 255, 0.6),
+        inset 0 -1px 0 rgba(255, 255, 255, 0.1);
+    padding: 2.5rem 2.5rem;
+}
+
+.future-event-donation h2 {
+    text-align: center;
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--primary);
+    margin-bottom: 2rem;
+}
+
+.future-event-donation-button-container {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.future-event-donation-btn {
+    background: linear-gradient(135deg, var(--primary-color), #c23548);
+    color: white;
+    border: none;
+    padding: 0.75rem 2rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(212, 73, 92, 0.2);
+}
+
+.future-event-donation-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(212, 73, 92, 0.3);
+}
+
+.future-event-donation-btn i {
+    margin-right: 0.5rem;
+}
+
+.future-event-donation-table-container {
+    overflow-x: auto;
+    border-radius: 12px;
+}
+
+.future-event-donation-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.future-event-donation-table thead {
+    background: linear-gradient(135deg, var(--primary-color), #c23548);
+    color: white;
+}
+
+.future-event-donation-table thead th {
+    padding: 1.2rem 1rem;
+    text-align: left;
+    font-weight: 700;
+    font-size: 1.05rem;
+}
+
+.future-event-donation-table tbody tr {
+    border-bottom: 1px solid rgba(212, 73, 92, 0.1);
+    transition: background 0.3s ease;
+}
+
+.future-event-donation-table tbody tr:last-child {
+    border-bottom: none;
+}
+
+.future-event-donation-table tbody tr:hover {
+    background: rgba(212, 73, 92, 0.05);
+}
+
+.future-event-donation-table td {
+    padding: 1.2rem 1rem;
+    color: var(--text-color);
+    font-size: 0.95rem;
+}
+
+.tier-category {
+    font-weight: 700;
+    color: var(--primary);
+    font-size: 1.1rem;
+    min-width: 120px;
+}
+
+.tier-amount {
+    font-weight: 600;
+    color: var(--secondary-color);
+    font-size: 1rem;
+    min-width: 100px;
+}
+
+.tier-perks {
+    text-align: left;
+}
+
+.tier-perks div {
+    margin-bottom: 0.4rem;
+    line-height: 1.5;
+}
+
+.tier-perks div:last-child {
+    margin-bottom: 0;
+}
+
+/* Mobile: Transposed table to card layout */
+@media (max-width: 768px) {
+    .future-event-donation-table {
+        display: block;
+        background: transparent;
+        border-radius: 0;
+    }
+
+    .future-event-donation-table thead {
+        display: none;
+    }
+
+    .future-event-donation-table tbody {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .future-event-donation-table tbody tr {
+        display: flex;
+        flex-direction: column;
+        border: none;
+        background: rgba(255, 255, 255, 0.6);
+        border-radius: 12px;
+        padding: 1.2rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        border-left: 4px solid var(--primary-color);
+    }
+
+    .future-event-donation-table tbody tr:hover {
+        background: rgba(255, 255, 255, 0.8);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .future-event-donation-table td {
+        padding: 0.6rem 0;
+        border: none;
+        display: flex;
+        flex-direction: column;
+        font-size: 0.95rem;
+    }
+
+    .future-event-donation-table td::before {
+        font-weight: 700;
+        color: var(--primary);
+        font-size: 0.85rem;
+        margin-bottom: 0.3rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .tier-category {
+        font-size: 1.3rem;
+        color: var(--primary);
+        margin-bottom: 0.8rem;
+        min-width: auto;
+    }
+
+    .tier-category::before {
+        content: "Tier";
+        display: block;
+        font-size: 0.75rem;
+        color: var(--text-muted, #666);
+        margin-bottom: 0.2rem;
+        text-transform: uppercase;
+    }
+
+    .tier-amount::before {
+        content: "Donation Amount";
+    }
+
+    .tier-amount {
+        color: var(--secondary-color);
+        font-weight: 600;
+        font-size: 1.1rem;
+        margin-bottom: 0.8rem;
+    }
+
+    .tier-perks::before {
+        content: "Benefits";
+    }
+
+    .tier-perks {
+        margin-top: 0.5rem;
+    }
+
+    .tier-perks div {
+        margin-bottom: 0.4rem;
+        padding-left: 0.5rem;
+        border-left: 2px solid rgba(212, 73, 92, 0.2);
+        padding-left: 0.8rem;
+    }
+}
+
 /* Sub Events */
 .future-event-sub-events {
     max-width: 900px;
@@ -1287,6 +1503,7 @@ h3 {
     .future-event-gallery,
     .future-event-videos,
     .future-event-cta,
+    .future-event-donation,
     .future-event-embed-collapse,
     .future-event-sub-events {
         margin-left: 1rem;
@@ -1296,6 +1513,54 @@ h3 {
 
     .future-event-sub-card {
         padding: 1.25rem;
+    }
+
+    .future-event-donation {
+        padding: 1.25rem !important;
+    }
+
+    .future-event-donation h2 {
+        font-size: 1.5rem;
+    }
+
+    .future-event-donation-table-container {
+        overflow-x: auto;
+    }
+
+    .future-event-donation-table {
+        font-size: 0.85rem;
+    }
+
+    .future-event-donation-table thead th {
+        padding: 0.8rem 0.5rem;
+    }
+
+    .future-event-donation-table td {
+        padding: 0.8rem 0.5rem;
+    }
+
+    .tier-category {
+        font-size: 0.95rem;
+    }
+
+    .tier-amount {
+        font-size: 0.9rem;
+    }
+
+    .tier-perks {
+        font-size: 0.85rem;
+    }
+
+    .tier-perks div {
+        margin-bottom: 0.3rem;
+        line-height: 1.3;
+    }
+
+    .future-event-donation-btn {
+        padding: 0.6rem 1.5rem;
+        font-size: 0.95rem;
+        width: 100%;
+        max-width: 300px;
     }
 
     .future-event-sub-images img {
@@ -4965,6 +5230,54 @@ h3 {
     .event-card h3 {
         padding-left: 1rem;
         padding-right: 1rem;
+    }
+
+    .future-event-donation {
+        padding: 1rem !important;
+        margin: 1.5rem 0;
+    }
+
+    .future-event-donation h2 {
+        font-size: 1.3rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .future-event-donation-btn {
+        padding: 0.6rem 1.2rem;
+        font-size: 0.9rem;
+        width: 100%;
+        max-width: 280px;
+    }
+
+    .future-event-donation-table {
+        font-size: 0.75rem;
+    }
+
+    .future-event-donation-table thead th {
+        padding: 0.6rem 0.4rem;
+        font-size: 0.8rem;
+    }
+
+    .future-event-donation-table td {
+        padding: 0.6rem 0.4rem;
+    }
+
+    .tier-category {
+        font-size: 0.85rem;
+        font-weight: 700;
+    }
+
+    .tier-amount {
+        font-size: 0.8rem;
+    }
+
+    .tier-perks {
+        font-size: 0.75rem;
+        line-height: 1.2;
+    }
+
+    .tier-perks div {
+        margin-bottom: 0.2rem;
     }
 
     section {
