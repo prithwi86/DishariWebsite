@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import WelcomeMessage from '../components/WelcomeMessage'
 import Carousel from '../components/Carousel'
 import UpcomingEventBanner from '../components/UpcomingEventBanner'
 import PastEvents from '../components/PastEvents'
@@ -21,6 +22,9 @@ function Home() {
           </div>
         </div>
       </section>
+
+      {/* Welcome Message */}
+      <WelcomeMessage />
 
       {/* Upcoming Event Banner */}
       <UpcomingEventBanner />

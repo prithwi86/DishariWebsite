@@ -348,6 +348,45 @@ h3 {
 }
 
 /* ===========================
+   WELCOME MESSAGE SECTION
+   =========================== */
+.welcome-message-section {
+    background: linear-gradient(135deg, rgba(245, 247, 250, 0.6) 0%, rgba(195, 207, 226, 0.6) 100%);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.45);
+    border-radius: 20px;
+    box-shadow: 0 8px 32px rgba(31, 38, 135, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.5);
+    max-width: 1300px;
+    margin: 2rem auto;
+    padding: 2rem;
+}
+
+.welcome-message {
+    text-align: center;
+}
+
+.welcome-title {
+    font-size: 2.5rem;
+    color: var(--accent-color);
+    margin-bottom: 2rem;
+    font-weight: 600;
+}
+
+.welcome-content {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.welcome-text {
+    font-size: 1.1rem;
+    line-height: 1.8;
+    color: rgba(0, 0, 0, 0.7);
+    margin: 0;
+}
+
+/* ===========================
    CAROUSEL SECTION
    =========================== */
 .carousel-section {
@@ -5110,6 +5149,20 @@ h3 {
 
     .statement-content p {
         text-align: left;
+    }
+
+    .welcome-message-section {
+        margin: 1.5rem 0;
+        padding: 1.5rem 0.5rem;
+    }
+
+    .welcome-title {
+        font-size: 2rem;
+    }
+
+    .welcome-text {
+        font-size: 1rem;
+        line-height: 1.6;
     }
 
     .carousel-section {

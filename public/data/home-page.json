@@ -1,5 +1,14 @@
 {
   "body": {
+    "welcome_message": {
+        "header_text": ["Welcome to Dishari Boston!"],
+        "body_text": [
+          "Founded on January 15th, 2025, Dishari is a dynamic nonprofit organization dedicated to preserving and promoting cultural heritage, fostering community well-being, and celebrating diversity among South Asian community in greater Boston area.",
+          "Inspired by the values of inclusion, coexistence, resilience, and creativity, Dishari serves as a vibrant hub for cultural exchange, lifelong friendship, and communal growth. At Dishari, we believe in the power of collective effort and shared dreams.",
+          "Our events are designed to inspire collaboration among individuals, organizations, and institutions who share our vision of building a more connected and compassionate world.",
+          "These events are not only social gatherings but also serve as a testament to the enduring strength of our heritage and the unity of our community."
+        ]
+    },
     "upcoming_events": {
       "header_text": "Upcoming Events",
       "img_urls": {
