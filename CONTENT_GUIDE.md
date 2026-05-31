@@ -55,6 +55,14 @@ This is the **central configuration hub** for the homepage. It defines section h
 ```json
 {
   "body": {
+    "welcome_message": {
+      "header_text": ["Welcome to Dishari Boston!"],
+      "body_text": [
+        "Paragraph 1...",
+        "Paragraph 2...",
+        "Paragraph 3..."
+      ]
+    },
     "upcoming_events": {
       "header_text": "Upcoming Events",
       "img_urls": {
@@ -101,6 +109,17 @@ This is the **central configuration hub** for the homepage. It defines section h
 ```
 
 ### Section Details
+
+#### `welcome_message`
+- **`header_text`** — Array of header text lines (typically just one entry)
+- **`body_text`** — Array of paragraph text blocks displayed below the header
+
+| Field       | Type     | Description                       |
+|-------------|----------|-----------------------------------|
+| `header_text` | string[] | Welcome section title             |
+| `body_text`   | string[] | Paragraphs displayed in sequence  |
+
+**Component**: `WelcomeMessage.jsx` — displays welcome message with glassmorphism styling above the Upcoming Events section
 
 #### `upcoming_events`
 - **`header_text`** — Heading displayed above the upcoming events carousel on the homepage
@@ -478,6 +497,7 @@ Controls which Google Workspace users have access to the Admin panel (Cloudinary
 
 | Component               | Primary JSON Source    | Fields Used                              |
 |-------------------------|-----------------------|------------------------------------------|
+| `WelcomeMessage`        | `home-page.json`      | `body.welcome_message.header_text`, `body.welcome_message.body_text` |
 | `UpcomingEventBanner`   | `home-page.json`      | `body.upcoming_events.header_text`, `body.upcoming_events.img_urls.urls` |
 | `Carousel`              | `home-page.json`      | `body.moments.header_text`, `body.moments.img_urls.urls` |
 | `Sponsors`              | `home-page.json`      | `body.sponsors.header_text`, `body.sponsors.img_urls.urls` |
@@ -501,6 +521,7 @@ Controls which Google Workspace users have access to the Admin panel (Cloudinary
 
 | I want to change...                | Edit this in Cloudinary                              |
 |------------------------------------|------------------------------------------------------|
+| Welcome message heading & content  | `home-page.json` → `body.welcome_message`             |
 | Homepage section heading           | `home-page.json` → `body.<section>.header_text`      |
 | Carousel image order               | Add `order-N` tags to images in Cloudinary            |
 | Add/remove carousel images         | Tag/untag images with `carousel` in `Dishari/Upcoming` |
