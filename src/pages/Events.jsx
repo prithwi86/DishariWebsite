@@ -93,10 +93,14 @@ function Events() {
   return (
     <>
       {/* Page Header */}
-      <section className="page-header">
-        <div className="container">
-          <h1>Our Events</h1>
-          <p>Celebrate Indian Cultural Festivals with Us</p>
+      <section className="donate-header-section">
+        <div className="donate-header">
+          <div className="container">
+            <AnimateOnScroll>
+              <h1 className="donate-title">Our Events</h1>
+              <p className="donate-description">Celebrate Indian Cultural Festivals with Us</p>
+            </AnimateOnScroll>
+          </div>
         </div>
       </section>
 

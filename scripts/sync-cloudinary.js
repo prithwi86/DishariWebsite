@@ -23,6 +23,8 @@ const aboutUsPublicId = process.env.CLOUDINARY_ABOUT_US_ID || 'about-us.json';
 const aboutUsFolder = process.env.CLOUDINARY_ABOUT_US_FOLDER || 'Dishari/About_Us';
 const homePagePublicId = process.env.CLOUDINARY_HOME_PAGE_ID || 'home-page.json';
 const webAdminPublicId = process.env.CLOUDINARY_WEB_ADMIN_ID || 'web-admin.json';
+const magazinePublicId = process.env.CLOUDINARY_MAGAZINE_ID || 'magazine.json';
+const magazineFolder = process.env.CLOUDINARY_MAGAZINE_FOLDER || 'Dishari/Magazine';
 const maxPastEvents = 3;
 const allowSelfSigned = process.env.CLOUDINARY_ALLOW_SELF_SIGNED_CERTS === 'true';
 
@@ -51,6 +53,13 @@ function toOptimizedUrl(publicId, { width = 1200 } = {}) {
   return cloudinary.url(publicId, {
     secure: true,
     transformation: [{ fetch_format: 'auto', quality: 'auto', width, crop: 'limit' }],
+  });
+}
+
+function toPdfUrl(publicId) {
+  return cloudinary.url(publicId, {
+    secure: true,
+    resource_type: 'raw',
   });
 }
 
@@ -790,6 +799,117 @@ async function syncWebAdmin() {
 }
 
 
+async function syncMagazine() {
+  const rawUrl = `https://res.cloudinary.com/${cloudName}/raw/upload/${magazinePublicId}`;
+  console.log(`\n--- Syncing magazine (${rawUrl}) ---`);
+
+  let data;
+  try {
+    const res = await fetch(rawUrl);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    data = await res.json();
+  } catch (err) {
+    console.warn(`  Could not fetch magazine.json: ${err.message}. Skipping.`);
+    return;
+  }
+
+  console.log(`  Loaded magazine.json with years:`, Object.keys(data).filter(k => k !== 'metadata'));
+
+  // Validate metadata
+  if (!data.metadata) {
+    console.warn('  No metadata found in magazine.json. Skipping URL population.');
+    const outPath = resolve(ROOT, 'public', 'data', 'magazine.json');
+    writeFileSync(outPath, `${JSON.stringify(data, null, 2)}\n`, 'utf-8');
+    console.log(`  Wrote magazine.json (no URLs populated).`);
+    return;
+  }
+
+  // List sub-folders (years) in the magazine folder
+  console.log(`  Listing year folders in: ${magazineFolder}`);
+  let yearFolders = [];
+  try {
+    const { folders } = await cloudinary.api.sub_folders(magazineFolder);
+    yearFolders = folders.map((f) => f.name);
+    console.log(`  Found ${yearFolders.length} year folder(s):`, yearFolders);
+  } catch (err) {
+    console.warn(`  Could not list year folders: ${err.message}`);
+  }
+
+  // For each year, fetch PDFs and populate URLs
+  let totalPopulated = 0;
+  for (const year of yearFolders) {
+    const yearPath = `${magazineFolder}/${year}`;
+    console.log(`  Processing year: ${year} (path: ${yearPath})`);
+
+    if (!data[year] || !Array.isArray(data[year])) {
+      console.warn(`    No magazine entries for year ${year} in JSON. Skipping.`);
+      continue;
+    }
+
+    console.log(`    Found ${data[year].length} magazine entry/entries for ${year}`);
+
+    // List all PDFs in this year's folder
+    let yearPdfs = [];
+    try {
+      const resources = await listAllInAssetFolder(yearPath);
+      console.log(`    Total resources in ${yearPath}:`, resources.length);
+      yearPdfs = resources.filter((r) => r.format === 'pdf').sort((a, b) => a.public_id.localeCompare(b.public_id));
+      console.log(`    Found ${yearPdfs.length} PDF(s) in ${year}:`, yearPdfs.map(p => ({ public_id: p.public_id, filename: p.public_id.split('/').pop() })));
+    } catch (err) {
+      console.warn(`    Could not list PDFs for ${year}: ${err.message}`);
+      continue;
+    }
+
+    // Populate URLs for each magazine in this year
+    for (const magazine of data[year]) {
+      console.log(`    Looking for filename: "${magazine.filename}"`);
+      if (!magazine.url || magazine.url === '') {
+        // Try to match by filename
+        const match = yearPdfs.find((pdf) => {
+          const pdfFilename = pdf.public_id.split('/').pop();
+          console.log(`      Comparing: "${pdfFilename}" vs "${magazine.filename}"`);
+          return pdfFilename === magazine.filename;
+        });
+        if (match) {
+          // Store raw download URL
+          magazine.url = toPdfUrl(match.public_id);
+          // Store public_id and page count for native Cloudinary page viewer
+          magazine.public_id = match.public_id;
+          try {
+            const resourceInfo = await cloudinary.api.resource(match.public_id, { resource_type: 'image', pages: true });
+            magazine.pages = resourceInfo.pages || null;
+            console.log(`    ✓ Populated URL for: ${magazine.filename} (${magazine.pages} pages)`);
+          } catch (err) {
+            // Try raw resource_type if image fails
+            try {
+              const resourceInfo = await cloudinary.api.resource(match.public_id, { resource_type: 'raw' });
+              magazine.pages = null;
+              console.log(`    ✓ Populated URL for: ${magazine.filename} (raw, page count unavailable)`);
+            } catch (err2) {
+              magazine.pages = null;
+              console.log(`    ✓ Populated URL for: ${magazine.filename} (page count unavailable)`);
+            }
+          }
+          totalPopulated++;
+        } else {
+          console.warn(`    ✗ Could not find PDF matching: ${magazine.filename}`);
+        }
+      }
+    }
+  }
+
+  // Update metadata
+  if (data.metadata) {
+    data.metadata.last_sync = new Date().toISOString();
+    data.metadata.source = 'Cloudinary';
+  }
+
+  const outPath = resolve(ROOT, 'public', 'data', 'magazine.json');
+  writeFileSync(outPath, `${JSON.stringify(data, null, 2)}\n`, 'utf-8');
+  console.log(`  Wrote magazine.json: ${totalPopulated} URL(s) populated.`);
+}
+
+
 async function syncSheets() {
   const spreadsheetId = (process.env.GOOGLE_SHEETS_ID || '').replace(/"/g, '').trim();
   const clientEmail = (process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL || '').replace(/"/g, '').trim();
@@ -878,6 +998,7 @@ async function main() {
   await syncAboutUs();
   await syncVideoUrls();
   await syncWebAdmin();
+  await syncMagazine();
   await syncSheets();
   console.log('\nAll syncs complete.');
 }

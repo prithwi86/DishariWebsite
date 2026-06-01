@@ -233,6 +233,7 @@ function FutureEvent() {
       {/* Page Header */}
       <section className="future-event-header">
         <div className="container">
+          <Link to="/upcoming-events" className="back-icon-btn" title="Back to Upcoming Events"><i className="fas fa-arrow-left"></i></Link>
           <h1>{event.title || event.id}</h1>
         </div>
       </section>

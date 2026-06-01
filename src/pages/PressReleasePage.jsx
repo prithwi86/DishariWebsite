@@ -35,7 +35,7 @@ function PressReleasePage() {
         <div className="container">
           <h1>Press Release Not Found</h1>
           <p>The press release you're looking for doesn't exist.</p>
-          <Link to="/" className="btn btn-primary">Back to Home</Link>
+          <Link to="/press-room" className="btn btn-primary">Back to Press Room</Link>
         </div>
       </section>
     )
@@ -50,7 +50,7 @@ function PressReleasePage() {
   return (
     <section className="pr-page">
       <div className="container">
-        <Link to="/#press-room" className="pr-page-back">&larr; Back to Press Room</Link>
+        <Link to="/press-room" className="back-icon-btn" title="Back to Press Room"><i className="fas fa-arrow-left"></i></Link>
 
         <header className="pr-page-header">
           <time dateTime={pr.date}>{formattedDate}</time>

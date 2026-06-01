@@ -35,6 +35,7 @@ To re-enable the field, simply remove the leading underscore.
 - [upcoming-events.json — Upcoming Events & Sub-Events](#upcoming-eventsjson)
 - [past-events.json — Past Event Galleries](#past-eventsjson)
 - [press_release.json — Press Releases](#press_releasejson)
+- [magazine.json — E-Magazine Archive](#magazinejson)
 - [contact.json — Contact Info & Social Links](#contactjson)
 - [about-us.json — Organization & Team](#about-usjson)
 - [video_urls.json — Video URL Mappings](#video_urlsjson)
@@ -391,6 +392,94 @@ For line breaks within a single paragraph, use `\n`:
 
 ---
 
+## magazine.json
+
+**Cloudinary public_id**: `magazine.json`
+**Used by**: `Magazine.jsx`, `MagazineCard.jsx`
+
+### Structure
+
+```json
+{
+  "2025": [
+    {
+      "filename": "Drishtikon.pdf",
+      "title": "Drishtikon",
+      "description": "Magazine description...",
+      "publication_date": "October 2025",
+      "url": "",
+      "credits": [
+        {
+          "role": "Magazine Committee",
+          "names": ["Name 1", "Name 2", "Name 3"]
+        },
+        {
+          "role": "Front Cover Design",
+          "names": ["Designer Name"]
+        }
+      ]
+    }
+  ],
+  "2026": [
+    {
+      "filename": "Magazine_2026_01.pdf",
+      "title": "Issue 1",
+      "description": "Description...",
+      "publication_date": "January 2026",
+      "url": "",
+      "credits": []
+    }
+  ],
+  "metadata": {
+    "cloudinary_folder": "Dishari/Magazine",
+    "sync_method": "folder",
+    "menu_tab_name": "Dishari E-Magazine",
+    "resource_type": "pdf",
+    "version": "1.0",
+    "description": "Dishari E-Magazine archive",
+    "sync_populate_fields": {
+      "last_sync": "",
+      "file_count": ""
+    }
+  }
+}
+```
+
+### How It's Synced
+
+1. Sync reads `metadata.cloudinary_folder` (e.g., `Dishari/Magazine`)
+2. Fetches all PDF files from that folder in Cloudinary
+3. Populates `sync_populate_fields.last_sync` with current timestamp
+4. Updates `sync_populate_fields.file_count` with total file count
+5. Year keys are manually managed — add new year object when adding magazines for new year
+
+### Fields
+
+| Field                 | Type     | Description                           |
+|-----------------------|----------|---------------------------------------|
+| `filename`            | string   | Original PDF filename                 |
+| `title`               | string   | Display title of magazine issue       |
+| `description`         | string   | Full description shown in card        |
+| `publication_date`    | string   | Date/month displayed (e.g., "October 2025") |
+| `url`                 | string   | *Auto-populated by sync* PDF URL      |
+| `credits`             | array    | Credits grouped by role               |
+| `credits[].role`      | string   | Role name (e.g., "Magazine Committee")|
+| `credits[].names`     | string[] | List of contributor names             |
+
+### Metadata Fields
+
+| Field                 | Type     | Description                           |
+|-----------------------|----------|---------------------------------------|
+| `cloudinary_folder`   | string   | Path in Cloudinary where PDFs stored  |
+| `sync_method`         | string   | Method: `"folder"` for all files      |
+| `menu_tab_name`       | string   | Display name in navbar                |
+| `resource_type`       | string   | Type of content: `"pdf"`              |
+| `version`             | string   | Schema version for future updates     |
+| `description`         | string   | Description shown on magazine page    |
+| `sync_populate_fields`| object   | Auto-populated by sync script         |
+
+---
+
 ## contact.json
 
 **Cloudinary public_id**: `contact.json`
@@ -505,6 +594,8 @@ Controls which Google Workspace users have access to the Admin panel (Cloudinary
 | `Testimonials`          | `home-page.json`      | `body.testimonials[]` (inline data)      |
 | `PressRelease`          | `home-page.json` → `press_release.json` | `body.press_releases.header_text` + `json_file_public_id` reference |
 | `PressReleasePage`      | `press_release.json`  | `press_releases[]` by route param `:id`  |
+| `Magazine`              | `magazine.json`       | All year objects, `metadata`             |
+| `MagazineCard`          | `magazine.json`       | Individual magazine data, credits       |
 | `FutureEvent`           | `upcoming-events.json`| `events[]` by route param `:id`, including `sub_events[]` |
 | `Navbar`                | `upcoming-events.json`| `events[].id`, `events[].title` for dropdown |
 | `Footer`                | `contact.json`        | `contact.social_media.*`                 |
@@ -530,6 +621,9 @@ Controls which Google Workspace users have access to the Admin panel (Cloudinary
 | Add a sub-event                    | `upcoming-events.json` → `events[].sub_events[]` + create sub-folder |
 | Press room heading                 | `home-page.json` → `body.press_releases.header_text`  |
 | Press release content              | `press_release.json` (public_id in home-page.json)    |
+| Magazine issues & PDFs             | `magazine.json` year objects, URLs resolved by sync   |
+| Add a magazine issue               | Upload PDF to `Dishari/Magazine/` in Cloudinary       |
+| Magazine credits                   | `magazine.json` → `<year>[].credits[]`                |
 | Past events heading                | `home-page.json` → `body.past_events.header_text`     |
 | Add a past event                   | Create folder in `Dishari/Past Events/`               |
 | Sponsor logos                      | Upload images to `Dishari/Sponsors/`                  |

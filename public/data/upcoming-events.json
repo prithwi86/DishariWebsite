@@ -65,26 +65,34 @@
             {
               "order": 1,
               "category": "Platinum",
-              "amount": "$1,000+",
+              "amount": "$1,000",
               "perks": [
                 "✓ Special mention from Event Stage",
-                "✓ Up to 6 VIP tickets & 1 group photo at Meet & Greet with Jisshu"
+                "✓ UPTO 6 RESERVED SEATS for FRIENDs & FAMILY",
+                "✓ Meet & Greet and 1 photo with Jisshu Sengupta",
+                "✓ Dinner Voucher for UPTO 6 Friends & Family",
+                "✓ Reserved Parking for 1 car"
               ]
             },
             {
               "order": 2,
               "category": "Gold",
-              "amount": "$500 - $999",
+              "amount": "$600",
               "perks": [
-                "✓ Up to 4 VIP tickets & 1 group photo at Meet & Greet with Jisshu"                
+                "✓ UPTO 4 RESERVED SEATS for FAMILY",
+                "✓ Meet & Greet and 1 photo with Jisshu Sengupta",
+                "✓ Dinner Voucher for UPTO 4 Family members",
+                "✓ Reserved Parking for 1 car"
               ]
             },
             {
               "order": 3,
               "category": "Silver",
-              "amount": "$250 - $499",
+              "amount": "$300",
               "perks": [
-                "✓ 2 VIP tickets & 1 group photo at Meet & Greet with Jisshu"
+                "✓ 2 RESERVED SEATS for FRIEND & FAMILY",
+                "✓ Meet & Greet and 1 photo with Jisshu Sengupta",
+                "✓ Dinner Voucher for 2 Family members"
               ]
             }
           ]
@@ -166,6 +174,6 @@
     "source": "Cloudinary",
     "folder": "Dishari/Upcoming",
     "total_events": 2,
-    "generated_at": "2026-05-26T01:12:32.721Z"
+    "generated_at": "2026-06-01T03:20:54.180Z"
   }
 }
