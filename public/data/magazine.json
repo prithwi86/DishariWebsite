@@ -1,0 +1,44 @@
+{
+  "2025": [
+    {
+      "filename": "Drishtikon",
+      "title": "Drishtikon",
+      "description": "Dishari's inaugural E-Magazine, Drishtikon, was launched in January 2025. This publication serves as a vibrant platform for sharing insights, stories, and perspectives that reflect the rich tapestry of our community and culture.",
+      "publication_date": "October 2025",
+      "url": "https://res.cloudinary.com/dqcmzcbrp/raw/upload/Drishtikon?_a=BAMAOGWQ0",
+      "credits": [
+        {
+          "role": "Magazine Committee",
+          "names": [
+            "Arindam Chattopadhyay",
+            "Buddha Paul",
+            "Mauparna Ghosh",
+            "Swadhina Guhathakurta"
+          ]
+        },
+        {
+          "role": "Front Cover Design",
+          "names": [
+            "Debajyoti Biswas"
+          ]
+        }
+      ],
+      "public_id": "Drishtikon",
+      "pages": 82
+    }
+  ],
+  "metadata": {
+    "cloudinary_folder": "Dishari/Magazine",
+    "sync_method": "folder",
+    "menu_tab_name": "Dishari E-Magazine",
+    "resource_type": "pdf",
+    "version": "1.0",
+    "description": "Dishari E-Magazine archive",
+    "sync_populate_fields": {
+      "last_sync": "",
+      "file_count": ""
+    },
+    "last_sync": "2026-06-01T03:20:57.020Z",
+    "source": "Cloudinary"
+  }
+}

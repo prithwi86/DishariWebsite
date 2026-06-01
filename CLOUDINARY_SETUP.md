@@ -33,6 +33,8 @@ CLOUDINARY_ABOUT_US_ID=about-us.json
 CLOUDINARY_ABOUT_US_FOLDER=Dishari/About_Us
 CLOUDINARY_HOME_PAGE_ID=home-page.json
 CLOUDINARY_WEB_ADMIN_ID=web-admin.json
+CLOUDINARY_MAGAZINE_ID=magazine.json
+CLOUDINARY_MAGAZINE_FOLDER=Dishari/Magazine
 ```
 
 Optional (for corporate networks with SSL proxy):

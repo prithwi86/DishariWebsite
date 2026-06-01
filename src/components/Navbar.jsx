@@ -9,12 +9,19 @@ function Navbar() {
   const [submenuOpen, setSubmenuOpen] = useState(null) // key of open submenu
   const [dropdownOpen, setDropdownOpen] = useState(false)
   const [pressDropdownOpen, setPressDropdownOpen] = useState(false)
+  const [magazineDropdownOpen, setMagazineDropdownOpen] = useState(false)
+  const [expandedYear, setExpandedYear] = useState(null)
   const [upcomingEvents, setUpcomingEvents] = useState([])
   const [pressReleases, setPressReleases] = useState([])
+  const [magazines, setMagazines] = useState({})
   const location = useLocation()
   const navigate = useNavigate()
   const dropdownRef = useRef(null)
   const pressDropdownRef = useRef(null)
+  const magazineDropdownRef = useRef(null)
+  const dropdownTimeoutRef = useRef(null)
+  const pressDropdownTimeoutRef = useRef(null)
+  const magazineDropdownTimeoutRef = useRef(null)
   const { user, promptSignIn, gsiReady } = useAuth()
 
   // Close everything on route change
@@ -23,7 +30,18 @@ function Navbar() {
     setSubmenuOpen(null)
     setDropdownOpen(false)
     setPressDropdownOpen(false)
+    setMagazineDropdownOpen(false)
+    setExpandedYear(null)
   }, [location])
+
+  // Cleanup timeouts on unmount
+  useEffect(() => {
+    return () => {
+      if (dropdownTimeoutRef.current) clearTimeout(dropdownTimeoutRef.current)
+      if (pressDropdownTimeoutRef.current) clearTimeout(pressDropdownTimeoutRef.current)
+      if (magazineDropdownTimeoutRef.current) clearTimeout(magazineDropdownTimeoutRef.current)
+    }
+  }, [])
 
   // Prevent page scrolling when drawer is open
   useEffect(() => {
@@ -65,6 +83,15 @@ function Navbar() {
       .catch((err) => console.error('Error loading press releases:', err))
   }, [])
 
+  // Load magazines
+  useEffect(() => {
+    fetch('/data/magazine.json', { cache: 'no-store' })
+      .then((res) => res.json())
+      .then((raw) => stripCommentedFields(raw))
+      .then((data) => setMagazines(data || {}))
+      .catch((err) => console.error('Error loading magazines:', err))
+  }, [])
+
   // Close desktop dropdown on outside click
   useEffect(() => {
     function handleClickOutside(e) {
@@ -74,6 +101,10 @@ function Navbar() {
       if (pressDropdownRef.current && !pressDropdownRef.current.contains(e.target)) {
         setPressDropdownOpen(false)
       }
+      if (magazineDropdownRef.current && !magazineDropdownRef.current.contains(e.target)) {
+        setMagazineDropdownOpen(false)
+        setExpandedYear(null)
+      }
     }
     document.addEventListener('mousedown', handleClickOutside)
     return () => document.removeEventListener('mousedown', handleClickOutside)
@@ -82,6 +113,48 @@ function Navbar() {
   const isUpcomingActive = upcomingEvents.some(
     (ev) => location.pathname === `/event/${ev.id}`
   )
+
+  const handleUpcomingEnter = () => {
+    if (dropdownTimeoutRef.current) clearTimeout(dropdownTimeoutRef.current)
+    setDropdownOpen(true)
+  }
+
+  const handleUpcomingLeave = () => {
+    dropdownTimeoutRef.current = setTimeout(() => {
+      setDropdownOpen(false)
+    }, 150)
+  }
+
+  const handlePressEnter = () => {
+    if (pressDropdownTimeoutRef.current) clearTimeout(pressDropdownTimeoutRef.current)
+    setPressDropdownOpen(true)
+  }
+
+  const handlePressLeave = () => {
+    pressDropdownTimeoutRef.current = setTimeout(() => {
+      setPressDropdownOpen(false)
+    }, 150)
+  }
+
+  const handleMagazineEnter = () => {
+    if (magazineDropdownTimeoutRef.current) clearTimeout(magazineDropdownTimeoutRef.current)
+    setMagazineDropdownOpen(true)
+  }
+
+  const handleMagazineLeave = () => {
+    magazineDropdownTimeoutRef.current = setTimeout(() => {
+      setMagazineDropdownOpen(false)
+      setExpandedYear(null)
+    }, 150)
+  }
+
+  const handleYearEnter = (year) => {
+    setExpandedYear(year)
+  }
+
+  const handleYearLeave = () => {
+    setExpandedYear(null)
+  }
 
   return (
     <>
@@ -98,36 +171,44 @@ function Navbar() {
             <Link to="/">Home</Link>
           </li>
           {upcomingEvents.length > 0 && (
-          <li className="nav-dropdown" ref={dropdownRef}>
-            <button
-              className={`nav-dropdown-toggle${isUpcomingActive ? ' active' : ''}`}
-              onClick={() => setDropdownOpen((prev) => !prev)}
-              type="button"
-            >
-              Upcoming Events <i className={`fas fa-chevron-down nav-dropdown-arrow${dropdownOpen ? ' open' : ''}`}></i>
-            </button>
-            {dropdownOpen && (
-              <ul className="nav-dropdown-menu">
-                {upcomingEvents.map((ev) => (
-                  <li key={ev.id}>
-                    <Link to={`/event/${ev.id}`} className={location.pathname === `/event/${ev.id}` ? 'active' : ''}>
-                      {ev.title || ev.id}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </li>
+            <li className="nav-dropdown" ref={dropdownRef} onMouseEnter={handleUpcomingEnter} onMouseLeave={handleUpcomingLeave}>
+              <div className="nav-dropdown-toggle-group">
+                <Link to="/upcoming-events" className={`nav-dropdown-toggle-link${location.pathname === '/upcoming-events' ? ' active' : ''}`}>
+                  Upcoming Events
+                </Link>
+                <button
+                  className="nav-dropdown-toggle-arrow"
+                  type="button"
+                >
+                  <i className={`fas fa-chevron-down nav-dropdown-arrow${dropdownOpen ? ' open' : ''}`}></i>
+                </button>
+              </div>
+              {dropdownOpen && (
+                <ul className="nav-dropdown-menu">
+                  {upcomingEvents.map((ev) => (
+                    <li key={ev.id}>
+                      <Link to={`/event/${ev.id}`} className={location.pathname === `/event/${ev.id}` ? 'active' : ''}>
+                        {ev.title || ev.id}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </li>
           )}
           {pressReleases.length > 0 && (
-            <li className="nav-dropdown" ref={pressDropdownRef}>
-              <button
-                className="nav-dropdown-toggle"
-                onClick={() => setPressDropdownOpen((prev) => !prev)}
-                type="button"
-              >
-                Press Room <i className={`fas fa-chevron-down nav-dropdown-arrow${pressDropdownOpen ? ' open' : ''}`}></i>
-              </button>
+            <li className="nav-dropdown" ref={pressDropdownRef} onMouseEnter={handlePressEnter} onMouseLeave={handlePressLeave}>
+              <div className="nav-dropdown-toggle-group">
+                <Link to="/press-room" className={`nav-dropdown-toggle-link${location.pathname === '/press-room' ? ' active' : ''}`}>
+                  Press Room
+                </Link>
+                <button
+                  className="nav-dropdown-toggle-arrow"
+                  type="button"
+                >
+                  <i className={`fas fa-chevron-down nav-dropdown-arrow${pressDropdownOpen ? ' open' : ''}`}></i>
+                </button>
+              </div>
               {pressDropdownOpen && (
                 <ul className="nav-dropdown-menu">
                   {pressReleases.map((pr) => (
@@ -140,6 +221,51 @@ function Navbar() {
             </li>
           )}
           <li><Link to="/events" className={location.pathname === '/events' ? 'active' : ''}>Past Events</Link></li>
+          {Object.keys(magazines).filter(k => k !== 'metadata').length > 0 && (
+            <li className="nav-dropdown" ref={magazineDropdownRef} onMouseEnter={handleMagazineEnter} onMouseLeave={handleMagazineLeave}>
+              <div className="nav-dropdown-toggle-group">
+                <Link to="/magazine" className={`nav-dropdown-toggle-link${location.pathname === '/magazine' ? ' active' : ''}`}>
+                  Magazine
+                </Link>
+                <button
+                  className="nav-dropdown-toggle-arrow"
+                  type="button"
+                >
+                  <i className={`fas fa-chevron-down nav-dropdown-arrow${magazineDropdownOpen ? ' open' : ''}`}></i>
+                </button>
+              </div>
+              {magazineDropdownOpen && (
+                <ul className="nav-dropdown-menu">
+                  {Object.keys(magazines)
+                    .filter(k => k !== 'metadata')
+                    .sort()
+                    .reverse()
+                    .map((year) => (
+                      <li key={year} className="nav-submenu-item" onMouseEnter={() => handleYearEnter(year)} onMouseLeave={handleYearLeave}>
+                        <button className="nav-submenu-toggle" type="button">
+                          {year} <i className="fas fa-chevron-right"></i>
+                        </button>
+                        {expandedYear === year && (
+                          <ul className="nav-sub-dropdown-menu">
+                            {magazines[year] && magazines[year].map((mag, idx) => (
+                              <li key={idx}>
+                                <button
+                                  className="mag-link"
+                                  onClick={() => navigate(`/magazine/${encodeURIComponent(mag.filename)}`)}
+                                  type="button"
+                                >
+                                  {mag.title}
+                                </button>
+                              </li>
+                            ))}
+                          </ul>
+                        )}
+                      </li>
+                    ))}
+                </ul>
+              )}
+            </li>
+          )}
           <li><Link to="/contact" className={location.pathname === '/contact' ? 'active' : ''}>Contact</Link></li>
           <li><Link to="/donate" className={location.pathname === '/donate' ? 'active' : ''}>Support Us</Link></li>
           <li><Link to="/about" className={location.pathname === '/about' ? 'active' : ''}>About Us</Link></li>
@@ -200,6 +326,16 @@ function Navbar() {
           )}
 
           <Link to="/events" className="drawer-row">Past Events</Link>
+          {Object.keys(magazines).filter(k => k !== 'metadata').length > 0 && (
+            <button
+              className="drawer-row drawer-row-sub"
+              onClick={() => setSubmenuOpen('magazine')}
+              type="button"
+            >
+              <span>Magazine</span>
+              <i className="fas fa-chevron-right"></i>
+            </button>
+          )}
           <Link to="/contact" className="drawer-row">Contact</Link>
           <Link to="/donate" className="drawer-row">Support Us</Link>
           <Link to="/about" className="drawer-row">About Us</Link>
@@ -224,7 +360,11 @@ function Navbar() {
           >
             <i className="fas fa-chevron-left"></i> Back
           </button>
-          <div className="drawer-sub-title">Upcoming Events</div>
+          <Link to="/upcoming-events" className="drawer-row drawer-magazine-parent">
+            <span>Upcoming Events</span>
+            <i className="fas fa-arrow-right"></i>
+          </Link>
+          <div className="drawer-sub-title">Select an Event</div>
           {upcomingEvents.map((ev) => (
             <Link key={ev.id} to={`/event/${ev.id}`} className="drawer-row">
               {ev.title || ev.id}
@@ -241,12 +381,48 @@ function Navbar() {
           >
             <i className="fas fa-chevron-left"></i> Back
           </button>
-          <div className="drawer-sub-title">Press Room</div>
+          <Link to="/press-room" className="drawer-row drawer-magazine-parent">
+            <span>Press Room</span>
+            <i className="fas fa-arrow-right"></i>
+          </Link>
+          <div className="drawer-sub-title">Select a Release</div>
           {pressReleases.map((pr) => (
             <Link key={pr.id} to={`/press/${pr.id}`} className="drawer-row">
               {pr.description}
             </Link>
           ))}
+        </div>
+
+        {/* Magazine submenu panel */}
+        <div className={`drawer-panel drawer-sub${submenuOpen === 'magazine' ? ' visible' : ''}`}>
+          <button
+            className="drawer-back"
+            onClick={() => setSubmenuOpen(null)}
+            type="button"
+          >
+            <i className="fas fa-chevron-left"></i> Back
+          </button>
+          <Link to="/magazine" className="drawer-row drawer-magazine-parent">
+            <span>Magazine</span>
+            <i className="fas fa-arrow-right"></i>
+          </Link>
+          <div className="drawer-sub-title">Select a Magazine</div>
+          {Object.keys(magazines)
+            .filter(k => k !== 'metadata')
+            .sort()
+            .reverse()
+            .map((year) => (
+              <div key={year}>
+                <div style={{ padding: '1rem 1.5rem', fontWeight: '600', color: 'rgba(255,255,255,0.7)', fontSize: '0.9rem' }}>
+                  {year}
+                </div>
+                {magazines[year] && magazines[year].map((mag, idx) => (
+                  <Link key={idx} to={`/magazine/${encodeURIComponent(mag.filename)}`} className="drawer-row" style={{ paddingLeft: '2.5rem' }}>
+                    {mag.title}
+                  </Link>
+                ))}
+              </div>
+            ))}
         </div>
 
 
